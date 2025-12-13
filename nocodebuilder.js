@@ -1,5 +1,4 @@
-<script>
-    const SITES_KEY="mt_sites_v1";const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
+const SITES_KEY="mt_sites_v1";const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
     let MT_SUPPRESS_CLOUD = false;
     let MT_LAST_REMOTE_UPDATED = 0;
     let MT_LOCAL_UPDATED = 0;
@@ -2484,5 +2483,3 @@ function convertGithubToRaw(url) {
     .replace("/blob/", "/");
 }
 
-
-</script>
