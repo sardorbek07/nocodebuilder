@@ -1,5 +1,81 @@
 const SITES_KEY="mt_sites_v1";const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
-    let MT_SUPPRESS_CLOUD = false;
+let MT_HISTORY = [];
+let MT_HISTORY_I = -1;
+let MT_HISTORY_LAST_SIG = "";
+let MT_HISTORY_LAST_AT = 0;
+
+function mtGetSnap(){
+  return {
+    blocks: JSON.parse(JSON.stringify(state.blocks || [])),
+    currentBlockId: state.currentBlockId,
+    counterBlock: state.counterBlock,
+    counterItem: state.counterItem,
+    previewMode: "mobile"
+  };
+}
+
+function mtSig(snap){
+  return JSON.stringify({
+    b: snap.blocks,
+    c: snap.currentBlockId,
+    cb: snap.counterBlock,
+    ci: snap.counterItem
+  });
+}
+
+function mtHistoryReset(){
+  MT_HISTORY = [];
+  MT_HISTORY_I = -1;
+  MT_HISTORY_LAST_SIG = "";
+  MT_HISTORY_LAST_AT = 0;
+  mtHistoryPush(true);
+}
+
+function mtHistoryPush(force){
+  const now = Date.now();
+  if(!force && now - MT_HISTORY_LAST_AT < 350) return;
+
+  const snap = mtGetSnap();
+  const sig = mtSig(snap);
+  if(!force && sig === MT_HISTORY_LAST_SIG) return;
+
+  if(MT_HISTORY_I < MT_HISTORY.length - 1){
+    MT_HISTORY = MT_HISTORY.slice(0, MT_HISTORY_I + 1);
+  }
+
+  MT_HISTORY.push(snap);
+  MT_HISTORY_I = MT_HISTORY.length - 1;
+  MT_HISTORY_LAST_SIG = sig;
+  MT_HISTORY_LAST_AT = now;
+
+  if(MT_HISTORY.length > 80){
+    MT_HISTORY.shift();
+    MT_HISTORY_I = MT_HISTORY.length - 1;
+  }
+}
+
+function mtUndo(){
+  if(MT_HISTORY_I <= 0) return;
+  MT_HISTORY_I -= 1;
+  const snap = MT_HISTORY[MT_HISTORY_I];
+  if(!snap) return;
+
+  state.blocks = Array.isArray(snap.blocks) ? JSON.parse(JSON.stringify(snap.blocks)) : [];
+  state.currentBlockId = snap.currentBlockId || (state.blocks[0] ? state.blocks[0].id : null);
+  state.counterBlock = snap.counterBlock || state.blocks.length;
+  state.counterItem = snap.counterItem || 0;
+  state.previewMode = "mobile";
+  state.selectedId = null;
+
+  renderBlocks();
+  renderPreview();
+  renderLayers();
+  renderSettings();
+  saveCurrentSiteState();
+}
+ 
+
+let MT_SUPPRESS_CLOUD = false;
     let MT_LAST_REMOTE_UPDATED = 0;
     let MT_LOCAL_UPDATED = 0;
 
@@ -258,6 +334,7 @@ function loadStateFrom(saved){
 }
 
 function saveCurrentSiteState(){
+mtHistoryPush(false);
   if(!currentSiteId)return;
   const site=sites.find(s=>s.id===currentSiteId);
   if(!site)return;
@@ -278,6 +355,7 @@ function openEditorForSite(id){
   currentSiteId=id;
   editorTitle.textContent=site.name||"Asosiy sahifa";
   if(site.builderState)loadStateFrom(site.builderState);else initEmptyState();
+  mtHistoryReset();
   editorOverlay.style.display="flex";
   updateDesktopVisibility();
 }
@@ -2450,6 +2528,15 @@ if(closeEditorBtn){
 
 
 window.addEventListener("keydown",function(e){
+if(editorOverlay && editorOverlay.style.display!=="none" && (e.ctrlKey || e.metaKey) && (e.key==="z" || e.key==="Z")){
+    const t=e.target;
+    if(t.tagName!=="INPUT" && t.tagName!=="TEXTAREA" && !t.isContentEditable){
+      e.preventDefault();
+      mtUndo();
+      return;
+    }
+  }
+
 if (
   editorOverlay &&
   editorOverlay.style.display !== "none" &&
