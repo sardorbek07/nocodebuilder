@@ -2499,6 +2499,11 @@ function fallbackCopyToClipboard(text){
 // === EVENTLAR ===
 if(document.getElementById("mtAddBlockBtn")){
   document.getElementById("mtAddBlockBtn").onclick=function(){
+   if (state.blocks.length >= 3) {
+      alert("Limit: 3 ta blok. Yangi blok qo‘shish uchun bittasini o‘chirib tashlang.");
+      return;
+    }
+
     createBlock();
   };
 }
