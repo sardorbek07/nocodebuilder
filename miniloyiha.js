@@ -169,14 +169,18 @@ function saveSites(){
 }
 
 
-function formatDate(ts){
-  const d=new Date(ts||Date.now());
-  return d.toLocaleDateString("uz-UZ");
-}
 function formatDateTime(ts){
-  const d=new Date(ts||Date.now());
-  return d.toLocaleDateString("uz-UZ")+" "+d.toLocaleTimeString("uz-UZ",{hour:"2-digit",minute:"2-digit"});
+  const d = new Date(ts || Date.now());
+
+  const day = String(d.getDate()).padStart(2,"0");
+  const month = String(d.getMonth()+1).padStart(2,"0");
+  const year = d.getFullYear();
+  const hour = String(d.getHours()).padStart(2,"0");
+  const minute = String(d.getMinutes()).padStart(2,"0");
+
+  return day+"-"+month+"-"+year+"; Soat: "+hour+":"+minute+" da";
 }
+
 
 
 function deleteSite(id){
