@@ -169,7 +169,15 @@ function saveSites(){
 }
 
 
-function formatDate(ts){const d=new Date(ts||Date.now());return d.toLocaleDateString("uz-UZ")}
+function formatDate(ts){
+  const d=new Date(ts||Date.now());
+  return d.toLocaleDateString("uz-UZ");
+}
+function formatDateTime(ts){
+  const d=new Date(ts||Date.now());
+  return d.toLocaleDateString("uz-UZ")+" "+d.toLocaleTimeString("uz-UZ",{hour:"2-digit",minute:"2-digit"});
+}
+
 
 function deleteSite(id){
     if (!confirm("Ishonchingiz komilmi?")) return;
@@ -212,7 +220,7 @@ function renderSites(){
   sites.forEach(site=>{
     const card=document.createElement("div");
     card.className="mt-site-card";
-
+    card.onclick=function(){openEditorForSite(site.id)};
     const top=document.createElement("div");
     top.className="mt-site-top";
 
@@ -300,7 +308,7 @@ editIcon.onclick = function(e){ e.stopPropagation(); startRename(); };
     bottom.className="mt-site-bottom";
 
     const updated=document.createElement("div");
-    updated.textContent=site.updatedAt?"Oxirgi o‘zgartirish: "+formatDate(site.updatedAt):"Yangi sayt";
+    updated.textContent=site.updatedAt?"Oxirgi o‘zgartirish: "+formatDateTime(site.updatedAt):"Yangi sayt";
 
     bottom.appendChild(updated);
 
