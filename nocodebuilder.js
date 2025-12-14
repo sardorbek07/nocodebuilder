@@ -110,7 +110,7 @@ function renderSites(){
   sitesGrid.innerHTML="";
   if(!sites.length){
     const div=document.createElement("div");
-    div.style.opacity="0.7";div.style.fontSize="13px";div.textContent="Hozircha sayt yo‘q. \"Yangi sayt yaratish\" tugmasini bosing.";
+    div.style.opacity="0.7";div.style.fontSize="13px";div.textContent="Hozircha saytlaringiz yo‘q. \"Yangi sayt yaratish\" tugmasini bosing.";
     sitesGrid.appendChild(div);return;
   }
   sites.forEach(site=>{
