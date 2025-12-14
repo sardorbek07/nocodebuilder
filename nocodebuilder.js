@@ -954,7 +954,7 @@ function renderLayers(){
     else if(item.type==="video")typeLabel="Video";
     else if(item.type==="timer")typeLabel="Taymer";
     label.textContent=typeLabel+" • "+item.id;
-    if(state.selectedId===item.id)label.style.color="#60a5fa";
+    if(state.selectedId===item.id)label.style.color="#ffe9c8";
     row.appendChild(handle);
     row.appendChild(label);
     row.addEventListener("click",function(){selectItem(item.id)});
