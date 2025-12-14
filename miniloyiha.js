@@ -136,14 +136,20 @@ function renderSites(){
     const name=document.createElement("div");
     name.className="mt-site-name";
     name.textContent=site.name||"Sayt";
+    const editIcon = document.createElement("img");
+    editIcon.src = "https://static.tildacdn.com/tild6436-3764-4662-b931-613437636530/Vector_44.svg";
+    editIcon.style.width = "14px";
+    editIcon.style.height = "14px";
+    editIcon.style.opacity = ".6";
+    editIcon.style.cursor = "pointer";
+    editIcon.style.marginLeft = "6px";
 
     name.style.cursor = "text";
-    name.ondblclick = function(e){
-    e.stopPropagation();
-    const old = site.name || "Sayt";
-    name.contentEditable = "true";
-    name.focus();
-    document.execCommand("selectAll", false, null);
+    function startRename(){
+  const old = site.name || "Sayt";
+  name.contentEditable = "true";
+  name.focus();
+  document.execCommand("selectAll", false, null);
 
   function finish(apply){
     name.contentEditable = "false";
@@ -158,23 +164,29 @@ function renderSites(){
 
   name.onblur = function(){ finish(true); };
   name.onkeydown = function(ev){
-    if(ev.key === "Enter"){
-      ev.preventDefault();
-      finish(true);
-    }
-    if(ev.key === "Escape"){
-      ev.preventDefault();
-      finish(false);
-    }
+    if(ev.key === "Enter"){ ev.preventDefault(); finish(true); }
+    if(ev.key === "Escape"){ ev.preventDefault(); finish(false); }
   };
-};
+}
+
+name.onclick = function(e){ e.stopPropagation(); startRename(); };
+editIcon.onclick = function(e){ e.stopPropagation(); startRename(); };
+
 
 
     const meta=document.createElement("div");
     meta.className="mt-site-meta";
     meta.textContent="Yaratilgan: "+formatDate(site.createdAt);
 
-    left.appendChild(name);
+    const nameWrap = document.createElement("div");
+    nameWrap.style.display = "inline-flex";
+    nameWrap.style.alignItems = "center";
+
+    nameWrap.appendChild(name);
+    nameWrap.appendChild(editIcon);
+
+    left.appendChild(nameWrap);
+
     left.appendChild(meta);
 
     const right=document.createElement("div");
