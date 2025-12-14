@@ -2014,6 +2014,8 @@ function getExportImageSrc(item){
 }
 
 function buildExportHtml() {
+  var currentSite = sites.find(s => s.id === currentSiteId);
+var pageTitle = currentSite && currentSite.name ? currentSite.name : "Sahifa";
   function escapeHtml(str) {
     if (!str) return "";
     return String(str)
@@ -2383,7 +2385,7 @@ return "";
     "<head>\n" +
     '  <meta charset="UTF-8">\n' +
     '  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-    "  <title>Sahifa</title>\n" +
+    "  <title>" + escapeHtml(pageTitle) + "</title>\n" +
     "  <style>\n" +
     "    *{box-sizing:border-box;margin:0;padding:0}\n" +
     "    body{\n" +
