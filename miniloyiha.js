@@ -2442,6 +2442,38 @@ if(closeEditorBtn){
 
 
 window.addEventListener("keydown",function(e){
+if (
+  editorOverlay &&
+  editorOverlay.style.display !== "none" &&
+  state.selectedId &&
+  ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key)
+) {
+  const t = e.target;
+  if (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable) return;
+
+  e.preventDefault();
+
+  const block = getCurrentBlock();
+  if (!block) return;
+
+  const item = block.items.find(i => i.id === state.selectedId);
+  if (!item) return;
+
+  if (e.key === "ArrowLeft")  item.left = (item.left || 0) - 1;
+  if (e.key === "ArrowRight") item.left = (item.left || 0) + 1;
+  if (e.key === "ArrowUp")    item.top  = (item.top  || 0) - 1;
+  if (e.key === "ArrowDown")  item.top  = (item.top  || 0) + 1;
+
+  if (item.left < 0) item.left = 0;
+  if (item.top < 0) item.top = 0;
+
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+  return;
+}
+
+    
   if(e.key==="Escape"&&editorOverlay&&editorOverlay.style.display!=="none"){
     editorOverlay.style.display="none";
   }
