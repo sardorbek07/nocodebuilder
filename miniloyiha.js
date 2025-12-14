@@ -270,7 +270,7 @@ editIcon.onclick = function(e){ e.stopPropagation(); startRename(); };
 
     const meta=document.createElement("div");
     meta.className="mt-site-meta";
-    meta.textContent="Yaratilgan: "+formatDate(site.createdAt);
+    meta.textContent="Yaratilgan: "+formatDateTime(site.createdAt);
 
     const nameWrap = document.createElement("div");
     nameWrap.style.display = "inline-flex";
