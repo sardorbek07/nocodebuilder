@@ -128,6 +128,24 @@ const mobileWarningEl=document.getElementById("mtMobileWarning");
 const exportBtn=document.getElementById("mtExportBtn");
 let resizeState=null;let previewTimerIntervals=[];
 
+function mtSetSaveStatus(type){
+  const el=document.getElementById("mtSaveStatus");
+  if(!el)return;
+
+  if(type==="saving"){
+    el.textContent="● Saqlanmoqda…";
+    el.classList.remove("saved");
+    el.classList.add("saving");
+  }
+
+  if(type==="saved"){
+    el.textContent="● Saqlandi";
+    el.classList.remove("saving");
+    el.classList.add("saved");
+  }
+}
+
+
 function getCanvasWidth() {
   // Avval real blok kengligini olamiz
   if (screenInner) {
@@ -166,6 +184,10 @@ function saveSites(){
   if(MT_SUPPRESS_CLOUD) return;
   MT_LOCAL_UPDATED = Date.now();
   if(window.cloudSave) window.cloudSave(sites, MT_LOCAL_UPDATED);
+
+  setTimeout(function(){
+  mtSetSaveStatus("saved");
+},300);
 }
 
 
@@ -344,7 +366,8 @@ function loadStateFrom(saved){
 }
 
 function saveCurrentSiteState(){
-mtHistoryPush(false);
+  mtSetSaveStatus("saving");
+  mtHistoryPush(false);
   if(!currentSiteId)return;
   const site=sites.find(s=>s.id===currentSiteId);
   if(!site)return;
