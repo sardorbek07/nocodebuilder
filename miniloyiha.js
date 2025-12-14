@@ -106,6 +106,18 @@ function deleteSite(id){
   saveSites();renderSites()
 }
 
+function renameSite(id, newName){
+  const site = sites.find(s => s.id === id);
+  if(!site) return;
+  const v = String(newName || "").trim();
+  if(!v) return;
+  site.name = v;
+  site.updatedAt = Date.now();
+  saveSites();
+  renderSites();
+}
+
+
 function renderSites(){
   sitesGrid.innerHTML="";
   if(!sites.length){
@@ -124,6 +136,39 @@ function renderSites(){
     const name=document.createElement("div");
     name.className="mt-site-name";
     name.textContent=site.name||"Sayt";
+
+    name.style.cursor = "text";
+    name.ondblclick = function(e){
+    e.stopPropagation();
+    const old = site.name || "Sayt";
+    name.contentEditable = "true";
+    name.focus();
+    document.execCommand("selectAll", false, null);
+
+  function finish(apply){
+    name.contentEditable = "false";
+    name.onblur = null;
+    name.onkeydown = null;
+    if(apply){
+      renameSite(site.id, name.textContent);
+    }else{
+      name.textContent = old;
+    }
+  }
+
+  name.onblur = function(){ finish(true); };
+  name.onkeydown = function(ev){
+    if(ev.key === "Enter"){
+      ev.preventDefault();
+      finish(true);
+    }
+    if(ev.key === "Escape"){
+      ev.preventDefault();
+      finish(false);
+    }
+  };
+};
+
 
     const meta=document.createElement("div");
     meta.className="mt-site-meta";
