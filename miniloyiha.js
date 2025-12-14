@@ -2097,7 +2097,7 @@ function buildExportHtml() {
               "border-radius:" + (item.radius != null ? item.radius : 0) + "px;";
 
             return (
-              '<img src="' +
+              '<img loading="lazy" decoding="async" src="' +
               escapeHtml(fileName) +
               '" style="' +
               "position:absolute;" +
