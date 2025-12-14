@@ -119,6 +119,13 @@ function renameSite(id, newName){
 
 
 function renderSites(){
+      if (createSiteBtn) {
+    const limited = sites.length >= 3;
+    createSiteBtn.disabled = limited;
+    createSiteBtn.style.opacity = limited ? "0.5" : "1";
+    createSiteBtn.style.cursor = limited ? "not-allowed" : "pointer";
+  }
+
   sitesGrid.innerHTML="";
   if(!sites.length){
     const div=document.createElement("div");
@@ -2498,6 +2505,10 @@ if(previewShell){
 
 if(createSiteBtn){
   createSiteBtn.onclick=function(){
+    if (sites.length >= 3) {
+      alert("Limitingiz yakunlandi. Yangi sayt yaratish uchun eski birorta saytni o'chiring)");
+      return;
+    }
     const id="site_"+Date.now();
     const name="Sayt "+(sites.length+1);
     const now=Date.now();
