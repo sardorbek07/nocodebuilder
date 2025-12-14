@@ -187,7 +187,7 @@ function saveSites(){
 
   setTimeout(function(){
   mtSetSaveStatus("saved");
-},300);
+},1000);
 }
 
 
