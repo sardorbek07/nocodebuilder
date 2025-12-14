@@ -96,6 +96,7 @@ function saveSites(){
 function formatDate(ts){const d=new Date(ts||Date.now());return d.toLocaleDateString("uz-UZ")}
 
 function deleteSite(id){
+    if (!confirm("Ishonchingiz komilmi?")) return;
   const idx=sites.findIndex(s=>s.id===id);
   if(idx===-1)return;
   sites.splice(idx,1);
