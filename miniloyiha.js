@@ -2640,7 +2640,7 @@ if(createSiteBtn){
     const id="site_"+Date.now();
     const name="Sayt "+(sites.length+1);
     const now=Date.now();
-    const site={id:id,name:name,createdAt:now,updatedAt:now,builderState:null};
+    const site={id:id,name:name,createdAt:now,updatedAt:now,builderState:null,mtPublish:{github:{repoFullName:"",repoId:"",branch:"main"}}};
     sites.push(site);
     saveSites();
     renderSites();
@@ -2704,8 +2704,18 @@ document.addEventListener("DOMContentLoaded", function () {
       if (window.mtGithubConnect) window.mtGithubConnect();
       return;
     }
-    alert("Kod yangilandi");
-    mtCopyBuildToClipboard();
+
+  var site = sites.find(function(s){ return s.id === currentSiteId; });
+  if(!site){ alert("Sayt topilmadi"); return; }
+  if(!site.mtPublish){ site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } }; }
+  if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
+  
+  if(!site.mtPublish.github.repoFullName){
+  alert("Yangi sayt joylanmoqda…");
+  return;
+  }
+  alert("Kod yangilandi");
+  mtCopyBuildToClipboard();
   });
 });
 
