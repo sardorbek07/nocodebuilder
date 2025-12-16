@@ -2697,23 +2697,17 @@ function fallbackCopy(text) {
 
 document.addEventListener("DOMContentLoaded", function () {
   var publishBtn = document.getElementById("mtExportBtn");
-  if (publishBtn) {
+  if (!publishBtn) return;
+
   publishBtn.addEventListener("click", function () {
-  if (window.mtHasGithub && !window.mtHasGithub()) {
-  if (window.mtGithubConnect) {
-    alert("GitHub ulanmoqda… bir marta ruxsat bering");
-    window.mtGithubConnect();
-  }
-  return;
-}
-
-alert("Kod yangilandi");
-mtCopyBuildToClipboard();
-
+    if (window.mtHasGithub && !window.mtHasGithub()) {
+      if (window.mtGithubConnect) window.mtGithubConnect();
+      return;
+    }
+    alert("Kod yangilandi");
+    mtCopyBuildToClipboard();
   });
-}
 });
-
 
 
 function convertGithubToRaw(url) {
