@@ -2718,3 +2718,16 @@ function convertGithubToRaw(url) {
     .replace("/blob/", "/");
 }
 
+window.addEventListener("message", function (e) {
+  if (!e || !e.data) return;
+
+  if (e.data.type === "mt_github_token" && e.data.token) {
+    localStorage.setItem("mt_github_token", e.data.token);
+    alert("GitHub ulandi");
+  }
+});
+
+window.mtHasGithub = function () {
+  return !!localStorage.getItem("mt_github_token");
+};
+
