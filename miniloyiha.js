@@ -2723,7 +2723,11 @@ window.addEventListener("message", function (e) {
 
   if (e.data.type === "mt_github_token" && e.data.token) {
     localStorage.setItem("mt_github_token", e.data.token);
+    if (!localStorage.getItem("mt_github_connected_once")) {
     alert("GitHub ulandi");
+    localStorage.setItem("mt_github_connected_once", "1");
+}
+
   }
 });
 
