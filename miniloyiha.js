@@ -2716,7 +2716,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var repoName = "nocode-builder-" + site.id.replace(/[^a-z0-9]/gi,"").toLowerCase();
 
-  fetch("/api/github/create-repo",{
+  fetch("https://nocodebuilder-backend12.vercel.app/api/github/create-repo", {
     method:"POST",
     headers:{
       "Content-Type":"application/json",
