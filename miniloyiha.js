@@ -2716,7 +2716,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var repoName = "nocode-builder-" + site.id.replace(/[^a-z0-9]/gi,"").toLowerCase();
 
-  fetch("/api/mt_repo_create",{
+  fetch("/api/github/create-repo",{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
