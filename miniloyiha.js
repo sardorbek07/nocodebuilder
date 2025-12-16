@@ -207,6 +207,31 @@ function deleteSite(id){
     if (!confirm("Ishonchingiz komilmi?")) return;
   const idx=sites.findIndex(s=>s.id===id);
   if(idx===-1)return;
+  const site = sites.find(s => s.id === id);
+const token = localStorage.getItem("mt_github_token");
+
+if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName && token){
+  fetch("/api/github/delete-repo.js",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + token
+    },
+    body:JSON.stringify({
+      repoFullName: site.mtPublish.github.repoFullName
+    })
+  })
+  .then(r=>r.json())
+  .then(function(d){
+    if(!(d && d.ok)){
+      alert("Repo o‘chmadi: " + (d && d.error ? d.error : "xato"));
+    }
+  })
+  .catch(function(){
+    alert("Repo o‘chirishda xato");
+  });
+}
+
   sites.splice(idx,1);
   if(currentSiteId===id){
     editorOverlay.style.display="none";
