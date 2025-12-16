@@ -2698,9 +2698,16 @@ function fallbackCopy(text) {
 document.addEventListener("DOMContentLoaded", function () {
   var publishBtn = document.getElementById("mtExportBtn");
   if (publishBtn) {
-    publishBtn.addEventListener("click", mtCopyBuildToClipboard);
+    publishBtn.addEventListener("click", function () {
+      if (window.mtHasGithub && !window.mtHasGithub()) {
+        if (window.mtGithubConnect) window.mtGithubConnect();
+        return;
+      }
+      mtCopyBuildToClipboard();
+    });
   }
 });
+
 
 
 function convertGithubToRaw(url) {
