@@ -2698,14 +2698,19 @@ function fallbackCopy(text) {
 document.addEventListener("DOMContentLoaded", function () {
   var publishBtn = document.getElementById("mtExportBtn");
   if (publishBtn) {
-    publishBtn.addEventListener("click", function () {
-      if (window.mtHasGithub && !window.mtHasGithub()) {
-        if (window.mtGithubConnect) window.mtGithubConnect();
-        return;
+  publishBtn.addEventListener("click", function () {
+
+    if (window.mtHasGithub && !window.mtHasGithub()) {
+      if (window.mtGithubConnect) {
+        alert("GitHub ulanmoqda… bir marta ruxsat bering");
+        window.mtGithubConnect();
       }
-      mtCopyBuildToClipboard();
-    });
-  }
+      return;
+    }
+
+    mtCopyBuildToClipboard();
+  });
+}
 });
 
 
