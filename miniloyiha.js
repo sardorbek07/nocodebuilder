@@ -2714,7 +2714,18 @@ document.addEventListener("DOMContentLoaded", function () {
   var token = localStorage.getItem("mt_github_token");
   if(!token){ alert("GitHub token topilmadi"); return; }
 
-  var repoName = "nocode-builder-" + site.id.replace(/[^a-z0-9]/gi,"").toLowerCase();
+ function slugifyName(name){
+  return String(name || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[_\s]+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+var slug = slugifyName(site.name);
+var repoName = slug + "-" + site.id;
 
   fetch("https://nocodebuilder-backend12.vercel.app/api/github/create-repo", {
     method:"POST",
