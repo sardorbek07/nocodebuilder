@@ -211,7 +211,7 @@ function deleteSite(id){
 const token = localStorage.getItem("mt_github_token");
 
 if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName && token){
-  fetch("/api/github/delete-repo",{
+  fetch("https://nocodebuilder-backend12.vercel.app/api/github/delete-repo",{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
