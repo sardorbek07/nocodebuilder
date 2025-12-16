@@ -2770,8 +2770,31 @@ fetch("https://api.github.com/repos/" + site.mtPublish.github.repoFullName + "/c
   return;
 }
 
-  alert("Kod yangilandi");
-  mtCopyBuildToClipboard();
+var token = localStorage.getItem("mt_github_token");
+if(!token){
+  alert("GitHub token topilmadi");
+  return;
+}
+
+var html = buildExportHtml();
+
+mtUpsertIndexHtml(
+  token,
+  site.mtPublish.github.repoFullName,
+  site.mtPublish.github.branch || "main",
+  html
+)
+.then(function(res){
+  if(res && res.commit){
+    alert("GitHub yangilandi");
+  }else{
+    alert("GitHub yangilashda xato");
+  }
+})
+.catch(function(){
+  alert("GitHub bilan bog‘lanishda xato");
+});
+
   });
 });
 
