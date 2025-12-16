@@ -2711,9 +2711,65 @@ document.addEventListener("DOMContentLoaded", function () {
   if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
   
   if(!site.mtPublish.github.repoFullName){
-  alert("Yangi sayt joylanmoqda…");
+  var token = localStorage.getItem("mt_github_token");
+  if(!token){ alert("GitHub token topilmadi"); return; }
+
+  var repoName = "nocode-builder-" + site.id.replace(/[^a-z0-9]/gi,"").toLowerCase();
+
+  fetch("/api/mt_repo_create",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + token
+    },
+    body:JSON.stringify({
+      repoName: repoName,
+      isPrivate: true
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data || !data.ok){
+      alert("Repo yaratilmadi");
+      return;
+    }
+
+    site.mtPublish.github.repoFullName = data.repo.full_name;
+    site.mtPublish.github.repoId = data.repo.id;
+    site.mtPublish.github.branch = data.repo.default_branch || "main";
+
+    saveSites();
+    var html = buildExportHtml();
+var content = btoa(unescape(encodeURIComponent(html)));
+
+fetch("https://api.github.com/repos/" + site.mtPublish.github.repoFullName + "/contents/index.html",{
+  method:"PUT",
+  headers:{
+    "Authorization":"Bearer " + token,
+    "Content-Type":"application/json"
+  },
+  body:JSON.stringify({
+    message:"Initial publish",
+    content: content,
+    branch: site.mtPublish.github.branch
+  })
+})
+.then(function(r){ return r.json(); })
+.then(function(){
+  alert("Sayt GitHub’ga joylandi");
+})
+.catch(function(){
+  alert("index.html yuklashda xato");
+});
+
+  })
+  .catch(function(){
+    alert("GitHub bilan bog‘lanishda xato");
+  });
+
   return;
-  }
+}
+
   alert("Kod yangilandi");
   mtCopyBuildToClipboard();
   });
