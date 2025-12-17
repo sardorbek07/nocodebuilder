@@ -2744,7 +2744,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   fetch("https://api.nocodestudy.uz/api/github/publish", {
     method: "POST",
-    credentials: "include",
+    credentials: "include",fif(data.needAuth){
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       repoName: repoName,
@@ -2758,10 +2758,7 @@ document.addEventListener("DOMContentLoaded", function () {
   .then(function(data){
     if(!data){ alert("Publish xato"); return; }
 
-    if(data.needAuth){
-      if(window.mtGithubConnect) window.mtGithubConnect();
-      return;
-    }
+   
 
     if(!data.ok){
       alert(data.error || "Publish xato");
