@@ -2759,7 +2759,7 @@ document.addEventListener("DOMContentLoaded", function () {
     site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
     site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
     saveSites();
-    alert(data.status === "created" ? "Repo yaratildi" : "GitHub yangilandi");
+    alert(data.status === "created" ? "Sayt GitHub’ga joylandi" : "Sayt yangilandi");
     return;
   }
   alert("Publish xato");
