@@ -2756,6 +2756,11 @@ document.addEventListener("DOMContentLoaded", function () {
   })
   .then(function(r){ return r.json(); })
   .then(function(data){
+    if(data && data.needAuth){
+    if(window.mtGithubConnect) window.mtGithubConnect();
+    return;
+    }
+
     if(!data){ alert("Publish xato"); return; }
 
    
