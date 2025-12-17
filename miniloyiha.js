@@ -2742,48 +2742,39 @@ document.addEventListener("DOMContentLoaded", function () {
   var repoName = slugifyName(site.name) + "-" + site.id;
   var html = buildExportHtml();
 
-  fetch("https://api.nocodestudy.uz/api/github/publish", {
-    method: "POST",
-    credentials: "include",fif(data.needAuth){
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      repoName: repoName,
-      repoFullName: site.mtPublish.github.repoFullName || "",
-      branch: site.mtPublish.github.branch || "main",
-      isPrivate: true,
-      html: html
-    })
+  fetch("https://api.nocodestudy.uz/api/github/publish",{
+  method:"POST",
+  credentials:"include",
+  headers:{ "Content-Type":"application/json" },
+  body:JSON.stringify({
+    siteId: site.id,
+    siteName: site.name,
+    repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
+    branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
+    html: buildExportHtml()
   })
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    if(data && data.needAuth){
+})
+.then(function(r){ return r.json(); })
+.then(function(data){
+  if(data && data.needAuth){
     if(window.mtGithubConnect) window.mtGithubConnect();
     return;
-    }
-
-    if(!data){ alert("Publish xato"); return; }
-
-   
-
-    if(!data.ok){
-      alert(data.error || "Publish xato");
-      return;
-    }
-
-    if(data.repoFullName) site.mtPublish.github.repoFullName = data.repoFullName;
-    if(data.branch) site.mtPublish.github.branch = data.branch;
-
+  }
+  if(data && data.ok){
+    if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
+    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
+    site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
+    site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
     saveSites();
+    alert(data.status === "created" ? "Repo yaratildi" : "GitHub yangilandi");
+    return;
+  }
+  alert("Publish xato");
+})
+.catch(function(){
+  alert("Publish xato");
+});
 
-    if(data.status === "created"){
-      alert("Repo yaratildi");
-    }else{
-      alert("GitHub yangilandi");
-    }
-  })
-  .catch(function(){
-    alert("Backend bilan bog‘lanishda xato");
-  });
 });
 
 });
