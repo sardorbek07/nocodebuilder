@@ -2797,18 +2797,7 @@ function convertGithubToRaw(url) {
     .replace("/blob/", "/");
 }
 
-window.addEventListener("message", function (e) {
-  if (!e || !e.data) return;
 
-  if (e.data.type === "mt_github_token" && e.data.token) {
-    localStorage.setItem("mt_github_token", e.data.token);
-    if (!localStorage.getItem("mt_github_connected_once")) {
-    alert("GitHub ulandi");
-    localStorage.setItem("mt_github_connected_once", "1");
-}
-
-  }
-});
 
 window.mtHasGithub = function () {
   return true;
