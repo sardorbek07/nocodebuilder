@@ -2894,6 +2894,7 @@ function mtUpsertIndexHtml(token, repoFullName, branch, html) {
 }
 
 window.mtHasGithub = function () {
-  return !!localStorage.getItem("mt_github_token");
+  return true;
 };
+
 
