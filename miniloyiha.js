@@ -2723,70 +2723,68 @@ document.addEventListener("DOMContentLoaded", function () {
   var publishBtn = document.getElementById("mtExportBtn");
   if (!publishBtn) return;
 
-  publishBtn.addEventListener("click", function () {
-    if (window.mtHasGithub && !window.mtHasGithub()) {
-      if (window.mtGithubConnect) window.mtGithubConnect();
-      return;
-    }
-
+ publishBtn.addEventListener("click", function () {
   var site = sites.find(function(s){ return s.id === currentSiteId; });
   if(!site){ alert("Sayt topilmadi"); return; }
+
   if(!site.mtPublish){ site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } }; }
   if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
-  
-  if(!site.mtPublish.github.repoFullName){
 
+  function slugifyName(name){
+    return String(name || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[_\s]+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
 
- function slugifyName(name){
-  return String(name || "")
-    .toLowerCase()
-    .trim()
-    .replace(/[_\s]+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+  var repoName = slugifyName(site.name) + "-" + site.id;
+  var html = buildExportHtml();
 
-var slug = slugifyName(site.name);
-var repoName = slug + "-" + site.id;
-
-  fetch("https://api.nocodestudy.uz/api/github/create-repo", {
-  method:"POST",
-  credentials:"include",
-  headers:{ "Content-Type":"application/json" },
-  body:JSON.stringify({
-    repoName: repoName,
-    isPrivate: true
+  fetch("https://api.nocodestudy.uz/api/github/publish", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      repoName: repoName,
+      repoFullName: site.mtPublish.github.repoFullName || "",
+      branch: site.mtPublish.github.branch || "main",
+      isPrivate: true,
+      html: html
+    })
   })
-})
-
   .then(function(r){ return r.json(); })
   .then(function(data){
-    if(!data || !data.ok){
-      alert("Repo yaratilmadi");
+    if(!data){ alert("Publish xato"); return; }
+
+    if(data.needAuth){
+      if(window.mtGithubConnect) window.mtGithubConnect();
       return;
     }
 
-    site.mtPublish.github.repoFullName = data.repo.full_name;
-    site.mtPublish.github.repoId = data.repo.id;
-    site.mtPublish.github.branch = data.repo.default_branch || "main";
+    if(!data.ok){
+      alert(data.error || "Publish xato");
+      return;
+    }
+
+    if(data.repoFullName) site.mtPublish.github.repoFullName = data.repoFullName;
+    if(data.branch) site.mtPublish.github.branch = data.branch;
 
     saveSites();
-    var html = buildExportHtml();
-var content = btoa(unescape(encodeURIComponent(html)));
 
-
+    if(data.status === "created"){
+      alert("Repo yaratildi");
+    }else{
+      alert("GitHub yangilandi");
+    }
   })
   .catch(function(){
-    alert("GitHub bilan bog‘lanishda xato");
+    alert("Backend bilan bog‘lanishda xato");
   });
+});
 
-  return;
-}
-
-
-
-  });
 });
 
 
