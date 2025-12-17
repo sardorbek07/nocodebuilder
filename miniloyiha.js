@@ -211,7 +211,7 @@ function deleteSite(id){
 const token = localStorage.getItem("mt_github_token");
 
 if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName && token){
-  fetch("https://nocodebuilder-backend12.vercel.app/api/github/delete-repo",{
+  fetch("https://api.nocodestudy.uz/api/github/delete-repo",{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
@@ -2752,7 +2752,7 @@ document.addEventListener("DOMContentLoaded", function () {
 var slug = slugifyName(site.name);
 var repoName = slug + "-" + site.id;
 
-  fetch("https://nocodebuilder-backend12.vercel.app/api/github/create-repo", {
+  fetch("https://api.nocodestudy.uz/api/github/create-repo", {
     method:"POST",
     headers:{
       "Content-Type":"application/json",
