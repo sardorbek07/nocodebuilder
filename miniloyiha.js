@@ -219,14 +219,7 @@ if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repo
     })
   })
   .then(r=>r.json())
-  .then(function(d){
-    if(!(d && d.ok)){
-      alert("Repo o‘chmadi: " + (d && d.error ? d.error : "xato"));
-    }
-  })
-  .catch(function(){
-    alert("Repo o‘chirishda xato");
-  });
+  
 }
 
 
