@@ -208,7 +208,6 @@ function deleteSite(id){
   const idx=sites.findIndex(s=>s.id===id);
   if(idx===-1)return;
   const site = sites.find(s => s.id === id);
-const token = localStorage.getItem("mt_github_token");
 
 if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName){
   fetch("https://api.nocodestudy.uz/api/github/delete-repo",{
