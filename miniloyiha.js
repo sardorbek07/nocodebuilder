@@ -2807,44 +2807,6 @@ window.addEventListener("message", function (e) {
 
   }
 });
-function mtUpsertIndexHtml(token, repoFullName, branch, html) {
-  var url = "https://api.github.com/repos/" + repoFullName + "/contents/index.html";
-
-  function toBase64Unicode(str) {
-    return btoa(unescape(encodeURIComponent(str)));
-  }
-
-  return fetch(url, {
-    method: "GET",
-    headers: {
-      "Authorization": "Bearer " + token,
-      "Accept": "application/vnd.github+json"
-    }
-  })
-  .then(function (r) {
-    if (r.status === 404) return null;
-    return r.json();
-  })
-  .then(function (existing) {
-    var body = {
-      message: existing && existing.sha ? "Update index.html" : "Initial publish",
-      content: toBase64Unicode(html),
-      branch: branch || "main"
-    };
-    if (existing && existing.sha) body.sha = existing.sha;
-
-    return fetch(url, {
-      method: "PUT",
-      headers: {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json",
-        "Accept": "application/vnd.github+json"
-      },
-      body: JSON.stringify(body)
-    });
-  })
-  .then(function (r) { return r.json(); });
-}
 
 window.mtHasGithub = function () {
   return true;
