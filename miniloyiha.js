@@ -210,13 +210,11 @@ function deleteSite(id){
   const site = sites.find(s => s.id === id);
 const token = localStorage.getItem("mt_github_token");
 
-if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName && token){
+if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName){
   fetch("https://api.nocodestudy.uz/api/github/delete-repo",{
     method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer " + token
-    },
+    credentials:"include",
+    headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
       repoFullName: site.mtPublish.github.repoFullName
     })
@@ -231,6 +229,7 @@ if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repo
     alert("Repo o‘chirishda xato");
   });
 }
+
 
   sites.splice(idx,1);
   if(currentSiteId===id){
