@@ -2735,8 +2735,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
   
   if(!site.mtPublish.github.repoFullName){
-  var token = localStorage.getItem("mt_github_token");
-  if(!token){ alert("GitHub token topilmadi"); return; }
+
 
  function slugifyName(name){
   return String(name || "")
@@ -2752,16 +2751,15 @@ var slug = slugifyName(site.name);
 var repoName = slug + "-" + site.id;
 
   fetch("https://api.nocodestudy.uz/api/github/create-repo", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer " + token
-    },
-    body:JSON.stringify({
-      repoName: repoName,
-      isPrivate: true
-    })
+  method:"POST",
+  credentials:"include",
+  headers:{ "Content-Type":"application/json" },
+  body:JSON.stringify({
+    repoName: repoName,
+    isPrivate: true
   })
+})
+
   .then(function(r){ return r.json(); })
   .then(function(data){
     if(!data || !data.ok){
