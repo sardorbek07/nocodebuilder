@@ -2775,25 +2775,6 @@ var repoName = slug + "-" + site.id;
     var html = buildExportHtml();
 var content = btoa(unescape(encodeURIComponent(html)));
 
-fetch("https://api.github.com/repos/" + site.mtPublish.github.repoFullName + "/contents/index.html",{
-  method:"PUT",
-  headers:{
-    "Authorization":"Bearer " + token,
-    "Content-Type":"application/json"
-  },
-  body:JSON.stringify({
-    message:"Initial publish",
-    content: content,
-    branch: site.mtPublish.github.branch
-  })
-})
-.then(function(r){ return r.json(); })
-.then(function(){
-  alert("Sayt GitHub’ga joylandi");
-})
-.catch(function(){
-  alert("index.html yuklashda xato");
-});
 
   })
   .catch(function(){
