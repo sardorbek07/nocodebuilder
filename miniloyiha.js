@@ -2782,10 +2782,8 @@ function convertGithubToRaw(url) {
 }
 
 
-
 window.mtHasGithub = function () {
   return true;
 };
-
 
 
