@@ -2787,4 +2787,21 @@ window.mtHasGithub = function () {
   return true;
 };
 
+document.addEventListener("DOMContentLoaded", function () {
+  var logoutBtn = document.getElementById("mtLogoutBtn");
+  if (!logoutBtn) return;
+
+  logoutBtn.addEventListener("click", function () {
+    if (!confirm("Chiqishni xohlaysizmi?")) return;
+
+    localStorage.removeItem("mt_github_token");
+    localStorage.removeItem("mt_github_connected_once");
+
+    localStorage.removeItem("mt_google_user");
+    localStorage.removeItem("mt_google_token");
+    localStorage.removeItem("mt_cloud_connected_once");
+
+    location.reload();
+  });
+});
 
