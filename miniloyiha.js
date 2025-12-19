@@ -153,19 +153,36 @@ let MT_SUPPRESS_CLOUD = false;
 window.MT_CURRENT_USER_EMAIL = "";
 
 window.mtBindAuthUser = function(user){
-  const uid = user && user.uid ? String(user.uid) : "";
-  const email = user && user.email ? String(user.email) : "";
-
-  window.MT_CURRENT_USER_EMAIL = email;
+  var uid = (user && user.uid) ? String(user.uid).trim() : "";
+  var email = (user && user.email) ? String(user.email).trim() : "";
 
   if(uid){
-    try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
+    if(email){
+      window.MT_CURRENT_USER_EMAIL = email;
+      try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
+    }else{
+      var cached = "";
+      try{ cached = localStorage.getItem("mt_user_email_" + uid) || ""; }catch(e){}
+      window.MT_CURRENT_USER_EMAIL = cached;
+    }
+  }else{
+    window.MT_CURRENT_USER_EMAIL = "";
   }
 
   mtApplyUser(uid);
 
+  setTimeout(function(){
+    try{
+      var el = document.getElementById("mtUserEmail");
+      if(el){
+        el.textContent = window.MT_CURRENT_USER_EMAIL || "Email topilmadi";
+      }
+    }catch(e){}
+  }, 0);
+
   if(uid && window.cloudLoad) window.cloudLoad();
 };
+
 
 
 
