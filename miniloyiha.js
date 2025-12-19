@@ -2779,24 +2779,49 @@ function mtGetCurrentEmail(){
   }
 }
 
-window.mtRefreshProfileUi = function(){
-  var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
-  if(!uid) uid = "guest";
+function mtGetCurrentEmail(uid){
+  var u = String(uid || "").trim();
+  if(!u) u = "guest";
 
-  var email = (typeof window.MT_CURRENT_USER_EMAIL === "string" ? window.MT_CURRENT_USER_EMAIL : "").trim();
+  var email = "";
 
-  if(!email && uid !== "guest"){
+  if(typeof window.MT_CURRENT_USER_EMAIL === "string" && window.MT_CURRENT_USER_EMAIL.trim()){
+    email = window.MT_CURRENT_USER_EMAIL.trim();
+  }
+
+  if(!email){
     try{
-      email = String(localStorage.getItem("mt_user_email_" + uid) || "").trim();
+      email = String(localStorage.getItem("mt_user_email_" + u) || "").trim();
     }catch(e){}
   }
 
-  var elUid = document.getElementById("mtUserUid");
-  if(elUid) elUid.textContent = "UID: " + uid;
+  if(!email){
+    try{
+      if(window.firebase && firebase.auth && firebase.auth().currentUser && firebase.auth().currentUser.email){
+        email = String(firebase.auth().currentUser.email || "").trim();
+      }
+    }catch(e){}
+  }
+
+  return email;
+}
+
+window.mtRefreshProfileUi = function(){
+  var uid = (typeof window.MT_CURRENT_USER_ID === "string"
+    ? window.MT_CURRENT_USER_ID
+    : "").trim();
+
+  if(!uid) uid = "guest";
+
+  var email = mtGetCurrentEmail(uid);
 
   var elEmail = document.getElementById("mtUserEmail");
   if(elEmail) elEmail.textContent = email || "Email topilmadi";
+
+  var elUid = document.getElementById("mtUserUid");
+  if(elUid) elUid.textContent = "UID: " + uid;
 };
+
 
 
 
