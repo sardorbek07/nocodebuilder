@@ -2778,32 +2778,24 @@ function mtGetCurrentEmail(){
   }
 }
 
-function mtRefreshProfileUi(){
-  var uid = (typeof window.MT_CURRENT_USER_ID === "string"
-    ? window.MT_CURRENT_USER_ID
-    : "").trim();
-
+window.mtRefreshProfileUi = function(){
+  var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
   if(!uid) uid = "guest";
 
-  var email =
-    (typeof window.MT_CURRENT_USER_EMAIL === "string"
-      ? window.MT_CURRENT_USER_EMAIL
-      : "").trim();
+  var email = (typeof window.MT_CURRENT_USER_EMAIL === "string" ? window.MT_CURRENT_USER_EMAIL : "").trim();
 
-  if(!email){
-    email = mtGetCurrentEmail();
+  if(!email && uid !== "guest"){
+    try{
+      email = String(localStorage.getItem("mt_user_email_" + uid) || "").trim();
+    }catch(e){}
   }
 
   var elUid = document.getElementById("mtUserUid");
-  if(elUid){
-    elUid.textContent = "UID: " + uid;
-  }
+  if(elUid) elUid.textContent = "UID: " + uid;
 
   var elEmail = document.getElementById("mtUserEmail");
-  if(elEmail){
-    elEmail.textContent = email || "Email topilmadi";
-  }
-}
+  if(elEmail) elEmail.textContent = email || "Email topilmadi";
+};
 
 
 
