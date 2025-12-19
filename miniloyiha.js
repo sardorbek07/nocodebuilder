@@ -23,6 +23,10 @@ function mtApplyUser(uid){
   loadSites();
   renderSites();
   if(editorOverlay) editorOverlay.style.display = "none";
+  setTimeout(function(){
+  if(typeof mtRefreshProfileUi === "function") mtRefreshProfileUi();
+}, 0);
+
 }
 
 // MUHIM: kichik script aynan shuni chaqiryapti
