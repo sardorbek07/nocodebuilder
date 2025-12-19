@@ -1,4 +1,5 @@
 let MT_CURRENT_USER_ID = "guest";
+window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
 let SITES_KEY = mtKeyFor("");
 
 function mtKeyFor(uid){
@@ -9,6 +10,7 @@ function mtKeyFor(uid){
 
 function mtApplyUser(uid){
   MT_CURRENT_USER_ID = uid ? String(uid).trim() : "guest";
+  
   if(!MT_CURRENT_USER_ID) MT_CURRENT_USER_ID = "guest";
 
   // MUHIM: window ga chiqaramiz
