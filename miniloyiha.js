@@ -2785,8 +2785,8 @@ document.addEventListener("DOMContentLoaded", function () {
   method:"POST",
   credentials:"include",
   headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-  uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
+body: JSON.stringify({
+  uid: (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim() || "guest",
   siteId: site.id,
   siteName: site.name,
   repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
@@ -2797,14 +2797,13 @@ body:JSON.stringify({
 .then(function(r){ return r.json(); })
 .then(function(data){
  if(data && data.needAuth){
-  try{
-    var uid3 = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
-    if(!uid3) uid3 = "guest";
-    localStorage.removeItem("gh_authed_" + uid3);
-  }catch(e){}
+  window.__mtPublishRetry = function(){
+    try{ publishBtn && publishBtn.click(); }catch(e){}
+  };
   if(window.mtGithubConnect) window.mtGithubConnect();
   return;
 }
+
 
   if(data && data.ok){
     
