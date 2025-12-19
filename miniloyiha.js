@@ -2736,6 +2736,27 @@ if(createSiteBtn){
 // INIT
 updateDesktopVisibility();
 window.addEventListener("resize", updateDesktopVisibility);
+function mtGetCurrentEmail(){
+  var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
+  if(!uid) return "";
+  try{
+    var v = localStorage.getItem("mt_user_email_" + uid) || "";
+    return String(v || "").trim();
+  }catch(e){
+    return "";
+  }
+}
+
+function mtRefreshProfileUi(){
+  var emailEl = document.getElementById("mtProfileEmail");
+  if(!emailEl) return;
+
+  var email = (typeof window.MT_CURRENT_USER_EMAIL === "string" ? window.MT_CURRENT_USER_EMAIL : "").trim();
+  if(!email) email = mtGetCurrentEmail();
+
+  emailEl.textContent = email || "Email topilmadi";
+}
+
 
 
 
