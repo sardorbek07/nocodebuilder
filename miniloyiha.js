@@ -265,10 +265,10 @@ if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repo
   credentials:"include",
   headers:{ "Content-Type":"application/json" },
   body:JSON.stringify({
-    uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim() || "guest",
-    siteId: site.id,
-    repoFullName: site.mtPublish.github.repoFullName
-  })
+  uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
+  siteId: site.id,
+  repoFullName: site.mtPublish.github.repoFullName
+})
 })
 .then(r=>r.json())
 
