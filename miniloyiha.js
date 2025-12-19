@@ -2820,9 +2820,11 @@ function convertGithubToRaw(url) {
     .replace("/blob/", "/");
 }
 
-
 window.mtHasGithub = function () {
-  return true;
+  var uid = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
+  if(!uid) uid = "guest";
+  return !!localStorage.getItem("gh_authed_" + uid);
 };
+
 
 
