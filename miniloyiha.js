@@ -2765,42 +2765,34 @@ function mtGetCurrentEmail(){
 }
 
 function mtRefreshProfileUi(){
+  function mtGetCurrentEmail(){
   var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
+  if(!uid) return "";
+  try{
+    var v = localStorage.getItem("mt_user_email_" + uid) || "";
+    return String(v || "").trim();
+  }catch(e){
+    return "";
+  }
+}
 
+function mtRefreshProfileUi(){
   var email = (typeof window.MT_CURRENT_USER_EMAIL === "string" ? window.MT_CURRENT_USER_EMAIL : "").trim();
-
-  if(!email){
-    try{
-      if(window.mtAuth && window.mtAuth.currentUser && window.mtAuth.currentUser.email){
-        email = String(window.mtAuth.currentUser.email || "").trim();
-      }
-    }catch(e){}
-  }
-
-  if(!email){
-    try{
-      if(window.firebase && firebase.auth && firebase.auth().currentUser && firebase.auth().currentUser.email){
-        email = String(firebase.auth().currentUser.email || "").trim();
-      }
-    }catch(e){}
-  }
-
-  if(!email && uid){
-    try{
-      email = String(localStorage.getItem("mt_user_email_" + uid) || "").trim();
-    }catch(e){}
-  }
-
-  var t = email || "Email topilmadi";
+  if(!email) email = mtGetCurrentEmail();
 
   var el1 = document.getElementById("mtProfileEmail");
-  if(el1) el1.textContent = t;
+  if(el1) el1.textContent = email || "Email topilmadi";
 
   var el2 = document.getElementById("mtUserEmail");
-  if(el2) el2.textContent = t;
+  if(el2) el2.textContent = email || "Email topilmadi";
 
   var el3 = document.getElementById("mtUserUid");
-  if(el3) el3.textContent = "UID: " + (uid || "");
+  if(el3){
+    var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
+    el3.textContent = "UID: " + (uid || "guest");
+  }
+}
+
 }
 
 
