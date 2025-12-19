@@ -9,7 +9,13 @@ function mtKeyFor(uid){
 
 function mtApplyUser(uid){
   MT_CURRENT_USER_ID = uid ? String(uid).trim() : "guest";
+  if(!MT_CURRENT_USER_ID) MT_CURRENT_USER_ID = "guest";
+
+  // MUHIM: window ga chiqaramiz
+  window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
+
   SITES_KEY = mtKeyFor(MT_CURRENT_USER_ID === "guest" ? "" : MT_CURRENT_USER_ID);
+
   sites = [];
   currentSiteId = null;
   loadSites();
@@ -17,14 +23,16 @@ function mtApplyUser(uid){
   if(editorOverlay) editorOverlay.style.display = "none";
 }
 
+// MUHIM: kichik script aynan shuni chaqiryapti
+window.mtApplyUser = mtApplyUser;
+
+// ixtiyoriy: eski nom ham ishlasin
 window.mtSetUser = function(uid){
   mtApplyUser(uid);
 };
 
-
-window.mtSetUser=function(uid){
-  mtApplyUser(uid);
-};
+// start holatda ham window da tursin
+window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
 
 const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
 let MT_HISTORY = [];
