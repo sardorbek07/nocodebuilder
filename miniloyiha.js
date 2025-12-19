@@ -146,25 +146,19 @@ let MT_SUPPRESS_CLOUD = false;
 //   if(uid && window.cloudLoad) window.cloudLoad();
 // };
 
+window.MT_CURRENT_USER_EMAIL = "";
+
 window.mtBindAuthUser = function(user){
-  var uid = user && user.uid ? String(user.uid).trim() : "";
-  var email = user && user.email ? String(user.email).trim() : "";
+  const uid = user && user.uid ? String(user.uid) : "";
+  const email = user && user.email ? String(user.email) : "";
+
+  window.MT_CURRENT_USER_EMAIL = email;
+
+  if(uid){
+    try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
+  }
 
   mtApplyUser(uid);
-
-  try{ window.MT_CURRENT_USER_EMAIL = email; }catch(e){}
-
-  try{
-    var wrap = document.getElementById("mtUserDropdown");
-    var emailEl = document.getElementById("mtUserEmail");
-    var uidEl = document.getElementById("mtUserUid");
-
-    if(wrap){
-      wrap.style.display = email ? "block" : "none";
-    }
-    if(emailEl) emailEl.textContent = email || "";
-    if(uidEl) uidEl.textContent = uid ? ("UID: " + uid) : "";
-  }catch(e){}
 
   if(uid && window.cloudLoad) window.cloudLoad();
 };
