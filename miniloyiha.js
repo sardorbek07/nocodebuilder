@@ -2706,7 +2706,6 @@ if(createSiteBtn){
 
 
 // INIT
-mtApplyUser("");
 updateDesktopVisibility();
 window.addEventListener("resize", updateDesktopVisibility);
 
