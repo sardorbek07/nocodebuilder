@@ -140,12 +140,34 @@ let MT_SUPPRESS_CLOUD = false;
 
   MT_SUPPRESS_CLOUD = false;
 };
+// window.mtBindAuthUser = function(user){
+//   const uid = user && user.uid ? String(user.uid) : "";
+//   mtApplyUser(uid);
+//   if(uid && window.cloudLoad) window.cloudLoad();
+// };
+
 window.mtBindAuthUser = function(user){
-  const uid = user && user.uid ? String(user.uid) : "";
+  var uid = user && user.uid ? String(user.uid).trim() : "";
+  var email = user && user.email ? String(user.email).trim() : "";
+
   mtApplyUser(uid);
+
+  try{ window.MT_CURRENT_USER_EMAIL = email; }catch(e){}
+
+  try{
+    var wrap = document.getElementById("mtUserDropdown");
+    var emailEl = document.getElementById("mtUserEmail");
+    var uidEl = document.getElementById("mtUserUid");
+
+    if(wrap){
+      wrap.style.display = email ? "block" : "none";
+    }
+    if(emailEl) emailEl.textContent = email || "";
+    if(uidEl) uidEl.textContent = uid ? ("UID: " + uid) : "";
+  }catch(e){}
+
   if(uid && window.cloudLoad) window.cloudLoad();
 };
-
 
 
 
