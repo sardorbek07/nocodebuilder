@@ -260,21 +260,19 @@ function deleteSite(id){
   const site = sites.find(s => s.id === id);
 
 if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName){
- fetch("https://api.nocodestudy.uz/api/github/delete-repo",{
-  method:"POST",
-  credentials:"include",
-  headers:{ "Content-Type":"application/json" },
-  body:JSON.stringify({
-  uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
-  siteId: site.id,
-  repoFullName: site.mtPublish.github.repoFullName
-})
-})
-.then(r=>r.json())
-
-
-  
+  fetch("https://api.nocodestudy.uz/api/github/delete-repo",{
+    method:"POST",
+    credentials:"include",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
+      siteId: site.id,
+      repoFullName: site.mtPublish.github.repoFullName
+    })
+  })
+  .then(r => r.json());
 }
+
 
 
   sites.splice(idx,1);
