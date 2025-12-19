@@ -2788,11 +2788,24 @@ body:JSON.stringify({
 })
 .then(function(r){ return r.json(); })
 .then(function(data){
-  if(data && data.needAuth){
-    if(window.mtGithubConnect) window.mtGithubConnect();
-    return;
-  }
+ if(data && data.needAuth){
+  try{
+    var uid3 = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
+    if(!uid3) uid3 = "guest";
+    localStorage.removeItem("gh_authed_" + uid3);
+  }catch(e){}
+  if(window.mtGithubConnect) window.mtGithubConnect();
+  return;
+}
+
   if(data && data.ok){
+    
+    try{
+    var uid4 = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
+    if(!uid4) uid4 = "guest";
+    localStorage.setItem("gh_authed_" + uid4, "1");
+    }catch(e){}
+
     if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
     if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
     site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
