@@ -2769,14 +2769,44 @@ function mtGetCurrentEmail(){
 }
 
 function mtRefreshProfileUi(){
-  var emailEl = document.getElementById("mtProfileEmail");
-  if(!emailEl) return;
+  var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
 
   var email = (typeof window.MT_CURRENT_USER_EMAIL === "string" ? window.MT_CURRENT_USER_EMAIL : "").trim();
-  if(!email) email = mtGetCurrentEmail();
 
-  emailEl.textContent = email || "Email topilmadi";
+  if(!email){
+    try{
+      if(window.mtAuth && window.mtAuth.currentUser && window.mtAuth.currentUser.email){
+        email = String(window.mtAuth.currentUser.email || "").trim();
+      }
+    }catch(e){}
+  }
+
+  if(!email){
+    try{
+      if(window.firebase && firebase.auth && firebase.auth().currentUser && firebase.auth().currentUser.email){
+        email = String(firebase.auth().currentUser.email || "").trim();
+      }
+    }catch(e){}
+  }
+
+  if(!email && uid){
+    try{
+      email = String(localStorage.getItem("mt_user_email_" + uid) || "").trim();
+    }catch(e){}
+  }
+
+  var t = email || "Email topilmadi";
+
+  var el1 = document.getElementById("mtProfileEmail");
+  if(el1) el1.textContent = t;
+
+  var el2 = document.getElementById("mtUserEmail");
+  if(el2) el2.textContent = t;
+
+  var el3 = document.getElementById("mtUserUid");
+  if(el3) el3.textContent = "UID: " + (uid || "");
 }
+
 
 
 
