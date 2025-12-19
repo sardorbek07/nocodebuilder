@@ -2768,65 +2768,44 @@ document.addEventListener("DOMContentLoaded", function () {
   if(!site.mtPublish){ site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } }; }
   if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
 
-  function slugifyName(name){
-    return String(name || "")
-      .toLowerCase()
-      .trim()
-      .replace(/[_\s]+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
+  function doPublish(){
+    fetch("https://api.nocodestudy.uz/api/github/publish",{
+      method:"POST",
+      credentials:"include",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
+        siteId: site.id,
+        siteName: site.name,
+        repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
+        branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
+        html: buildExportHtml()
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data && data.needAuth){
+        window.__mtPublishRetry = doPublish;
+        if(window.mtGithubConnect) window.mtGithubConnect();
+        return;
+      }
+      if(data && data.ok){
+        if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
+        if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
+        site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
+        site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
+        saveSites();
+        alert(data.status === "created" ? "Sayt GitHub’ga joylandi" : "Sayt yangilandi");
+        return;
+      }
+      alert("Publish xato");
+    })
+    .catch(function(){
+      alert("Publish xato");
+    });
   }
 
-  var repoName = slugifyName(site.name) + "-" + site.id;
-  var html = buildExportHtml();
-
-  fetch("https://api.nocodestudy.uz/api/github/publish",{
-  method:"POST",
-  credentials:"include",
-  headers:{ "Content-Type":"application/json" },
-body: JSON.stringify({
-  uid: (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim() || "guest",
-  siteId: site.id,
-  siteName: site.name,
-  repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
-  branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
-  html: buildExportHtml()
-})
-})
-.then(function(r){ return r.json(); })
-.then(function(data){
- if(data && data.needAuth){
-  window.__mtPublishRetry = function(){
-    try{ publishBtn && publishBtn.click(); }catch(e){}
-  };
-  if(window.mtGithubConnect) window.mtGithubConnect();
-  return;
-}
-
-
-  if(data && data.ok){
-    
-    try{
-    var uid4 = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
-    if(!uid4) uid4 = "guest";
-    localStorage.setItem("gh_authed_" + uid4, "1");
-    }catch(e){}
-
-    if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
-    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
-    site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
-    site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
-    saveSites();
-    alert(data.status === "created" ? "Sayt GitHub’ga joylandi" : "Sayt yangilandi");
-    return;
-  }
-  alert("Publish xato");
-})
-.catch(function(){
-  alert("Publish xato");
-});
-
+  doPublish();
 });
 
 });
