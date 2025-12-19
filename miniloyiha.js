@@ -1,4 +1,5 @@
-const SITES_KEY="mt_sites_v1";const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
+let SITES_KEY="mt_sites_guest_v1";
+const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
 let MT_HISTORY = [];
 let MT_HISTORY_I = -1;
 let MT_HISTORY_LAST_SIG = "";
@@ -171,6 +172,7 @@ function updateDesktopVisibility(){
 }
 
 function loadSites(){
+  if(!SITES_KEY || SITES_KEY.indexOf("mt_sites_")!==0) SITES_KEY="mt_sites_guest_v1";
   const raw=localStorage.getItem(SITES_KEY);
   if(!raw){sites=[];return}
   try{
@@ -180,6 +182,7 @@ function loadSites(){
 }
 
 function saveSites(){
+  if(!SITES_KEY || SITES_KEY.indexOf("mt_sites_")!==0) SITES_KEY="mt_sites_guest_v1";
   try{localStorage.setItem(SITES_KEY,JSON.stringify(sites))}catch(e){}
   if(MT_SUPPRESS_CLOUD) return;
   MT_LOCAL_UPDATED = Date.now();
