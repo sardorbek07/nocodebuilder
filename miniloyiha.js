@@ -108,6 +108,8 @@ let MT_SUPPRESS_CLOUD = false;
     let MT_LOCAL_UPDATED = 0;
 
    window.mtReceiveRemote = function (remoteSites, remoteUpdated) {
+    SITES_KEY = mtKeyFor(MT_CURRENT_USER_ID === "guest" ? "" : MT_CURRENT_USER_ID);
+
   const upd = typeof remoteUpdated === "number" ? remoteUpdated : 0;
   if (upd && MT_LOCAL_UPDATED && upd <= MT_LOCAL_UPDATED) return;
   if (upd && upd <= MT_LAST_REMOTE_UPDATED) return;
