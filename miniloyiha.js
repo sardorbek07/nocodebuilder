@@ -156,27 +156,28 @@ window.mtBindAuthUser = function(user){
   var uid = (user && user.uid) ? String(user.uid).trim() : "";
   var email = (user && user.email) ? String(user.email).trim() : "";
 
-  if(uid){
-    if(email){
-      window.MT_CURRENT_USER_EMAIL = email;
-      try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
-    }else{
-      var cached = "";
-      try{ cached = String(localStorage.getItem("mt_user_email_" + uid) || "").trim(); }catch(e){}
-      window.MT_CURRENT_USER_EMAIL = cached;
-    }
+  if(!uid) uid = "guest";
+
+  window.MT_CURRENT_USER_ID = uid;
+
+  if(email){
+    window.MT_CURRENT_USER_EMAIL = email;
+    try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
   }else{
-    window.MT_CURRENT_USER_EMAIL = "";
+    var cached = "";
+    try{ cached = String(localStorage.getItem("mt_user_email_" + uid) || "").trim(); }catch(e){}
+    window.MT_CURRENT_USER_EMAIL = cached;
   }
 
   mtApplyUser(uid);
 
   setTimeout(function(){
-    if(typeof mtRefreshProfileUi === "function") mtRefreshProfileUi();
-  }, 0);
+    if(typeof window.mtRefreshProfileUi === "function") window.mtRefreshProfileUi();
+  }, 50);
 
-  if(uid && window.cloudLoad) window.cloudLoad();
+  if(uid && uid !== "guest" && typeof window.cloudLoad === "function") window.cloudLoad();
 };
+
 
 
 
