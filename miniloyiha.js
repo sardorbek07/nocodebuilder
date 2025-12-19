@@ -162,7 +162,7 @@ window.mtBindAuthUser = function(user){
       try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
     }else{
       var cached = "";
-      try{ cached = localStorage.getItem("mt_user_email_" + uid) || ""; }catch(e){}
+      try{ cached = String(localStorage.getItem("mt_user_email_" + uid) || "").trim(); }catch(e){}
       window.MT_CURRENT_USER_EMAIL = cached;
     }
   }else{
@@ -172,16 +172,12 @@ window.mtBindAuthUser = function(user){
   mtApplyUser(uid);
 
   setTimeout(function(){
-    try{
-      var el = document.getElementById("mtUserEmail");
-      if(el){
-        el.textContent = window.MT_CURRENT_USER_EMAIL || "Email topilmadi";
-      }
-    }catch(e){}
+    if(typeof mtRefreshProfileUi === "function") mtRefreshProfileUi();
   }, 0);
 
   if(uid && window.cloudLoad) window.cloudLoad();
 };
+
 
 
 
