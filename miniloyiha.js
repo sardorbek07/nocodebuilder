@@ -264,9 +264,11 @@ if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repo
     method:"POST",
     credentials:"include",
     headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      repoFullName: site.mtPublish.github.repoFullName
-    })
+   body:JSON.stringify({
+  uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim() || "guest",
+  siteId: site.id,
+  repoFullName: site.mtPublish.github.repoFullName
+})
   })
   .then(r=>r.json())
   
@@ -2767,6 +2769,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var site = sites.find(function(s){ return s.id === currentSiteId; });
   if(!site){ alert("Sayt topilmadi"); return; }
 
+  window.__mtPublishSiteId = site.id;
+
   if(!site.mtPublish){ site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } }; }
   if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
 
@@ -2788,9 +2792,14 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(function(data){
       if(data && data.needAuth){
         window.__mtPublishRetry = doPublish;
-        if(window.mtGithubConnect) window.mtGithubConnect();
+
+        var uid = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
+        if(!uid) uid = "guest";
+
+        if(window.mtGithubConnect) window.mtGithubConnect(uid, site.id);
         return;
       }
+
       if(data && data.ok){
         if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
         if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
@@ -2800,6 +2809,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert(data.status === "created" ? "Sayt GitHub’ga joylandi" : "Sayt yangilandi");
         return;
       }
+
       alert("Publish xato");
     })
     .catch(function(){
@@ -2821,11 +2831,7 @@ function convertGithubToRaw(url) {
     .replace("/blob/", "/");
 }
 
-window.mtHasGithub = function () {
-  var uid = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
-  if(!uid) uid = "guest";
-  return !!localStorage.getItem("gh_authed_" + uid);
-};
+
 
 
 
