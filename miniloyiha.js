@@ -2777,13 +2777,14 @@ document.addEventListener("DOMContentLoaded", function () {
   method:"POST",
   credentials:"include",
   headers:{ "Content-Type":"application/json" },
-  body:JSON.stringify({
-    siteId: site.id,
-    siteName: site.name,
-    repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
-    branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
-    html: buildExportHtml()
-  })
+body:JSON.stringify({
+  uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
+  siteId: site.id,
+  siteName: site.name,
+  repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
+  branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
+  html: buildExportHtml()
+})
 })
 .then(function(r){ return r.json(); })
 .then(function(data){
