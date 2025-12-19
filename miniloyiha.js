@@ -1,22 +1,26 @@
-let SITES_KEY = "mt_sites_guest_v1";
 let MT_CURRENT_USER_ID = "guest";
+let SITES_KEY = mtKeyFor("");
 
-let MT_UID="";
 function mtKeyFor(uid){
-  const u=String(uid||"").trim();
+  const u = String(uid || "").trim();
   if(!u) return "mt_sites_guest_v1";
-  return "mt_sites_uid_"+u;
+  return "mt_sites_uid_" + u;
 }
-let MT_CURRENT_USER_ID = "guest";
+
 function mtApplyUser(uid){
-  MT_CURRENT_USER_ID = uid ? String(uid) : "guest";
-  SITES_KEY = "mt_sites_user_" + MT_CURRENT_USER_ID;
+  MT_CURRENT_USER_ID = uid ? String(uid).trim() : "guest";
+  SITES_KEY = mtKeyFor(MT_CURRENT_USER_ID === "guest" ? "" : MT_CURRENT_USER_ID);
   sites = [];
   currentSiteId = null;
   loadSites();
   renderSites();
   if(editorOverlay) editorOverlay.style.display = "none";
 }
+
+window.mtSetUser = function(uid){
+  mtApplyUser(uid);
+};
+
 
 window.mtSetUser=function(uid){
   mtApplyUser(uid);
