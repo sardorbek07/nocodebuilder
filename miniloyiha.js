@@ -2764,36 +2764,47 @@ function mtGetCurrentEmail(){
   }
 }
 
-function mtRefreshProfileUi(){
-  function mtGetCurrentEmail(){
-  var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
+function mtGetCurrentEmail(){
+  var uid = (typeof window.MT_CURRENT_USER_ID === "string"
+    ? window.MT_CURRENT_USER_ID
+    : "").trim();
+
   if(!uid) return "";
+
   try{
-    var v = localStorage.getItem("mt_user_email_" + uid) || "";
-    return String(v || "").trim();
+    return String(localStorage.getItem("mt_user_email_" + uid) || "").trim();
   }catch(e){
     return "";
   }
 }
 
 function mtRefreshProfileUi(){
-  var email = (typeof window.MT_CURRENT_USER_EMAIL === "string" ? window.MT_CURRENT_USER_EMAIL : "").trim();
-  if(!email) email = mtGetCurrentEmail();
+  var uid = (typeof window.MT_CURRENT_USER_ID === "string"
+    ? window.MT_CURRENT_USER_ID
+    : "").trim();
 
-  var el1 = document.getElementById("mtProfileEmail");
-  if(el1) el1.textContent = email || "Email topilmadi";
+  if(!uid) uid = "guest";
 
-  var el2 = document.getElementById("mtUserEmail");
-  if(el2) el2.textContent = email || "Email topilmadi";
+  var email =
+    (typeof window.MT_CURRENT_USER_EMAIL === "string"
+      ? window.MT_CURRENT_USER_EMAIL
+      : "").trim();
 
-  var el3 = document.getElementById("mtUserUid");
-  if(el3){
-    var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
-    el3.textContent = "UID: " + (uid || "guest");
+  if(!email){
+    email = mtGetCurrentEmail();
+  }
+
+  var elUid = document.getElementById("mtUserUid");
+  if(elUid){
+    elUid.textContent = "UID: " + uid;
+  }
+
+  var elEmail = document.getElementById("mtUserEmail");
+  if(elEmail){
+    elEmail.textContent = email || "Email topilmadi";
   }
 }
 
-}
 
 
 
