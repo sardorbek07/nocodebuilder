@@ -156,27 +156,45 @@ window.mtBindAuthUser = function(user){
   var uid = (user && user.uid) ? String(user.uid).trim() : "";
   var email = (user && user.email) ? String(user.email).trim() : "";
 
-  if(!uid) uid = "guest";
+  if(!email){
+    try{
+      var cu = null;
+      if(window.mtAuth && window.mtAuth.currentUser) cu = window.mtAuth.currentUser;
+      else if(window.firebase && firebase.auth) cu = firebase.auth().currentUser;
+      if(cu && cu.email) email = String(cu.email || "").trim();
+    }catch(e){}
+  }
 
-  window.MT_CURRENT_USER_ID = uid;
+  if(!email){
+    try{
+      if(user && user.providerData && user.providerData[0] && user.providerData[0].email){
+        email = String(user.providerData[0].email || "").trim();
+      }
+    }catch(e){}
+  }
 
-  if(email){
-    window.MT_CURRENT_USER_EMAIL = email;
-    try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
+  if(uid){
+    if(email){
+      window.MT_CURRENT_USER_EMAIL = email;
+      try{ localStorage.setItem("mt_user_email_" + uid, email); }catch(e){}
+    }else{
+      var cached = "";
+      try{ cached = String(localStorage.getItem("mt_user_email_" + uid) || "").trim(); }catch(e){}
+      window.MT_CURRENT_USER_EMAIL = cached;
+    }
   }else{
-    var cached = "";
-    try{ cached = String(localStorage.getItem("mt_user_email_" + uid) || "").trim(); }catch(e){}
-    window.MT_CURRENT_USER_EMAIL = cached;
+    window.MT_CURRENT_USER_EMAIL = "";
   }
 
   mtApplyUser(uid);
 
   setTimeout(function(){
     if(typeof window.mtRefreshProfileUi === "function") window.mtRefreshProfileUi();
-  }, 50);
+  }, 0);
 
-  if(uid && uid !== "guest" && typeof window.cloudLoad === "function") window.cloudLoad();
+  if(uid && window.cloudLoad) window.cloudLoad();
 };
+
 
 
 
