@@ -1,4 +1,27 @@
-let SITES_KEY="mt_sites_guest_v1";
+let SITES_KEY = "mt_sites_guest_v1";
+let MT_CURRENT_USER_ID = "guest";
+
+let MT_UID="";
+function mtKeyFor(uid){
+  const u=String(uid||"").trim();
+  if(!u) return "mt_sites_guest_v1";
+  return "mt_sites_uid_"+u;
+}
+let MT_CURRENT_USER_ID = "guest";
+function mtApplyUser(uid){
+  MT_CURRENT_USER_ID = uid ? String(uid) : "guest";
+  SITES_KEY = "mt_sites_user_" + MT_CURRENT_USER_ID;
+  sites = [];
+  currentSiteId = null;
+  loadSites();
+  renderSites();
+  if(editorOverlay) editorOverlay.style.display = "none";
+}
+
+window.mtSetUser=function(uid){
+  mtApplyUser(uid);
+};
+
 const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
 let MT_HISTORY = [];
 let MT_HISTORY_I = -1;
@@ -101,6 +124,12 @@ let MT_SUPPRESS_CLOUD = false;
 
   MT_SUPPRESS_CLOUD = false;
 };
+window.mtBindAuthUser = function(user){
+  const uid = user && user.uid ? String(user.uid) : "";
+  mtApplyUser(uid);
+  if(uid && window.cloudLoad) window.cloudLoad();
+};
+
 
 
 
@@ -192,6 +221,8 @@ function saveSites(){
   mtSetSaveStatus("saved");
 },1000);
 }
+
+
 
 
 function formatDate(ts){
@@ -2669,8 +2700,7 @@ if(createSiteBtn){
 
 
 // INIT
-loadSites();
-renderSites();
+mtApplyUser("");
 updateDesktopVisibility();
 window.addEventListener("resize", updateDesktopVisibility);
 
