@@ -40,7 +40,34 @@ window.mtSetUser = function(uid){
 // start holatda ham window da tursin
 window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
 
-const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;
+const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;window.mtCreateSiteCardOnly = function(name){
+  if(!Array.isArray(sites)) return;
+  if(sites.length >= 3){
+    alert("Limitingiz yakunlandi. Yangi sayt yaratish uchun eski birorta saytni o'chiring)");
+    return;
+  }
+
+  var id = "site_" + Date.now();
+  var now = Date.now();
+  var siteName = String(name || "").trim();
+  if(!siteName) siteName = "Sayt " + (sites.length + 1);
+
+  var site = {
+    id: id,
+    name: siteName,
+    createdAt: now,
+    updatedAt: now,
+    builderState: null,
+    mtPublish: { github: { repoFullName: "", repoId: "", branch: "main" } }
+  };
+
+  sites.push(site);
+
+  if(typeof saveSites === "function") saveSites();
+  if(typeof renderSites === "function") renderSites();
+};
+
+
 let MT_HISTORY = [];
 let MT_HISTORY_I = -1;
 let MT_HISTORY_LAST_SIG = "";
