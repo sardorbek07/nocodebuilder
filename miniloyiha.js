@@ -3019,434 +3019,136 @@ panel.innerHTML = `
 
 <div class="mtcp-saved"></div>
 `;
-
 (function () {
-  const panel = document.getElementById("mtColorPanel");
-  if (!panel) return;
+  function run() {
+    const panel = document.getElementById("mtColorPanel");
+    if (!panel) return;
 
-  const tabs = Array.from(panel.querySelectorAll(".mtcp-tab"));
-  const title = panel.querySelector(".mtcp-title");
-  const sv = panel.querySelector(".mtcp-sv");
-  const dot = panel.querySelector(".mtcp-dot");
-  const hue = panel.querySelector(".mtcp-hue");
-  const alpha = panel.querySelector(".mtcp-alpha");
-  const alphaFill = panel.querySelector(".mtcp-alphaFill");
-  const knobs = panel.querySelectorAll(".mtcp-knob");
-  const hexInput = panel.querySelector(".mtcp-input");
-  const swatch = panel.querySelector(".mtcp-swatch");
-  const saved = panel.querySelector(".mtcp-saved");
-  const closeBtn = panel.querySelector(".mtcp-close");
-
-  const hueKnob = knobs[0];
-  const alphaKnob = knobs[1];
-
-  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  function hsvToRgb(h, s, v) {
-    const c = v * s;
-    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-    const m = v - c;
-    let r = 0, g = 0, b = 0;
-    if (h < 60) { r = c; g = x; b = 0; }
-    else if (h < 120) { r = x; g = c; b = 0; }
-    else if (h < 180) { r = 0; g = c; b = x; }
-    else if (h < 240) { r = 0; g = x; b = c; }
-    else if (h < 300) { r = x; g = 0; b = c; }
-    else { r = c; g = 0; b = x; }
-    return { r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255) };
-  }
-
-  function rgbToHsv(r, g, b) {
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    const d = max - min;
-    let h = 0;
-    if (d === 0) h = 0;
-    else if (max === r) h = 60 * (((g - b) / d) % 6);
-    else if (max === g) h = 60 * (((b - r) / d) + 2);
-    else h = 60 * (((r - g) / d) + 4);
-    if (h < 0) h += 360;
-    const s = max === 0 ? 0 : d / max;
-    return { h, s, v: max };
-  }
-
-  function rgbToHex(r, g, b) {
-    const to = (n) => n.toString(16).padStart(2, "0");
-    return ("#" + to(r) + to(g) + to(b)).toUpperCase();
-  }
-
-  function hexToRgb(hex) {
-    let h = String(hex || "").trim();
-    if (!h) return null;
-    if (h[0] !== "#") h = "#" + h;
-    if (h.length === 4) h = "#" + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
-    if (h.length !== 7) return null;
-    const n = parseInt(h.slice(1), 16);
-    if (Number.isNaN(n)) return null;
-    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-  }
-
-  function rgbaLerp(a, b, t) {
-    return {
-      r: Math.round(lerp(a.r, b.r, t)),
-      g: Math.round(lerp(a.g, b.g, t)),
-      b: Math.round(lerp(a.b, b.b, t)),
-      a: lerp(a.a, b.a, t)
-    };
-  }
-
-  function uid() { return "s" + Math.random().toString(16).slice(2) + Date.now().toString(16); }
-
-  const st = window.__mtcpState2 || (window.__mtcpState2 = {
-    mode: "solid",
-    solid: { h: 210, s: 0.25, v: 0.85, a: 1 },
-    linear: {
-      angle: 90,
-      stops: [
-        { id: "s0", pos: 0, h: 210, s: 0.25, v: 0.85, a: 1 },
-        { id: "s1", pos: 1, h: 40, s: 0.9, v: 0.95, a: 1 }
-      ],
-      activeId: "s0"
-    }
-  });
-
-  function sortStops(arr) {
-    arr.sort((a, b) => a.pos - b.pos);
-    if (arr.length) {
-      arr[0].pos = 0;
-      arr[arr.length - 1].pos = 1;
-    }
-  }
-
-  function ensureBar() {
-    let wrap = panel.querySelector(".mtcp-gwrap");
-    if (wrap) return wrap;
-
-    wrap = document.createElement("div");
-    wrap.className = "mtcp-gwrap";
-    wrap.style.marginTop = "10px";
-
-    const bar = document.createElement("div");
-    bar.className = "mtcp-gbar";
-    bar.style.width = "100%";
-    bar.style.height = "18px";
-    bar.style.borderRadius = "999px";
-    bar.style.border = "1px solid rgba(255,255,255,.12)";
-    bar.style.position = "relative";
-    bar.style.cursor = "pointer";
-    bar.style.overflow = "hidden";
-
-    const track = document.createElement("div");
-    track.className = "mtcp-gtrack";
-    track.style.position = "absolute";
-    track.style.inset = "0";
-    bar.appendChild(track);
-
-    const handles = document.createElement("div");
-    handles.className = "mtcp-ghandles";
-    handles.style.position = "absolute";
-    handles.style.inset = "0";
-    bar.appendChild(handles);
-
-    wrap.appendChild(bar);
-    panel.insertBefore(wrap, saved);
-
-    return wrap;
-  }
-
-  function hsvaToRgba(hsva) {
-    const c = hsvToRgb(hsva.h, hsva.s, hsva.v);
-    return { r: c.r, g: c.g, b: c.b, a: hsva.a };
-  }
-
-  function rgbaToHsva(rgba) {
-    const hsv = rgbToHsv(rgba.r, rgba.g, rgba.b);
-    return { h: hsv.h, s: hsv.s, v: hsv.v, a: rgba.a };
-  }
-
-  function sampleAt(pos, stops) {
-    sortStops(stops);
-    pos = clamp(pos, 0, 1);
-    let left = stops[0];
-    let right = stops[stops.length - 1];
-    for (let i = 0; i < stops.length; i++) {
-      if (stops[i].pos <= pos) left = stops[i];
-      if (stops[i].pos >= pos) { right = stops[i]; break; }
-    }
-    if (left === right) return hsvaToRgba(left);
-    const t = (pos - left.pos) / (right.pos - left.pos || 1);
-    return rgbaLerp(hsvaToRgba(left), hsvaToRgba(right), t);
-  }
-
-  function getActiveObj() {
-    if (st.mode === "solid") return st.solid;
-    const s = st.linear.stops.find(x => x.id === st.linear.activeId);
-    return s || st.linear.stops[0];
-  }
-
-  function updateSvBg(h) {
-    const c = hsvToRgb(h, 1, 1);
-    sv.style.background = "rgb(" + c.r + "," + c.g + "," + c.b + ")";
-  }
-
-  function buildLinearCss() {
-    const stops = st.linear.stops.slice();
-    sortStops(stops);
-    const parts = stops.map((s) => {
-      const c = hsvaToRgba(s);
-      const p = Math.round(s.pos * 100);
-      const hx = rgbToHex(c.r, c.g, c.b);
-      return "rgba(" + c.r + "," + c.g + "," + c.b + "," + (Math.round(c.a * 1000) / 1000) + ") " + p + "%";
-    });
-    return "linear-gradient(" + st.linear.angle + "deg, " + parts.join(", ") + ")";
-  }
-
-  function renderStopsUi() {
-    const wrap = ensureBar();
-    const track = wrap.querySelector(".mtcp-gtrack");
-    const handles = wrap.querySelector(".mtcp-ghandles");
-
-    if (st.mode !== "linear") {
-      wrap.style.display = "none";
-      return;
+    if (!document.getElementById("mtcpStyle")) {
+      const st = document.createElement("style");
+      st.id = "mtcpStyle";
+      st.textContent =
+        "#mtColorPanel{position:fixed;z-index:99999;left:20px;top:80px;display:block;width:320px;padding:12px;border-radius:16px;background:#0C1014;border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.55);color:#fff;font-family:Arial,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
+        "#mtColorPanel .mtcp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}" +
+        "#mtColorPanel .mtcp-title{font-size:13px;opacity:.9}" +
+        "#mtColorPanel .mtcp-close{width:30px;height:30px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#fff;cursor:pointer}" +
+        "#mtColorPanel .mtcp-tabs{display:flex;gap:6px;margin-bottom:10px}" +
+        "#mtColorPanel .mtcp-tab{flex:1;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;font-size:13px}" +
+        "#mtColorPanel .mtcp-tab.active{background:rgba(255,255,255,.12)}" +
+        "#mtColorPanel .mtcp-sv{position:relative;width:100%;height:140px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}" +
+        "#mtColorPanel .mtcp-sv:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}" +
+        "#mtColorPanel .mtcp-sv:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#000,rgba(0,0,0,0))}" +
+        "#mtColorPanel .mtcp-dot{position:absolute;width:14px;height:14px;border-radius:50%;transform:translate(-7px,-7px);border:2px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.6);pointer-events:none}" +
+        "#mtColorPanel .mtcp-row{margin-top:10px}" +
+        "#mtColorPanel .mtcp-hue,#mtColorPanel .mtcp-alpha{position:relative;height:14px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}" +
+        "#mtColorPanel .mtcp-hue{background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000)}" +
+        "#mtColorPanel .mtcp-alpha{background:linear-gradient(45deg,rgba(255,255,255,.12) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.12) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,.12) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,.12) 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0}" +
+        "#mtColorPanel .mtcp-alphaFill{position:absolute;inset:0}" +
+        "#mtColorPanel .mtcp-knob{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;transform:translate(-7px,-50%);border:2px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.6);pointer-events:none}" +
+        "#mtColorPanel .mtcp-bottom{display:flex;gap:10px;align-items:center;margin-top:10px}" +
+        "#mtColorPanel .mtcp-swatch{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12)}" +
+        "#mtColorPanel .mtcp-input{flex:1;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;padding:0 10px;outline:none}" +
+        "#mtColorPanel .mtcp-saved{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;min-height:22px}";
+      document.head.appendChild(st);
     }
 
-    wrap.style.display = "block";
-    const stops = st.linear.stops;
-    sortStops(stops);
+    panel.innerHTML =
+      '<div class="mtcp-head"><div class="mtcp-title">Solid color</div><button class="mtcp-close" type="button">×</button></div>' +
+      '<div class="mtcp-tabs"><button class="mtcp-tab active" data-type="solid" type="button">Solid</button><button class="mtcp-tab" data-type="linear" type="button">Linear</button></div>' +
+      '<div class="mtcp-sv"><div class="mtcp-dot"></div></div>' +
+      '<div class="mtcp-row"><div class="mtcp-hue"><div class="mtcp-knob"></div></div></div>' +
+      '<div class="mtcp-row"><div class="mtcp-alpha"><div class="mtcp-alphaFill"></div><div class="mtcp-knob"></div></div></div>' +
+      '<div class="mtcp-row mtcp-bottom"><div class="mtcp-swatch"></div><input class="mtcp-input" type="text" value="#000000" spellcheck="false"></div>' +
+      '<div class="mtcp-saved"></div>';
 
-    track.style.background = buildLinearCss();
-    handles.innerHTML = "";
+    panel.style.display = "block";
 
-    stops.forEach((s) => {
-      const h = document.createElement("div");
-      h.className = "mtcp-stop";
-      h.dataset.id = s.id;
-      h.style.position = "absolute";
-      h.style.top = "50%";
-      h.style.left = (s.pos * 100) + "%";
-      h.style.width = "14px";
-      h.style.height = "14px";
-      h.style.borderRadius = "50%";
-      h.style.transform = "translate(-7px,-50%)";
-      h.style.boxShadow = "0 2px 10px rgba(0,0,0,.6)";
-      h.style.border = (s.id === st.linear.activeId) ? "2px solid #fff" : "2px solid rgba(255,255,255,.55)";
-      const c = hsvaToRgba(s);
-      h.style.background = "rgba(" + c.r + "," + c.g + "," + c.b + "," + c.a + ")";
-      handles.appendChild(h);
-    });
-  }
+    const sv = panel.querySelector(".mtcp-sv");
+    const hue = panel.querySelector(".mtcp-hue");
+    const alpha = panel.querySelector(".mtcp-alpha");
+    const alphaFill = panel.querySelector(".mtcp-alphaFill");
+    const dot = panel.querySelector(".mtcp-dot");
+    const knobs = panel.querySelectorAll(".mtcp-knob");
+    const swatch = panel.querySelector(".mtcp-swatch");
 
-  function updateHexField() {
-    if (st.mode === "solid") {
-      const a = st.solid;
-      const rgb = hsvToRgb(a.h, a.s, a.v);
-      hexInput.readOnly = false;
-      hexInput.value = rgbToHex(rgb.r, rgb.g, rgb.b);
-      hexInput.style.opacity = "1";
-      hexInput.style.cursor = "text";
-      return;
-    }
-    hexInput.readOnly = true;
-    hexInput.value = buildLinearCss();
-    hexInput.style.opacity = "0.95";
-    hexInput.style.cursor = "not-allowed";
-  }
+    if (!sv || !hue || !alpha || !alphaFill || !dot || knobs.length < 2 || !swatch) return;
 
-  function updateUi() {
-    const a = getActiveObj();
+    const hueKnob = knobs[0];
+    const alphaKnob = knobs[1];
 
-    updateSvBg(a.h);
-    dot.style.left = (a.s * 100) + "%";
-    dot.style.top = ((1 - a.v) * 100) + "%";
+    function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
 
-    hueKnob.style.left = (a.h / 360 * 100) + "%";
-    alphaKnob.style.left = (a.a * 100) + "%";
-
-    const rgb = hsvToRgb(a.h, a.s, a.v);
-    swatch.style.background = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + a.a + ")";
-    alphaFill.style.background = "linear-gradient(90deg, rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0), rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",1))";
-
-    if (st.mode === "solid") title.textContent = "Solid color";
-    else title.textContent = "Linear gradient";
-
-    renderStopsUi();
-    updateHexField();
-  }
-
-  function bindDrag(el, onPick) {
-    let down = false;
-    el.addEventListener("mousedown", function (e) {
-      down = true;
-      onPick(e);
-      e.preventDefault();
-    });
-    document.addEventListener("mousemove", function (e) {
-      if (!down) return;
-      onPick(e);
-    });
-    document.addEventListener("mouseup", function () {
-      down = false;
-    });
-  }
-
-  bindDrag(sv, function (e) {
-    const r = sv.getBoundingClientRect();
-    const x = clamp((e.clientX - r.left) / r.width, 0, 1);
-    const y = clamp((e.clientY - r.top) / r.height, 0, 1);
-    const a = getActiveObj();
-    a.s = x;
-    a.v = 1 - y;
-    updateUi();
-  });
-
-  bindDrag(hue, function (e) {
-    const r = hue.getBoundingClientRect();
-    const x = clamp((e.clientX - r.left) / r.width, 0, 1);
-    const a = getActiveObj();
-    a.h = x * 360;
-    updateUi();
-  });
-
-  bindDrag(alpha, function (e) {
-    const r = alpha.getBoundingClientRect();
-    const x = clamp((e.clientX - r.left) / r.width, 0, 1);
-    const a = getActiveObj();
-    a.a = x;
-    updateUi();
-  });
-
-  hexInput.addEventListener("input", function () {
-    if (st.mode !== "solid") return;
-    const rgb = hexToRgb(hexInput.value);
-    if (!rgb) return;
-    const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
-    st.solid.h = hsv.h;
-    st.solid.s = hsv.s;
-    st.solid.v = hsv.v;
-    updateUi();
-  });
-
-  function setMode(m) {
-    st.mode = m === "linear" ? "linear" : "solid";
-    tabs.forEach(t => t.classList.toggle("active", t.dataset.type === st.mode));
-    updateUi();
-  }
-
-  tabs.forEach(function (t) {
-    t.addEventListener("click", function () {
-      const m = t.dataset.type;
-      if (m === "solid") setMode("solid");
-      if (m === "linear") setMode("linear");
-    });
-  });
-
-  function barEl() {
-    const wrap = ensureBar();
-    return wrap.querySelector(".mtcp-gbar");
-  }
-
-  panel.addEventListener("mousedown", function (e) {
-    if (st.mode !== "linear") return;
-
-    const stopEl = e.target.closest(".mtcp-stop");
-    const bar = barEl();
-    if (!bar) return;
-
-    const stops = st.linear.stops;
-    sortStops(stops);
-
-    if (stopEl) {
-      const id = stopEl.dataset.id;
-      st.linear.activeId = id;
-      updateUi();
-
-      let dragging = true;
-
-      function move(ev) {
-        if (!dragging) return;
-        const r = bar.getBoundingClientRect();
-        const p = clamp((ev.clientX - r.left) / r.width, 0, 1);
-        const s = stops.find(x => x.id === id);
-        if (!s) return;
-        s.pos = p;
-        sortStops(stops);
-        updateUi();
-      }
-
-      function up() {
-        dragging = false;
-        document.removeEventListener("mousemove", move);
-        document.removeEventListener("mouseup", up);
-      }
-
-      document.addEventListener("mousemove", move);
-      document.addEventListener("mouseup", up);
-      return;
+    function hsvToRgb(h, s, v) {
+      const c = v * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = v - c;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; b = 0; }
+      else if (h < 120) { r = x; g = c; b = 0; }
+      else if (h < 180) { r = 0; g = c; b = x; }
+      else if (h < 240) { r = 0; g = x; b = c; }
+      else if (h < 300) { r = x; g = 0; b = c; }
+      else { r = c; g = 0; b = x; }
+      return { r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255) };
     }
 
-    const r = bar.getBoundingClientRect();
-    const pos = clamp((e.clientX - r.left) / r.width, 0, 1);
+    const a = { h: 210, s: 0.25, v: 0.85, a: 1 };
 
-    const rgba = sampleAt(pos, stops);
-    const hsva = rgbaToHsva(rgba);
-    const id = uid();
+    function render() {
+      const rgb = hsvToRgb(a.h, 1, 1);
+      sv.style.background = "rgb(" + rgb.r + "," + rgb.g + "," + rgb.b + ")";
 
-    stops.push({ id, pos, h: hsva.h, s: hsva.s, v: hsva.v, a: hsva.a });
-    sortStops(stops);
-    st.linear.activeId = id;
+      dot.style.left = (a.s * 100) + "%";
+      dot.style.top = ((1 - a.v) * 100) + "%";
 
-    updateUi();
-  });
+      hueKnob.style.left = (a.h / 360 * 100) + "%";
+      alphaKnob.style.left = (a.a * 100) + "%";
 
-  panel.addEventListener("contextmenu", function (e) {
-    if (st.mode !== "linear") return;
-    const stopEl = e.target.closest(".mtcp-stop");
-    if (!stopEl) return;
+      const rgb2 = hsvToRgb(a.h, a.s, a.v);
+      swatch.style.background = "rgba(" + rgb2.r + "," + rgb2.g + "," + rgb2.b + "," + a.a + ")";
+      alphaFill.style.background = "linear-gradient(90deg, rgba(" + rgb2.r + "," + rgb2.g + "," + rgb2.b + ",0), rgba(" + rgb2.r + "," + rgb2.g + "," + rgb2.b + ",1))";
+    }
 
-    const stops = st.linear.stops;
-    if (!stops || stops.length <= 2) return;
+    function bindDrag(el, fn) {
+      let down = false;
+      el.addEventListener("mousedown", function (e) { down = true; fn(e); e.preventDefault(); });
+      document.addEventListener("mousemove", function (e) { if (!down) return; fn(e); });
+      document.addEventListener("mouseup", function () { down = false; });
+    }
 
-    sortStops(stops);
-    const id = stopEl.dataset.id;
-    const firstId = stops[0].id;
-    const lastId = stops[stops.length - 1].id;
-    if (id === firstId || id === lastId) return;
+    bindDrag(sv, function (e) {
+      const r = sv.getBoundingClientRect();
+      const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+      const y = clamp((e.clientY - r.top) / r.height, 0, 1);
+      a.s = x;
+      a.v = 1 - y;
+      render();
+    });
 
-    e.preventDefault();
+    bindDrag(hue, function (e) {
+      const r = hue.getBoundingClientRect();
+      const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+      a.h = x * 360;
+      render();
+    });
 
-    const idx = stops.findIndex(s => s.id === id);
-    if (idx === -1) return;
+    bindDrag(alpha, function (e) {
+      const r = alpha.getBoundingClientRect();
+      const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+      a.a = x;
+      render();
+    });
 
-    stops.splice(idx, 1);
-    sortStops(stops);
+    panel.querySelector(".mtcp-close").addEventListener("click", function () {
+      panel.style.display = "none";
+    });
 
-    const next = stops[Math.max(0, idx - 1)] || stops[0];
-    st.linear.activeId = next.id;
+    render();
+  }
 
-    updateUi();
-  });
-
-  panel.addEventListener("click", function (e) {
-    const chip = e.target.closest(".mtcp-chip");
-    if (!chip) return;
-    const bg = chip.style.backgroundColor;
-    if (!bg) return;
-    const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-    if (!m) return;
-    const rgb = { r: parseInt(m[1], 10), g: parseInt(m[2], 10), b: parseInt(m[3], 10) };
-    const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
-    const a = getActiveObj();
-    a.h = hsv.h;
-    a.s = hsv.s;
-    a.v = hsv.v;
-    updateUi();
-  });
-
-  closeBtn.addEventListener("click", function () {
-    panel.style.display = "none";
-  });
-
-  setMode(st.mode);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
 })();
