@@ -2983,45 +2983,42 @@ function convertGithubToRaw(url) {
 
 
 
-(function(){
-  const panel = document.getElementById("mtColorPanel");
-  if(!panel) return;
+const panel = document.getElementById("mtColorPanel");
+panel.innerHTML = `
+<div class="mtcp-head">
+  <div class="mtcp-title">Solid color</div>
+  <button class="mtcp-close" type="button">×</button>
+</div>
 
-  panel.innerHTML =
-    '<div class="mtcp-tabs">' +
-      '<button class="mtcp-tab active" data-type="solid">Solid</button>' +
-      '<button class="mtcp-tab" data-type="linear">Linear</button>' +
-    '</div>' +
+<div class="mtcp-tabs">
+  <button class="mtcp-tab active" data-type="solid" type="button">Solid</button>
+  <button class="mtcp-tab" data-type="linear" type="button">Linear</button>
+</div>
 
-    '<div class="mtcp-title">Rang</div>' +
+<div class="mtcp-sv">
+  <div class="mtcp-dot"></div>
+</div>
 
-    '<div class="mtcp-sv">' +
-      '<div class="mtcp-dot" style="left:70%;top:30%"></div>' +
-    '</div>' +
+<div class="mtcp-row">
+  <div class="mtcp-hue">
+    <div class="mtcp-knob"></div>
+  </div>
+</div>
 
-    '<div class="mtcp-hue">' +
-      '<div class="mtcp-knob" style="left:60%"></div>' +
-    '</div>' +
+<div class="mtcp-row">
+  <div class="mtcp-alpha">
+    <div class="mtcp-alphaFill"></div>
+    <div class="mtcp-knob"></div>
+  </div>
+</div>
 
-    '<div class="mtcp-alpha">' +
-      '<div class="mtcp-alphaFill"></div>' +
-      '<div class="mtcp-knob" style="left:100%"></div>' +
-    '</div>' +
+<div class="mtcp-row mtcp-bottom">
+  <div class="mtcp-swatch"></div>
+  <input class="mtcp-input" type="text" value="#000000" spellcheck="false" />
+</div>
 
-    '<div class="mtcp-row">' +
-      '<div class="mtcp-swatch"></div>' +
-      '<input class="mtcp-input" value="#111827">' +
-      '<button class="mtcp-close">OK</button>' +
-    '</div>' +
-
-    '<div class="mtcp-saved">' +
-      '<div class="mtcp-chip" style="background:#111827"></div>' +
-      '<div class="mtcp-chip" style="background:#ffffff"></div>' +
-      '<div class="mtcp-chip" style="background:#ef4444"></div>' +
-      '<div class="mtcp-chip" style="background:#22c55e"></div>' +
-      '<div class="mtcp-chip" style="background:#3b82f6"></div>' +
-    '</div>';
-})();
+<div class="mtcp-saved"></div>
+`;
 
 (function () {
   const panel = document.getElementById("mtColorPanel");
