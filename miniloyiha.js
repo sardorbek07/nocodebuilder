@@ -2983,5 +2983,45 @@ function convertGithubToRaw(url) {
 
 
 
+(function(){
+  const panel = document.getElementById("mtColorPanel");
+  if(!panel) return;
+
+  panel.innerHTML =
+    '<div class="mtcp-tabs">' +
+      '<button class="mtcp-tab active" data-type="solid">Solid</button>' +
+      '<button class="mtcp-tab" data-type="linear">Linear</button>' +
+      '<button class="mtcp-tab" data-type="radial">Radial</button>' +
+    '</div>' +
+
+    '<div class="mtcp-title">Rang</div>' +
+
+    '<div class="mtcp-sv">' +
+      '<div class="mtcp-dot" style="left:70%;top:30%"></div>' +
+    '</div>' +
+
+    '<div class="mtcp-hue">' +
+      '<div class="mtcp-knob" style="left:60%"></div>' +
+    '</div>' +
+
+    '<div class="mtcp-alpha">' +
+      '<div class="mtcp-alphaFill"></div>' +
+      '<div class="mtcp-knob" style="left:100%"></div>' +
+    '</div>' +
+
+    '<div class="mtcp-row">' +
+      '<div class="mtcp-swatch"></div>' +
+      '<input class="mtcp-input" value="#111827">' +
+      '<button class="mtcp-close">OK</button>' +
+    '</div>' +
+
+    '<div class="mtcp-saved">' +
+      '<div class="mtcp-chip" style="background:#111827"></div>' +
+      '<div class="mtcp-chip" style="background:#ffffff"></div>' +
+      '<div class="mtcp-chip" style="background:#ef4444"></div>' +
+      '<div class="mtcp-chip" style="background:#22c55e"></div>' +
+      '<div class="mtcp-chip" style="background:#3b82f6"></div>' +
+    '</div>';
+})();
 
 
