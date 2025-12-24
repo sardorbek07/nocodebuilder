@@ -2991,7 +2991,6 @@ function convertGithubToRaw(url) {
     '<div class="mtcp-tabs">' +
       '<button class="mtcp-tab active" data-type="solid">Solid</button>' +
       '<button class="mtcp-tab" data-type="linear">Linear</button>' +
-      '<button class="mtcp-tab" data-type="radial">Radial</button>' +
     '</div>' +
 
     '<div class="mtcp-title">Rang</div>' +
@@ -3024,26 +3023,12 @@ function convertGithubToRaw(url) {
     '</div>';
 })();
 
-
-(function(){
+(function () {
   const panel = document.getElementById("mtColorPanel");
-  if(!panel) return;
+  if (!panel) return;
 
-  panel.style.display = "block";
-  panel.style.left = "20px";
-  panel.style.top = "80px";
-
-  document.addEventListener("keydown",function(e){
-    if(e.key==="Escape"){
-      panel.style.display = "none";
-    }
-  });
-})();
-
-(function(){
-  const panel = document.getElementById("mtColorPanel");
-  if(!panel) return;
-
+  const tabs = Array.from(panel.querySelectorAll(".mtcp-tab"));
+  const title = panel.querySelector(".mtcp-title");
   const sv = panel.querySelector(".mtcp-sv");
   const dot = panel.querySelector(".mtcp-dot");
   const hue = panel.querySelector(".mtcp-hue");
@@ -3052,403 +3037,419 @@ function convertGithubToRaw(url) {
   const knobs = panel.querySelectorAll(".mtcp-knob");
   const hexInput = panel.querySelector(".mtcp-input");
   const swatch = panel.querySelector(".mtcp-swatch");
+  const saved = panel.querySelector(".mtcp-saved");
+  const closeBtn = panel.querySelector(".mtcp-close");
 
   const hueKnob = knobs[0];
   const alphaKnob = knobs[1];
 
-  const st = { h: 210, s: 0.2, v: 0.8, a: 1 };
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
 
-  function clamp(x,min,max){ return Math.max(min, Math.min(max, x)); }
+  function hsvToRgb(h, s, v) {
+    const c = v * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = v - c;
+    let r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else { r = c; g = 0; b = x; }
+    return { r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255) };
+  }
 
-  function hsvToRgb(h,s,v){
-    const c = v*s;
-    const x = c*(1-Math.abs(((h/60)%2)-1));
-    const m = v-c;
-    let r=0,g=0,b=0;
-    if(h<60){r=c;g=x;b=0;}
-    else if(h<120){r=x;g=c;b=0;}
-    else if(h<180){r=0;g=c;b=x;}
-    else if(h<240){r=0;g=x;b=c;}
-    else if(h<300){r=x;g=0;b=c;}
-    else {r=c;g=0;b=x;}
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d === 0) h = 0;
+    else if (max === r) h = 60 * (((g - b) / d) % 6);
+    else if (max === g) h = 60 * (((b - r) / d) + 2);
+    else h = 60 * (((r - g) / d) + 4);
+    if (h < 0) h += 360;
+    const s = max === 0 ? 0 : d / max;
+    return { h, s, v: max };
+  }
+
+  function rgbToHex(r, g, b) {
+    const to = (n) => n.toString(16).padStart(2, "0");
+    return ("#" + to(r) + to(g) + to(b)).toUpperCase();
+  }
+
+  function hexToRgb(hex) {
+    let h = String(hex || "").trim();
+    if (!h) return null;
+    if (h[0] !== "#") h = "#" + h;
+    if (h.length === 4) h = "#" + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
+    if (h.length !== 7) return null;
+    const n = parseInt(h.slice(1), 16);
+    if (Number.isNaN(n)) return null;
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+
+  function rgbaLerp(a, b, t) {
     return {
-      r: Math.round((r+m)*255),
-      g: Math.round((g+m)*255),
-      b: Math.round((b+m)*255)
+      r: Math.round(lerp(a.r, b.r, t)),
+      g: Math.round(lerp(a.g, b.g, t)),
+      b: Math.round(lerp(a.b, b.b, t)),
+      a: lerp(a.a, b.a, t)
     };
   }
 
-  function rgbToHex(r,g,b){
-    const to = n => n.toString(16).padStart(2,"0");
-    return "#" + to(r) + to(g) + to(b);
-  }
+  function uid() { return "s" + Math.random().toString(16).slice(2) + Date.now().toString(16); }
 
-  function hexToRgb(hex){
-    let h = String(hex||"").trim();
-    if(!h) return null;
-    if(h[0] !== "#") h = "#" + h;
-    if(h.length === 4){
-      h = "#" + h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+  const st = window.__mtcpState2 || (window.__mtcpState2 = {
+    mode: "solid",
+    solid: { h: 210, s: 0.25, v: 0.85, a: 1 },
+    linear: {
+      angle: 90,
+      stops: [
+        { id: "s0", pos: 0, h: 210, s: 0.25, v: 0.85, a: 1 },
+        { id: "s1", pos: 1, h: 40, s: 0.9, v: 0.95, a: 1 }
+      ],
+      activeId: "s0"
     }
-    if(h.length !== 7) return null;
-    const n = parseInt(h.slice(1),16);
-    if(Number.isNaN(n)) return null;
-    return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+  });
+
+  function sortStops(arr) {
+    arr.sort((a, b) => a.pos - b.pos);
+    if (arr.length) {
+      arr[0].pos = 0;
+      arr[arr.length - 1].pos = 1;
+    }
   }
 
-  function rgbToHsv(r,g,b){
-    r/=255; g/=255; b/=255;
-    const max=Math.max(r,g,b), min=Math.min(r,g,b);
-    const d=max-min;
-    let h=0;
-    if(d===0) h=0;
-    else if(max===r) h=60*(((g-b)/d)%6);
-    else if(max===g) h=60*(((b-r)/d)+2);
-    else h=60*(((r-g)/d)+4);
-    if(h<0) h+=360;
-    const s = max===0 ? 0 : d/max;
-    const v = max;
-    return {h,s,v};
+  function ensureBar() {
+    let wrap = panel.querySelector(".mtcp-gwrap");
+    if (wrap) return wrap;
+
+    wrap = document.createElement("div");
+    wrap.className = "mtcp-gwrap";
+    wrap.style.marginTop = "10px";
+
+    const bar = document.createElement("div");
+    bar.className = "mtcp-gbar";
+    bar.style.width = "100%";
+    bar.style.height = "18px";
+    bar.style.borderRadius = "999px";
+    bar.style.border = "1px solid rgba(255,255,255,.12)";
+    bar.style.position = "relative";
+    bar.style.cursor = "pointer";
+    bar.style.overflow = "hidden";
+
+    const track = document.createElement("div");
+    track.className = "mtcp-gtrack";
+    track.style.position = "absolute";
+    track.style.inset = "0";
+    bar.appendChild(track);
+
+    const handles = document.createElement("div");
+    handles.className = "mtcp-ghandles";
+    handles.style.position = "absolute";
+    handles.style.inset = "0";
+    bar.appendChild(handles);
+
+    wrap.appendChild(bar);
+    panel.insertBefore(wrap, saved);
+
+    return wrap;
   }
 
-  function setSvBg(){
-    const c = hsvToRgb(st.h,1,1);
-    sv.style.background = "rgb("+c.r+","+c.g+","+c.b+")";
+  function hsvaToRgba(hsva) {
+    const c = hsvToRgb(hsva.h, hsva.s, hsva.v);
+    return { r: c.r, g: c.g, b: c.b, a: hsva.a };
   }
 
-  function updateUi(){
-    setSvBg();
-
-    dot.style.left = (st.s*100) + "%";
-    dot.style.top = ((1-st.v)*100) + "%";
-
-    hueKnob.style.left = (st.h/360*100) + "%";
-    alphaKnob.style.left = (st.a*100) + "%";
-
-    const rgb = hsvToRgb(st.h, st.s, st.v);
-    const hx = rgbToHex(rgb.r,rgb.g,rgb.b);
-    hexInput.value = hx.toUpperCase();
-
-    swatch.style.background = "rgba("+rgb.r+","+rgb.g+","+rgb.b+","+st.a+")";
-    alphaFill.style.background = "linear-gradient(90deg, rgba("+rgb.r+","+rgb.g+","+rgb.b+",0), rgba("+rgb.r+","+rgb.g+","+rgb.b+",1))";
+  function rgbaToHsva(rgba) {
+    const hsv = rgbToHsv(rgba.r, rgba.g, rgba.b);
+    return { h: hsv.h, s: hsv.s, v: hsv.v, a: rgba.a };
   }
 
-  function pickSv(clientX, clientY){
-    const r = sv.getBoundingClientRect();
-    const x = clamp((clientX - r.left)/r.width, 0, 1);
-    const y = clamp((clientY - r.top)/r.height, 0, 1);
-    st.s = x;
-    st.v = 1 - y;
-    updateUi();
+  function sampleAt(pos, stops) {
+    sortStops(stops);
+    pos = clamp(pos, 0, 1);
+    let left = stops[0];
+    let right = stops[stops.length - 1];
+    for (let i = 0; i < stops.length; i++) {
+      if (stops[i].pos <= pos) left = stops[i];
+      if (stops[i].pos >= pos) { right = stops[i]; break; }
+    }
+    if (left === right) return hsvaToRgba(left);
+    const t = (pos - left.pos) / (right.pos - left.pos || 1);
+    return rgbaLerp(hsvaToRgba(left), hsvaToRgba(right), t);
   }
 
-  function pickHue(clientX){
-    const r = hue.getBoundingClientRect();
-    const x = clamp((clientX - r.left)/r.width, 0, 1);
-    st.h = x * 360;
-    updateUi();
+  function getActiveObj() {
+    if (st.mode === "solid") return st.solid;
+    const s = st.linear.stops.find(x => x.id === st.linear.activeId);
+    return s || st.linear.stops[0];
   }
 
-  function pickAlpha(clientX){
-    const r = alpha.getBoundingClientRect();
-    const x = clamp((clientX - r.left)/r.width, 0, 1);
-    st.a = x;
-    updateUi();
+  function updateSvBg(h) {
+    const c = hsvToRgb(h, 1, 1);
+    sv.style.background = "rgb(" + c.r + "," + c.g + "," + c.b + ")";
   }
 
-  function bindDrag(el, onPick){
+  function buildLinearCss() {
+    const stops = st.linear.stops.slice();
+    sortStops(stops);
+    const parts = stops.map((s) => {
+      const c = hsvaToRgba(s);
+      const p = Math.round(s.pos * 100);
+      const hx = rgbToHex(c.r, c.g, c.b);
+      return "rgba(" + c.r + "," + c.g + "," + c.b + "," + (Math.round(c.a * 1000) / 1000) + ") " + p + "%";
+    });
+    return "linear-gradient(" + st.linear.angle + "deg, " + parts.join(", ") + ")";
+  }
+
+  function renderStopsUi() {
+    const wrap = ensureBar();
+    const track = wrap.querySelector(".mtcp-gtrack");
+    const handles = wrap.querySelector(".mtcp-ghandles");
+
+    if (st.mode !== "linear") {
+      wrap.style.display = "none";
+      return;
+    }
+
+    wrap.style.display = "block";
+    const stops = st.linear.stops;
+    sortStops(stops);
+
+    track.style.background = buildLinearCss();
+    handles.innerHTML = "";
+
+    stops.forEach((s) => {
+      const h = document.createElement("div");
+      h.className = "mtcp-stop";
+      h.dataset.id = s.id;
+      h.style.position = "absolute";
+      h.style.top = "50%";
+      h.style.left = (s.pos * 100) + "%";
+      h.style.width = "14px";
+      h.style.height = "14px";
+      h.style.borderRadius = "50%";
+      h.style.transform = "translate(-7px,-50%)";
+      h.style.boxShadow = "0 2px 10px rgba(0,0,0,.6)";
+      h.style.border = (s.id === st.linear.activeId) ? "2px solid #fff" : "2px solid rgba(255,255,255,.55)";
+      const c = hsvaToRgba(s);
+      h.style.background = "rgba(" + c.r + "," + c.g + "," + c.b + "," + c.a + ")";
+      handles.appendChild(h);
+    });
+  }
+
+  function updateHexField() {
+    if (st.mode === "solid") {
+      const a = st.solid;
+      const rgb = hsvToRgb(a.h, a.s, a.v);
+      hexInput.readOnly = false;
+      hexInput.value = rgbToHex(rgb.r, rgb.g, rgb.b);
+      hexInput.style.opacity = "1";
+      hexInput.style.cursor = "text";
+      return;
+    }
+    hexInput.readOnly = true;
+    hexInput.value = buildLinearCss();
+    hexInput.style.opacity = "0.95";
+    hexInput.style.cursor = "not-allowed";
+  }
+
+  function updateUi() {
+    const a = getActiveObj();
+
+    updateSvBg(a.h);
+    dot.style.left = (a.s * 100) + "%";
+    dot.style.top = ((1 - a.v) * 100) + "%";
+
+    hueKnob.style.left = (a.h / 360 * 100) + "%";
+    alphaKnob.style.left = (a.a * 100) + "%";
+
+    const rgb = hsvToRgb(a.h, a.s, a.v);
+    swatch.style.background = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + a.a + ")";
+    alphaFill.style.background = "linear-gradient(90deg, rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0), rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",1))";
+
+    if (st.mode === "solid") title.textContent = "Solid color";
+    else title.textContent = "Linear gradient";
+
+    renderStopsUi();
+    updateHexField();
+  }
+
+  function bindDrag(el, onPick) {
     let down = false;
-    el.addEventListener("mousedown", function(e){
+    el.addEventListener("mousedown", function (e) {
       down = true;
-      onPick(e.clientX, e.clientY);
+      onPick(e);
       e.preventDefault();
     });
-    document.addEventListener("mousemove", function(e){
-      if(!down) return;
-      onPick(e.clientX, e.clientY);
+    document.addEventListener("mousemove", function (e) {
+      if (!down) return;
+      onPick(e);
     });
-    document.addEventListener("mouseup", function(){
+    document.addEventListener("mouseup", function () {
       down = false;
     });
   }
 
-  bindDrag(sv, pickSv);
-  bindDrag(hue, function(x){ pickHue(x); });
-  bindDrag(alpha, function(x){ pickAlpha(x); });
+  bindDrag(sv, function (e) {
+    const r = sv.getBoundingClientRect();
+    const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+    const y = clamp((e.clientY - r.top) / r.height, 0, 1);
+    const a = getActiveObj();
+    a.s = x;
+    a.v = 1 - y;
+    updateUi();
+  });
 
-  hexInput.addEventListener("input", function(){
+  bindDrag(hue, function (e) {
+    const r = hue.getBoundingClientRect();
+    const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+    const a = getActiveObj();
+    a.h = x * 360;
+    updateUi();
+  });
+
+  bindDrag(alpha, function (e) {
+    const r = alpha.getBoundingClientRect();
+    const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+    const a = getActiveObj();
+    a.a = x;
+    updateUi();
+  });
+
+  hexInput.addEventListener("input", function () {
+    if (st.mode !== "solid") return;
     const rgb = hexToRgb(hexInput.value);
-    if(!rgb) return;
-    const hsv = rgbToHsv(rgb.r,rgb.g,rgb.b);
-    st.h = hsv.h;
-    st.s = hsv.s;
-    st.v = hsv.v;
+    if (!rgb) return;
+    const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+    st.solid.h = hsv.h;
+    st.solid.s = hsv.s;
+    st.solid.v = hsv.v;
     updateUi();
   });
 
-  updateUi();
-})();
-
-
-(function(){
-  const panel = document.getElementById("mtColorPanel");
-  if(!panel) return;
-
-  const tabs = Array.from(panel.querySelectorAll(".mtcp-tab"));
-  const title = panel.querySelector(".mtcp-title");
-  const saved = panel.querySelector(".mtcp-saved");
-  const okBtn = panel.querySelector(".mtcp-close");
-
-  const sv = panel.querySelector(".mtcp-sv");
-  const dot = panel.querySelector(".mtcp-dot");
-  const hue = panel.querySelector(".mtcp-hue");
-  const alpha = panel.querySelector(".mtcp-alpha");
-  const alphaFill = panel.querySelector(".mtcp-alphaFill");
-  const knobs = panel.querySelectorAll(".mtcp-knob");
-  const hexInput = panel.querySelector(".mtcp-input");
-  const swatch = panel.querySelector(".mtcp-swatch");
-
-  const hueKnob = knobs[0];
-  const alphaKnob = knobs[1];
-
-  function clamp(x,min,max){ return Math.max(min, Math.min(max, x)); }
-
-  function hsvToRgb(h,s,v){
-    const c=v*s, x=c*(1-Math.abs(((h/60)%2)-1)), m=v-c;
-    let r=0,g=0,b=0;
-    if(h<60){r=c;g=x;}
-    else if(h<120){r=x;g=c;}
-    else if(h<180){g=c;b=x;}
-    else if(h<240){g=x;b=c;}
-    else if(h<300){r=x;b=c;}
-    else {r=c;b=x;}
-    return { r:Math.round((r+m)*255), g:Math.round((g+m)*255), b:Math.round((b+m)*255) };
-  }
-
-  function rgbToHex(r,g,b){
-    const to=n=>n.toString(16).padStart(2,"0");
-    return "#"+to(r)+to(g)+to(b);
-  }
-
-  function hexToRgb(hex){
-    let h=String(hex||"").trim();
-    if(!h) return null;
-    if(h[0]!=="#") h="#"+h;
-    if(h.length===4) h="#"+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
-    if(h.length!==7) return null;
-    const n=parseInt(h.slice(1),16);
-    if(Number.isNaN(n)) return null;
-    return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
-  }
-
-  function rgbToHsv(r,g,b){
-    r/=255; g/=255; b/=255;
-    const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
-    let h=0;
-    if(d===0) h=0;
-    else if(max===r) h=60*(((g-b)/d)%6);
-    else if(max===g) h=60*(((b-r)/d)+2);
-    else h=60*(((r-g)/d)+4);
-    if(h<0) h+=360;
-    const s=max===0?0:d/max;
-    const v=max;
-    return {h,s,v};
-  }
-
-  const st = window.__mtcpState || (window.__mtcpState = {
-    mode:"solid",
-    solid:{ h:210, s:0.2, v:0.8, a:1 },
-    linear:{ angle:90, stops:[
-      {pos:0, h:210, s:0.2, v:0.8, a:1},
-      {pos:1, h:210, s:0.2, v:0.8, a:1}
-    ], active:0 }
-  });
-
-  function getActive(){
-    if(st.mode==="solid") return st.solid;
-    if(st.mode==="linear") return st.linear.stops[st.linear.active];
-    return st.solid;
-  }
-
-  function setSvBg(h){
-    const c=hsvToRgb(h,1,1);
-    sv.style.background="rgb("+c.r+","+c.g+","+c.b+")";
-  }
-
-  function ensureGradBar(){
-    let bar = panel.querySelector(".mtcp-gbar");
-    if(bar) return bar;
-    bar = document.createElement("div");
-    bar.className = "mtcp-gbar";
-    bar.style.marginTop="10px";
-    bar.style.width="100%";
-    bar.style.height="18px";
-    bar.style.borderRadius="999px";
-    bar.style.border="1px solid rgba(255,255,255,.12)";
-    bar.style.position="relative";
-    bar.style.cursor="pointer";
-    bar.style.overflow="hidden";
-    const track = document.createElement("div");
-    track.className="mtcp-gtrack";
-    track.style.position="absolute";
-    track.style.inset="0";
-    bar.appendChild(track);
-    const s0 = document.createElement("div");
-    s0.className="mtcp-stop";
-    s0.dataset.i="0";
-    s0.style.position="absolute";
-    s0.style.top="50%";
-    s0.style.width="14px";
-    s0.style.height="14px";
-    s0.style.borderRadius="50%";
-    s0.style.transform="translate(-7px,-50%)";
-    s0.style.border="2px solid #fff";
-    s0.style.boxShadow="0 2px 10px rgba(0,0,0,.6)";
-    bar.appendChild(s0);
-    const s1 = document.createElement("div");
-    s1.className="mtcp-stop";
-    s1.dataset.i="1";
-    s1.style.position="absolute";
-    s1.style.top="50%";
-    s1.style.width="14px";
-    s1.style.height="14px";
-    s1.style.borderRadius="50%";
-    s1.style.transform="translate(-7px,-50%)";
-    s1.style.border="2px solid rgba(255,255,255,.7)";
-    s1.style.boxShadow="0 2px 10px rgba(0,0,0,.6)";
-    bar.appendChild(s1);
-
-    panel.insertBefore(bar, saved);
-    return bar;
-  }
-
-  function gradCss(){
-    const a=st.linear.stops[0], b=st.linear.stops[1];
-    const ra=hsvToRgb(a.h,a.s,a.v);
-    const rb=hsvToRgb(b.h,b.s,b.v);
-    return "linear-gradient("+st.linear.angle+"deg, rgba("+ra.r+","+ra.g+","+ra.b+","+a.a+") 0%, rgba("+rb.r+","+rb.g+","+rb.b+","+b.a+") 100%)";
-  }
-
-  function updateUi(){
-    const a = getActive();
-
-    setSvBg(a.h);
-
-    dot.style.left=(a.s*100)+"%";
-    dot.style.top=((1-a.v)*100)+"%";
-
-    hueKnob.style.left=(a.h/360*100)+"%";
-    alphaKnob.style.left=(a.a*100)+"%";
-
-    const rgb=hsvToRgb(a.h,a.s,a.v);
-    hexInput.value = rgbToHex(rgb.r,rgb.g,rgb.b).toUpperCase();
-
-    swatch.style.background = "rgba("+rgb.r+","+rgb.g+","+rgb.b+","+a.a+")";
-    alphaFill.style.background="linear-gradient(90deg, rgba("+rgb.r+","+rgb.g+","+rgb.b+",0), rgba("+rgb.r+","+rgb.g+","+rgb.b+",1))";
-
-    if(st.mode==="linear"){
-      const bar = ensureGradBar();
-      bar.style.display="block";
-      bar.querySelector(".mtcp-gtrack").style.background = gradCss();
-      const stops = bar.querySelectorAll(".mtcp-stop");
-      stops.forEach(function(el){
-        const i=parseInt(el.dataset.i,10);
-        const s=st.linear.stops[i];
-        const c=hsvToRgb(s.h,s.s,s.v);
-        el.style.left=(s.pos*100)+"%";
-        el.style.background="rgba("+c.r+","+c.g+","+c.b+","+s.a+")";
-        el.style.borderColor = (i===st.linear.active) ? "#fff" : "rgba(255,255,255,.55)";
-      });
-      title.textContent="Gradient (Linear)";
-    }else{
-      const bar = panel.querySelector(".mtcp-gbar");
-      if(bar) bar.style.display="none";
-      title.textContent="Rang";
-    }
-  }
-
-  function pickSv(clientX, clientY){
-    const r=sv.getBoundingClientRect();
-    const x=clamp((clientX-r.left)/r.width,0,1);
-    const y=clamp((clientY-r.top)/r.height,0,1);
-    const a=getActive();
-    a.s=x;
-    a.v=1-y;
+  function setMode(m) {
+    st.mode = m === "linear" ? "linear" : "solid";
+    tabs.forEach(t => t.classList.toggle("active", t.dataset.type === st.mode));
     updateUi();
   }
 
-  function pickHue(clientX){
-    const r=hue.getBoundingClientRect();
-    const x=clamp((clientX-r.left)/r.width,0,1);
-    const a=getActive();
-    a.h=x*360;
-    updateUi();
-  }
-
-  function pickAlpha(clientX){
-    const r=alpha.getBoundingClientRect();
-    const x=clamp((clientX-r.left)/r.width,0,1);
-    const a=getActive();
-    a.a=x;
-    updateUi();
-  }
-
-  function bindDrag(el, onPick){
-    let down=false;
-    el.addEventListener("mousedown",function(e){
-      down=true;
-      onPick(e.clientX,e.clientY);
-      e.preventDefault();
-    });
-    document.addEventListener("mousemove",function(e){
-      if(!down) return;
-      onPick(e.clientX,e.clientY);
-    });
-    document.addEventListener("mouseup",function(){ down=false; });
-  }
-
-  bindDrag(sv, pickSv);
-  bindDrag(hue, function(x){ pickHue(x); });
-  bindDrag(alpha, function(x){ pickAlpha(x); });
-
-  hexInput.addEventListener("input",function(){
-    const rgb=hexToRgb(hexInput.value);
-    if(!rgb) return;
-    const hsv=rgbToHsv(rgb.r,rgb.g,rgb.b);
-    const a=getActive();
-    a.h=hsv.h; a.s=hsv.s; a.v=hsv.v;
-    updateUi();
-  });
-
-  function setMode(m){
-    st.mode=m;
-    tabs.forEach(t=>t.classList.toggle("active", t.dataset.type===m));
-    updateUi();
-  }
-
-  tabs.forEach(function(t){
-    t.addEventListener("click",function(){
-      const m=t.dataset.type;
-      if(m==="radial"){ setMode("linear"); return; }
-      setMode(m);
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      const m = t.dataset.type;
+      if (m === "solid") setMode("solid");
+      if (m === "linear") setMode("linear");
     });
   });
 
-  panel.addEventListener("mousedown",function(e){
-    const stop = e.target.closest(".mtcp-stop");
-    if(stop){
-      st.linear.active = parseInt(stop.dataset.i,10) || 0;
+  function barEl() {
+    const wrap = ensureBar();
+    return wrap.querySelector(".mtcp-gbar");
+  }
+
+  panel.addEventListener("mousedown", function (e) {
+    if (st.mode !== "linear") return;
+
+    const stopEl = e.target.closest(".mtcp-stop");
+    const bar = barEl();
+    if (!bar) return;
+
+    const stops = st.linear.stops;
+    sortStops(stops);
+
+    if (stopEl) {
+      const id = stopEl.dataset.id;
+      st.linear.activeId = id;
       updateUi();
+
+      let dragging = true;
+
+      function move(ev) {
+        if (!dragging) return;
+        const r = bar.getBoundingClientRect();
+        const p = clamp((ev.clientX - r.left) / r.width, 0, 1);
+        const s = stops.find(x => x.id === id);
+        if (!s) return;
+        s.pos = p;
+        sortStops(stops);
+        updateUi();
+      }
+
+      function up() {
+        dragging = false;
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", up);
+      }
+
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", up);
+      return;
     }
+
+    const r = bar.getBoundingClientRect();
+    const pos = clamp((e.clientX - r.left) / r.width, 0, 1);
+
+    const rgba = sampleAt(pos, stops);
+    const hsva = rgbaToHsva(rgba);
+    const id = uid();
+
+    stops.push({ id, pos, h: hsva.h, s: hsva.s, v: hsva.v, a: hsva.a });
+    sortStops(stops);
+    st.linear.activeId = id;
+
+    updateUi();
   });
 
-  okBtn.addEventListener("click",function(){
-    if(st.mode==="linear"){
-      swatch.style.background = gradCss();
-    }
+  panel.addEventListener("contextmenu", function (e) {
+    if (st.mode !== "linear") return;
+    const stopEl = e.target.closest(".mtcp-stop");
+    if (!stopEl) return;
+
+    const stops = st.linear.stops;
+    if (!stops || stops.length <= 2) return;
+
+    sortStops(stops);
+    const id = stopEl.dataset.id;
+    const firstId = stops[0].id;
+    const lastId = stops[stops.length - 1].id;
+    if (id === firstId || id === lastId) return;
+
+    e.preventDefault();
+
+    const idx = stops.findIndex(s => s.id === id);
+    if (idx === -1) return;
+
+    stops.splice(idx, 1);
+    sortStops(stops);
+
+    const next = stops[Math.max(0, idx - 1)] || stops[0];
+    st.linear.activeId = next.id;
+
+    updateUi();
   });
 
-  updateUi();
+  panel.addEventListener("click", function (e) {
+    const chip = e.target.closest(".mtcp-chip");
+    if (!chip) return;
+    const bg = chip.style.backgroundColor;
+    if (!bg) return;
+    const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+    if (!m) return;
+    const rgb = { r: parseInt(m[1], 10), g: parseInt(m[2], 10), b: parseInt(m[3], 10) };
+    const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+    const a = getActiveObj();
+    a.h = hsv.h;
+    a.s = hsv.s;
+    a.v = hsv.v;
+    updateUi();
+  });
+
+  closeBtn.addEventListener("click", function () {
+    panel.style.display = "none";
+  });
+
+  setMode(st.mode);
 })();
-
-
