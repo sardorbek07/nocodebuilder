@@ -3025,3 +3025,19 @@ function convertGithubToRaw(url) {
 })();
 
 
+(function(){
+  const panel = document.getElementById("mtColorPanel");
+  if(!panel) return;
+
+  panel.style.display = "block";
+  panel.style.left = "20px";
+  panel.style.top = "80px";
+
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){
+      panel.style.display = "none";
+    }
+  });
+})();
+
+
