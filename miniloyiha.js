@@ -3040,4 +3040,152 @@ function convertGithubToRaw(url) {
   });
 })();
 
+(function(){
+  const panel = document.getElementById("mtColorPanel");
+  if(!panel) return;
+
+  const sv = panel.querySelector(".mtcp-sv");
+  const dot = panel.querySelector(".mtcp-dot");
+  const hue = panel.querySelector(".mtcp-hue");
+  const alpha = panel.querySelector(".mtcp-alpha");
+  const alphaFill = panel.querySelector(".mtcp-alphaFill");
+  const knobs = panel.querySelectorAll(".mtcp-knob");
+  const hexInput = panel.querySelector(".mtcp-input");
+  const swatch = panel.querySelector(".mtcp-swatch");
+
+  const hueKnob = knobs[0];
+  const alphaKnob = knobs[1];
+
+  const st = { h: 210, s: 0.2, v: 0.8, a: 1 };
+
+  function clamp(x,min,max){ return Math.max(min, Math.min(max, x)); }
+
+  function hsvToRgb(h,s,v){
+    const c = v*s;
+    const x = c*(1-Math.abs(((h/60)%2)-1));
+    const m = v-c;
+    let r=0,g=0,b=0;
+    if(h<60){r=c;g=x;b=0;}
+    else if(h<120){r=x;g=c;b=0;}
+    else if(h<180){r=0;g=c;b=x;}
+    else if(h<240){r=0;g=x;b=c;}
+    else if(h<300){r=x;g=0;b=c;}
+    else {r=c;g=0;b=x;}
+    return {
+      r: Math.round((r+m)*255),
+      g: Math.round((g+m)*255),
+      b: Math.round((b+m)*255)
+    };
+  }
+
+  function rgbToHex(r,g,b){
+    const to = n => n.toString(16).padStart(2,"0");
+    return "#" + to(r) + to(g) + to(b);
+  }
+
+  function hexToRgb(hex){
+    let h = String(hex||"").trim();
+    if(!h) return null;
+    if(h[0] !== "#") h = "#" + h;
+    if(h.length === 4){
+      h = "#" + h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+    }
+    if(h.length !== 7) return null;
+    const n = parseInt(h.slice(1),16);
+    if(Number.isNaN(n)) return null;
+    return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+  }
+
+  function rgbToHsv(r,g,b){
+    r/=255; g/=255; b/=255;
+    const max=Math.max(r,g,b), min=Math.min(r,g,b);
+    const d=max-min;
+    let h=0;
+    if(d===0) h=0;
+    else if(max===r) h=60*(((g-b)/d)%6);
+    else if(max===g) h=60*(((b-r)/d)+2);
+    else h=60*(((r-g)/d)+4);
+    if(h<0) h+=360;
+    const s = max===0 ? 0 : d/max;
+    const v = max;
+    return {h,s,v};
+  }
+
+  function setSvBg(){
+    const c = hsvToRgb(st.h,1,1);
+    sv.style.background = "rgb("+c.r+","+c.g+","+c.b+")";
+  }
+
+  function updateUi(){
+    setSvBg();
+
+    dot.style.left = (st.s*100) + "%";
+    dot.style.top = ((1-st.v)*100) + "%";
+
+    hueKnob.style.left = (st.h/360*100) + "%";
+    alphaKnob.style.left = (st.a*100) + "%";
+
+    const rgb = hsvToRgb(st.h, st.s, st.v);
+    const hx = rgbToHex(rgb.r,rgb.g,rgb.b);
+    hexInput.value = hx.toUpperCase();
+
+    swatch.style.background = "rgba("+rgb.r+","+rgb.g+","+rgb.b+","+st.a+")";
+    alphaFill.style.background = "linear-gradient(90deg, rgba("+rgb.r+","+rgb.g+","+rgb.b+",0), rgba("+rgb.r+","+rgb.g+","+rgb.b+",1))";
+  }
+
+  function pickSv(clientX, clientY){
+    const r = sv.getBoundingClientRect();
+    const x = clamp((clientX - r.left)/r.width, 0, 1);
+    const y = clamp((clientY - r.top)/r.height, 0, 1);
+    st.s = x;
+    st.v = 1 - y;
+    updateUi();
+  }
+
+  function pickHue(clientX){
+    const r = hue.getBoundingClientRect();
+    const x = clamp((clientX - r.left)/r.width, 0, 1);
+    st.h = x * 360;
+    updateUi();
+  }
+
+  function pickAlpha(clientX){
+    const r = alpha.getBoundingClientRect();
+    const x = clamp((clientX - r.left)/r.width, 0, 1);
+    st.a = x;
+    updateUi();
+  }
+
+  function bindDrag(el, onPick){
+    let down = false;
+    el.addEventListener("mousedown", function(e){
+      down = true;
+      onPick(e.clientX, e.clientY);
+      e.preventDefault();
+    });
+    document.addEventListener("mousemove", function(e){
+      if(!down) return;
+      onPick(e.clientX, e.clientY);
+    });
+    document.addEventListener("mouseup", function(){
+      down = false;
+    });
+  }
+
+  bindDrag(sv, pickSv);
+  bindDrag(hue, function(x){ pickHue(x); });
+  bindDrag(alpha, function(x){ pickAlpha(x); });
+
+  hexInput.addEventListener("input", function(){
+    const rgb = hexToRgb(hexInput.value);
+    if(!rgb) return;
+    const hsv = rgbToHsv(rgb.r,rgb.g,rgb.b);
+    st.h = hsv.h;
+    st.s = hsv.s;
+    st.v = hsv.v;
+    updateUi();
+  });
+
+  updateUi();
+})();
 
