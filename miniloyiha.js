@@ -3020,135 +3020,388 @@ panel.innerHTML = `
 <div class="mtcp-saved"></div>
 `;
 (function () {
-  function run() {
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+
+  function hsvToRgb(h, s, v) {
+    h = ((h % 360) + 360) % 360;
+    const c = v * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = v - c;
+    let r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else { r = c; g = 0; b = x; }
+    return { r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255) };
+  }
+
+  function rgbToHex(r, g, b) {
+    const to = (n) => String(clamp(Math.round(n), 0, 255).toString(16)).padStart(2, "0");
+    return "#" + to(r) + to(g) + to(b);
+  }
+
+  function hexToRgb(hex) {
+    const v = String(hex || "").trim();
+    const m = v.match(/^#?([0-9a-f]{6})$/i);
+    if (!m) return null;
+    const n = m[1];
+    return { r: parseInt(n.slice(0, 2), 16), g: parseInt(n.slice(2, 4), 16), b: parseInt(n.slice(4, 6), 16) };
+  }
+
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+    const d = mx - mn;
+    let h = 0;
+    if (d === 0) h = 0;
+    else if (mx === r) h = 60 * (((g - b) / d) % 6);
+    else if (mx === g) h = 60 * (((b - r) / d) + 2);
+    else h = 60 * (((r - g) / d) + 4);
+    if (h < 0) h += 360;
+    const s = mx === 0 ? 0 : d / mx;
+    const v = mx;
+    return { h, s, v };
+  }
+
+  function parseRgba(str) {
+    const s = String(str || "").trim();
+    const m = s.match(/^rgba?\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*(?:,\s*([0-9.]+)\s*)?\)$/i);
+    if (!m) return null;
+    const r = clamp(parseFloat(m[1]), 0, 255);
+    const g = clamp(parseFloat(m[2]), 0, 255);
+    const b = clamp(parseFloat(m[3]), 0, 255);
+    const a = m[4] == null ? 1 : clamp(parseFloat(m[4]), 0, 1);
+    return { r, g, b, a };
+  }
+
+  function rgbaToCss(r, g, b, a) {
+    a = (a == null) ? 1 : clamp(a, 0, 1);
+    return "rgba(" + Math.round(r) + "," + Math.round(g) + "," + Math.round(b) + "," + (Math.round(a * 1000) / 1000) + ")";
+  }
+
+  function mix(a, b, t) { return a + (b - a) * t; }
+
+  function interpColor(c1, c2, t) {
+    return {
+      r: mix(c1.r, c2.r, t),
+      g: mix(c1.g, c2.g, t),
+      b: mix(c1.b, c2.b, t),
+      a: mix(c1.a, c2.a, t)
+    };
+  }
+
+  function ensureStyle() {
+    if (document.getElementById("mtcpStyle2")) return;
+    const st = document.createElement("style");
+    st.id = "mtcpStyle2";
+    st.textContent =
+      "#mtColorPanel{position:fixed;z-index:99999;left:20px;top:80px;display:none;width:332px;padding:12px;border-radius:16px;background:#0C1014;border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.55);color:#fff;font-family:Arial,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
+      "#mtColorPanel .mtcp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}" +
+      "#mtColorPanel .mtcp-title{font-size:13px;opacity:.9}" +
+      "#mtColorPanel .mtcp-close{width:30px;height:30px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#fff;cursor:pointer}" +
+      "#mtColorPanel .mtcp-tabs{display:flex;gap:6px;margin-bottom:10px}" +
+      "#mtColorPanel .mtcp-tab{flex:1;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;font-size:13px}" +
+      "#mtColorPanel .mtcp-tab.active{background:rgba(255,255,255,.12)}" +
+      "#mtColorPanel .mtcp-sv{position:relative;width:100%;height:150px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}" +
+      "#mtColorPanel .mtcp-sv:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}" +
+      "#mtColorPanel .mtcp-sv:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#000,rgba(0,0,0,0))}" +
+      "#mtColorPanel .mtcp-dot{position:absolute;width:14px;height:14px;border-radius:50%;transform:translate(-7px,-7px);border:2px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.6);pointer-events:none}" +
+      "#mtColorPanel .mtcp-row{margin-top:10px}" +
+      "#mtColorPanel .mtcp-hue,#mtColorPanel .mtcp-alpha{position:relative;height:14px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}" +
+      "#mtColorPanel .mtcp-hue{background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000)}" +
+      "#mtColorPanel .mtcp-alpha{background:linear-gradient(45deg,rgba(255,255,255,.12) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.12) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,.12) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,.12) 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0}" +
+      "#mtColorPanel .mtcp-alphaFill{position:absolute;inset:0}" +
+      "#mtColorPanel .mtcp-knob{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;transform:translate(-7px,-50%);border:2px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.6);pointer-events:none}" +
+      "#mtColorPanel .mtcp-bottom{display:flex;gap:10px;align-items:center;margin-top:10px}" +
+      "#mtColorPanel .mtcp-swatch{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12)}" +
+      "#mtColorPanel .mtcp-input{flex:1;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;padding:0 10px;outline:none}" +
+      "#mtColorPanel .mtcp-grad{position:relative;height:16px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.12);cursor:pointer}" +
+      "#mtColorPanel .mtcp-stops{position:relative;height:24px;margin-top:8px}" +
+      "#mtColorPanel .mtcp-stop{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);border:2px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.55);cursor:pointer}" +
+      "#mtColorPanel .mtcp-stop.active{outline:2px solid rgba(255,255,255,.35);outline-offset:2px}" +
+      "#mtColorPanel .mtcp-angleRow{display:flex;gap:10px;align-items:center}" +
+      "#mtColorPanel .mtcp-angle{flex:1;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;padding:0 10px;outline:none}" +
+      "#mtColorPanel .mtcp-mini{width:70px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;padding:0 10px;outline:none}";
+    document.head.appendChild(st);
+  }
+
+  function ensurePanel() {
     const panel = document.getElementById("mtColorPanel");
-    if (!panel) return;
-
-    if (!document.getElementById("mtcpStyle")) {
-      const st = document.createElement("style");
-      st.id = "mtcpStyle";
-      st.textContent =
-        "#mtColorPanel{position:fixed;z-index:99999;left:20px;top:80px;display:block;width:320px;padding:12px;border-radius:16px;background:#0C1014;border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.55);color:#fff;font-family:Arial,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
-        "#mtColorPanel .mtcp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}" +
-        "#mtColorPanel .mtcp-title{font-size:13px;opacity:.9}" +
-        "#mtColorPanel .mtcp-close{width:30px;height:30px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#fff;cursor:pointer}" +
-        "#mtColorPanel .mtcp-tabs{display:flex;gap:6px;margin-bottom:10px}" +
-        "#mtColorPanel .mtcp-tab{flex:1;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;font-size:13px}" +
-        "#mtColorPanel .mtcp-tab.active{background:rgba(255,255,255,.12)}" +
-        "#mtColorPanel .mtcp-sv{position:relative;width:100%;height:140px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}" +
-        "#mtColorPanel .mtcp-sv:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}" +
-        "#mtColorPanel .mtcp-sv:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#000,rgba(0,0,0,0))}" +
-        "#mtColorPanel .mtcp-dot{position:absolute;width:14px;height:14px;border-radius:50%;transform:translate(-7px,-7px);border:2px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.6);pointer-events:none}" +
-        "#mtColorPanel .mtcp-row{margin-top:10px}" +
-        "#mtColorPanel .mtcp-hue,#mtColorPanel .mtcp-alpha{position:relative;height:14px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}" +
-        "#mtColorPanel .mtcp-hue{background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000)}" +
-        "#mtColorPanel .mtcp-alpha{background:linear-gradient(45deg,rgba(255,255,255,.12) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.12) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,.12) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,.12) 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0}" +
-        "#mtColorPanel .mtcp-alphaFill{position:absolute;inset:0}" +
-        "#mtColorPanel .mtcp-knob{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;transform:translate(-7px,-50%);border:2px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.6);pointer-events:none}" +
-        "#mtColorPanel .mtcp-bottom{display:flex;gap:10px;align-items:center;margin-top:10px}" +
-        "#mtColorPanel .mtcp-swatch{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12)}" +
-        "#mtColorPanel .mtcp-input{flex:1;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;padding:0 10px;outline:none}" +
-        "#mtColorPanel .mtcp-saved{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;min-height:22px}";
-      document.head.appendChild(st);
-    }
-
+    if (!panel) return null;
+    ensureStyle();
     panel.innerHTML =
-      '<div class="mtcp-head"><div class="mtcp-title">Solid color</div><button class="mtcp-close" type="button">×</button></div>' +
+      '<div class="mtcp-head"><div class="mtcp-title">Color</div><button class="mtcp-close" type="button">×</button></div>' +
       '<div class="mtcp-tabs"><button class="mtcp-tab active" data-type="solid" type="button">Solid</button><button class="mtcp-tab" data-type="linear" type="button">Linear</button></div>' +
+
+      '<div class="mtcp-linearBox" style="display:none">' +
+        '<div class="mtcp-row mtcp-angleRow">' +
+          '<input class="mtcp-angle" type="range" min="0" max="360" value="90">' +
+          '<input class="mtcp-mini" type="number" min="0" max="360" value="90">' +
+        '</div>' +
+        '<div class="mtcp-row"><div class="mtcp-grad"></div><div class="mtcp-stops"></div></div>' +
+      '</div>' +
+
       '<div class="mtcp-sv"><div class="mtcp-dot"></div></div>' +
       '<div class="mtcp-row"><div class="mtcp-hue"><div class="mtcp-knob"></div></div></div>' +
       '<div class="mtcp-row"><div class="mtcp-alpha"><div class="mtcp-alphaFill"></div><div class="mtcp-knob"></div></div></div>' +
-      '<div class="mtcp-row mtcp-bottom"><div class="mtcp-swatch"></div><input class="mtcp-input" type="text" value="#000000" spellcheck="false"></div>' +
-      '<div class="mtcp-saved"></div>';
+      '<div class="mtcp-row mtcp-bottom"><div class="mtcp-swatch"></div><input class="mtcp-input" type="text" value="#000000" spellcheck="false"></div>';
 
-    panel.style.display = "block";
+    return panel;
+  }
 
+  const state = {
+    mode: "solid",
+    solid: { h: 210, s: 0.25, v: 0.85, a: 1 },
+    linear: {
+      angle: 90,
+      stops: [
+        { p: 0, c: { r: 17, g: 24, b: 39, a: 1 } },
+        { p: 1, c: { r: 59, g: 130, b: 246, a: 1 } }
+      ],
+      sel: 0
+    }
+  };
+
+  function sortStops() {
+    state.linear.stops.sort((a, b) => a.p - b.p);
+    state.linear.sel = clamp(state.linear.sel, 0, state.linear.stops.length - 1);
+  }
+
+  function stopCss(stop) {
+    const c = stop.c;
+    return rgbaToCss(c.r, c.g, c.b, c.a) + " " + Math.round(stop.p * 1000) / 10 + "%";
+  }
+
+  function linearCss() {
+    sortStops();
+    const parts = state.linear.stops.map(stopCss).join(", ");
+    return "linear-gradient(" + Math.round(state.linear.angle) + "deg, " + parts + ")";
+  }
+
+  function getActiveColor() {
+    if (state.mode === "solid") {
+      const rgb = hsvToRgb(state.solid.h, state.solid.s, state.solid.v);
+      return { r: rgb.r, g: rgb.g, b: rgb.b, a: state.solid.a };
+    }
+    const s = state.linear.stops[state.linear.sel];
+    return { r: s.c.r, g: s.c.g, b: s.c.b, a: s.c.a };
+  }
+
+  function setActiveColorFromHsv(h, s, v, a) {
+    const rgb = hsvToRgb(h, s, v);
+    if (state.mode === "solid") {
+      state.solid.h = h; state.solid.s = s; state.solid.v = v; state.solid.a = a;
+      return;
+    }
+    const st = state.linear.stops[state.linear.sel];
+    st.c = { r: rgb.r, g: rgb.g, b: rgb.b, a: a };
+  }
+
+  function bindDrag(el, fn) {
+    let down = false;
+    el.addEventListener("mousedown", function (e) { down = true; fn(e); e.preventDefault(); });
+    document.addEventListener("mousemove", function (e) { if (!down) return; fn(e); });
+    document.addEventListener("mouseup", function () { down = false; });
+  }
+
+  function run() {
+    const panel = ensurePanel();
+    if (!panel) return;
+
+    const tabBtns = Array.from(panel.querySelectorAll(".mtcp-tab"));
+    const closeBtn = panel.querySelector(".mtcp-close");
     const sv = panel.querySelector(".mtcp-sv");
     const hue = panel.querySelector(".mtcp-hue");
     const alpha = panel.querySelector(".mtcp-alpha");
     const alphaFill = panel.querySelector(".mtcp-alphaFill");
     const dot = panel.querySelector(".mtcp-dot");
     const knobs = panel.querySelectorAll(".mtcp-knob");
-    const swatch = panel.querySelector(".mtcp-swatch");
-
-    if (!sv || !hue || !alpha || !alphaFill || !dot || knobs.length < 2 || !swatch) return;
-
     const hueKnob = knobs[0];
     const alphaKnob = knobs[1];
+    const swatch = panel.querySelector(".mtcp-swatch");
+    const input = panel.querySelector(".mtcp-input");
 
-    function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+    const linearBox = panel.querySelector(".mtcp-linearBox");
+    const grad = panel.querySelector(".mtcp-grad");
+    const stopsWrap = panel.querySelector(".mtcp-stops");
+    const angleRange = panel.querySelector(".mtcp-angle");
+    const angleNum = panel.querySelector(".mtcp-mini");
 
-    function hsvToRgb(h, s, v) {
-      const c = v * s;
-      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-      const m = v - c;
-      let r = 0, g = 0, b = 0;
-      if (h < 60) { r = c; g = x; b = 0; }
-      else if (h < 120) { r = x; g = c; b = 0; }
-      else if (h < 180) { r = 0; g = c; b = x; }
-      else if (h < 240) { r = 0; g = x; b = c; }
-      else if (h < 300) { r = x; g = 0; b = c; }
-      else { r = c; g = 0; b = x; }
-      return { r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255) };
+    function renderStops() {
+      stopsWrap.innerHTML = "";
+      sortStops();
+      const css = "linear-gradient(90deg, " + state.linear.stops.map(stopCss).join(", ") + ")";
+      grad.style.background = css;
+
+      state.linear.stops.forEach((s, idx) => {
+        const d = document.createElement("div");
+        d.className = "mtcp-stop" + (idx === state.linear.sel ? " active" : "");
+        d.style.left = (s.p * 100) + "%";
+        d.style.background = rgbaToCss(s.c.r, s.c.g, s.c.b, 1);
+        d.dataset.i = String(idx);
+        d.onclick = function (e) {
+          e.stopPropagation();
+          state.linear.sel = idx;
+          renderAll();
+        };
+
+        bindDrag(d, function (e) {
+          const r = grad.getBoundingClientRect();
+          const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+          s.p = x;
+          state.linear.sel = idx;
+          renderStops();
+          renderAll(false);
+        });
+
+        d.ondblclick = function (e) {
+          e.stopPropagation();
+          if (state.linear.stops.length <= 2) return;
+          state.linear.stops.splice(idx, 1);
+          state.linear.sel = clamp(state.linear.sel, 0, state.linear.stops.length - 1);
+          renderAll();
+        };
+
+        stopsWrap.appendChild(d);
+      });
     }
 
-    const a = { h: 210, s: 0.25, v: 0.85, a: 1 };
-
-    function render() {
-      const rgb = hsvToRgb(a.h, 1, 1);
-      sv.style.background = "rgb(" + rgb.r + "," + rgb.g + "," + rgb.b + ")";
-
-      dot.style.left = (a.s * 100) + "%";
-      dot.style.top = ((1 - a.v) * 100) + "%";
-
-      hueKnob.style.left = (a.h / 360 * 100) + "%";
-      alphaKnob.style.left = (a.a * 100) + "%";
-
-      const rgb2 = hsvToRgb(a.h, a.s, a.v);
-      swatch.style.background = "rgba(" + rgb2.r + "," + rgb2.g + "," + rgb2.b + "," + a.a + ")";
-      alphaFill.style.background = "linear-gradient(90deg, rgba(" + rgb2.r + "," + rgb2.g + "," + rgb2.b + ",0), rgba(" + rgb2.r + "," + rgb2.g + "," + rgb2.b + ",1))";
+    function setMode(mode) {
+      state.mode = mode === "linear" ? "linear" : "solid";
+      tabBtns.forEach(b => b.classList.toggle("active", b.dataset.type === state.mode));
+      linearBox.style.display = state.mode === "linear" ? "block" : "none";
+      input.readOnly = state.mode === "linear";
+      renderAll();
     }
 
-    function bindDrag(el, fn) {
-      let down = false;
-      el.addEventListener("mousedown", function (e) { down = true; fn(e); e.preventDefault(); });
-      document.addEventListener("mousemove", function (e) { if (!down) return; fn(e); });
-      document.addEventListener("mouseup", function () { down = false; });
+    function setFromHex(hex) {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return;
+      const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+      state.solid.h = hsv.h;
+      state.solid.s = hsv.s;
+      state.solid.v = hsv.v;
+      state.solid.a = 1;
+      renderAll();
     }
+
+    function renderAll(shouldInput) {
+      if (shouldInput !== false) shouldInput = true;
+
+      const base = hsvToRgb(
+        state.mode === "solid" ? state.solid.h : rgbToHsv(getActiveColor().r, getActiveColor().g, getActiveColor().b).h,
+        1,
+        1
+      );
+      sv.style.background = "rgb(" + base.r + "," + base.g + "," + base.b + ")";
+
+      const ac = getActiveColor();
+      const hsv = rgbToHsv(ac.r, ac.g, ac.b);
+
+      dot.style.left = (hsv.s * 100) + "%";
+      dot.style.top = ((1 - hsv.v) * 100) + "%";
+
+      hueKnob.style.left = (hsv.h / 360 * 100) + "%";
+      alphaKnob.style.left = (ac.a * 100) + "%";
+
+      swatch.style.background = rgbaToCss(ac.r, ac.g, ac.b, ac.a);
+      alphaFill.style.background = "linear-gradient(90deg, " + rgbaToCss(ac.r, ac.g, ac.b, 0) + ", " + rgbaToCss(ac.r, ac.g, ac.b, 1) + ")";
+
+      if (state.mode === "solid") {
+        if (shouldInput) input.value = rgbToHex(ac.r, ac.g, ac.b);
+      } else {
+        if (shouldInput) input.value = linearCss();
+      }
+
+      angleRange.value = String(Math.round(state.linear.angle));
+      angleNum.value = String(Math.round(state.linear.angle));
+      renderStops();
+
+      if (typeof window.mtColorPanelOnChange === "function") {
+        window.mtColorPanelOnChange(state.mode === "solid" ? input.value : input.value, state.mode);
+      }
+    }
+
+    tabBtns.forEach(btn => {
+      btn.onclick = function () { setMode(btn.dataset.type); };
+    });
+
+    closeBtn.onclick = function () { panel.style.display = "none"; };
 
     bindDrag(sv, function (e) {
       const r = sv.getBoundingClientRect();
       const x = clamp((e.clientX - r.left) / r.width, 0, 1);
       const y = clamp((e.clientY - r.top) / r.height, 0, 1);
-      a.s = x;
-      a.v = 1 - y;
-      render();
+      const ac = getActiveColor();
+      const hsv = rgbToHsv(ac.r, ac.g, ac.b);
+      setActiveColorFromHsv(hsv.h, x, 1 - y, ac.a);
+      renderAll();
     });
 
     bindDrag(hue, function (e) {
       const r = hue.getBoundingClientRect();
       const x = clamp((e.clientX - r.left) / r.width, 0, 1);
-      a.h = x * 360;
-      render();
+      const ac = getActiveColor();
+      const hsv = rgbToHsv(ac.r, ac.g, ac.b);
+      setActiveColorFromHsv(x * 360, hsv.s, hsv.v, ac.a);
+      renderAll();
     });
 
     bindDrag(alpha, function (e) {
       const r = alpha.getBoundingClientRect();
       const x = clamp((e.clientX - r.left) / r.width, 0, 1);
-      a.a = x;
-      render();
+      const ac = getActiveColor();
+      const hsv = rgbToHsv(ac.r, ac.g, ac.b);
+      setActiveColorFromHsv(hsv.h, hsv.s, hsv.v, x);
+      renderAll();
     });
 
-    panel.querySelector(".mtcp-close").addEventListener("click", function () {
-      panel.style.display = "none";
-    });
+    input.oninput = function () {
+      if (state.mode !== "solid") return;
+      setFromHex(input.value);
+    };
 
-    render();
+    angleRange.oninput = function () {
+      state.linear.angle = clamp(parseFloat(angleRange.value || "0"), 0, 360);
+      angleNum.value = String(Math.round(state.linear.angle));
+      renderAll();
+    };
+
+    angleNum.oninput = function () {
+      state.linear.angle = clamp(parseFloat(angleNum.value || "0"), 0, 360);
+      angleRange.value = String(Math.round(state.linear.angle));
+      renderAll();
+    };
+
+    grad.onclick = function (e) {
+      const r = grad.getBoundingClientRect();
+      const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+      sortStops();
+      let left = state.linear.stops[0], right = state.linear.stops[state.linear.stops.length - 1];
+      for (let i = 0; i < state.linear.stops.length - 1; i++) {
+        const a = state.linear.stops[i], b = state.linear.stops[i + 1];
+        if (x >= a.p && x <= b.p) { left = a; right = b; break; }
+      }
+      const t = (right.p === left.p) ? 0 : (x - left.p) / (right.p - left.p);
+      const c = interpColor(left.c, right.c, t);
+      state.linear.stops.push({ p: x, c: { r: c.r, g: c.g, b: c.b, a: c.a } });
+      sortStops();
+      state.linear.sel = state.linear.stops.findIndex(s => Math.abs(s.p - x) < 0.0001);
+      if (state.linear.sel < 0) state.linear.sel = state.linear.stops.length - 1;
+      renderAll();
+    };
+
+    window.mtOpenColorPanel = function () {
+      panel.style.display = "block";
+      renderAll();
+    };
+
+    panel.style.display = "block";
+    setMode("solid");
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", run);
-  } else {
-    run();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
+  else run();
 })();
