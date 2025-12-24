@@ -3189,3 +3189,266 @@ function convertGithubToRaw(url) {
   updateUi();
 })();
 
+
+(function(){
+  const panel = document.getElementById("mtColorPanel");
+  if(!panel) return;
+
+  const tabs = Array.from(panel.querySelectorAll(".mtcp-tab"));
+  const title = panel.querySelector(".mtcp-title");
+  const saved = panel.querySelector(".mtcp-saved");
+  const okBtn = panel.querySelector(".mtcp-close");
+
+  const sv = panel.querySelector(".mtcp-sv");
+  const dot = panel.querySelector(".mtcp-dot");
+  const hue = panel.querySelector(".mtcp-hue");
+  const alpha = panel.querySelector(".mtcp-alpha");
+  const alphaFill = panel.querySelector(".mtcp-alphaFill");
+  const knobs = panel.querySelectorAll(".mtcp-knob");
+  const hexInput = panel.querySelector(".mtcp-input");
+  const swatch = panel.querySelector(".mtcp-swatch");
+
+  const hueKnob = knobs[0];
+  const alphaKnob = knobs[1];
+
+  function clamp(x,min,max){ return Math.max(min, Math.min(max, x)); }
+
+  function hsvToRgb(h,s,v){
+    const c=v*s, x=c*(1-Math.abs(((h/60)%2)-1)), m=v-c;
+    let r=0,g=0,b=0;
+    if(h<60){r=c;g=x;}
+    else if(h<120){r=x;g=c;}
+    else if(h<180){g=c;b=x;}
+    else if(h<240){g=x;b=c;}
+    else if(h<300){r=x;b=c;}
+    else {r=c;b=x;}
+    return { r:Math.round((r+m)*255), g:Math.round((g+m)*255), b:Math.round((b+m)*255) };
+  }
+
+  function rgbToHex(r,g,b){
+    const to=n=>n.toString(16).padStart(2,"0");
+    return "#"+to(r)+to(g)+to(b);
+  }
+
+  function hexToRgb(hex){
+    let h=String(hex||"").trim();
+    if(!h) return null;
+    if(h[0]!=="#") h="#"+h;
+    if(h.length===4) h="#"+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+    if(h.length!==7) return null;
+    const n=parseInt(h.slice(1),16);
+    if(Number.isNaN(n)) return null;
+    return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
+  }
+
+  function rgbToHsv(r,g,b){
+    r/=255; g/=255; b/=255;
+    const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+    let h=0;
+    if(d===0) h=0;
+    else if(max===r) h=60*(((g-b)/d)%6);
+    else if(max===g) h=60*(((b-r)/d)+2);
+    else h=60*(((r-g)/d)+4);
+    if(h<0) h+=360;
+    const s=max===0?0:d/max;
+    const v=max;
+    return {h,s,v};
+  }
+
+  const st = window.__mtcpState || (window.__mtcpState = {
+    mode:"solid",
+    solid:{ h:210, s:0.2, v:0.8, a:1 },
+    linear:{ angle:90, stops:[
+      {pos:0, h:210, s:0.2, v:0.8, a:1},
+      {pos:1, h:210, s:0.2, v:0.8, a:1}
+    ], active:0 }
+  });
+
+  function getActive(){
+    if(st.mode==="solid") return st.solid;
+    if(st.mode==="linear") return st.linear.stops[st.linear.active];
+    return st.solid;
+  }
+
+  function setSvBg(h){
+    const c=hsvToRgb(h,1,1);
+    sv.style.background="rgb("+c.r+","+c.g+","+c.b+")";
+  }
+
+  function ensureGradBar(){
+    let bar = panel.querySelector(".mtcp-gbar");
+    if(bar) return bar;
+    bar = document.createElement("div");
+    bar.className = "mtcp-gbar";
+    bar.style.marginTop="10px";
+    bar.style.width="100%";
+    bar.style.height="18px";
+    bar.style.borderRadius="999px";
+    bar.style.border="1px solid rgba(255,255,255,.12)";
+    bar.style.position="relative";
+    bar.style.cursor="pointer";
+    bar.style.overflow="hidden";
+    const track = document.createElement("div");
+    track.className="mtcp-gtrack";
+    track.style.position="absolute";
+    track.style.inset="0";
+    bar.appendChild(track);
+    const s0 = document.createElement("div");
+    s0.className="mtcp-stop";
+    s0.dataset.i="0";
+    s0.style.position="absolute";
+    s0.style.top="50%";
+    s0.style.width="14px";
+    s0.style.height="14px";
+    s0.style.borderRadius="50%";
+    s0.style.transform="translate(-7px,-50%)";
+    s0.style.border="2px solid #fff";
+    s0.style.boxShadow="0 2px 10px rgba(0,0,0,.6)";
+    bar.appendChild(s0);
+    const s1 = document.createElement("div");
+    s1.className="mtcp-stop";
+    s1.dataset.i="1";
+    s1.style.position="absolute";
+    s1.style.top="50%";
+    s1.style.width="14px";
+    s1.style.height="14px";
+    s1.style.borderRadius="50%";
+    s1.style.transform="translate(-7px,-50%)";
+    s1.style.border="2px solid rgba(255,255,255,.7)";
+    s1.style.boxShadow="0 2px 10px rgba(0,0,0,.6)";
+    bar.appendChild(s1);
+
+    panel.insertBefore(bar, saved);
+    return bar;
+  }
+
+  function gradCss(){
+    const a=st.linear.stops[0], b=st.linear.stops[1];
+    const ra=hsvToRgb(a.h,a.s,a.v);
+    const rb=hsvToRgb(b.h,b.s,b.v);
+    return "linear-gradient("+st.linear.angle+"deg, rgba("+ra.r+","+ra.g+","+ra.b+","+a.a+") 0%, rgba("+rb.r+","+rb.g+","+rb.b+","+b.a+") 100%)";
+  }
+
+  function updateUi(){
+    const a = getActive();
+
+    setSvBg(a.h);
+
+    dot.style.left=(a.s*100)+"%";
+    dot.style.top=((1-a.v)*100)+"%";
+
+    hueKnob.style.left=(a.h/360*100)+"%";
+    alphaKnob.style.left=(a.a*100)+"%";
+
+    const rgb=hsvToRgb(a.h,a.s,a.v);
+    hexInput.value = rgbToHex(rgb.r,rgb.g,rgb.b).toUpperCase();
+
+    swatch.style.background = "rgba("+rgb.r+","+rgb.g+","+rgb.b+","+a.a+")";
+    alphaFill.style.background="linear-gradient(90deg, rgba("+rgb.r+","+rgb.g+","+rgb.b+",0), rgba("+rgb.r+","+rgb.g+","+rgb.b+",1))";
+
+    if(st.mode==="linear"){
+      const bar = ensureGradBar();
+      bar.style.display="block";
+      bar.querySelector(".mtcp-gtrack").style.background = gradCss();
+      const stops = bar.querySelectorAll(".mtcp-stop");
+      stops.forEach(function(el){
+        const i=parseInt(el.dataset.i,10);
+        const s=st.linear.stops[i];
+        const c=hsvToRgb(s.h,s.s,s.v);
+        el.style.left=(s.pos*100)+"%";
+        el.style.background="rgba("+c.r+","+c.g+","+c.b+","+s.a+")";
+        el.style.borderColor = (i===st.linear.active) ? "#fff" : "rgba(255,255,255,.55)";
+      });
+      title.textContent="Gradient (Linear)";
+    }else{
+      const bar = panel.querySelector(".mtcp-gbar");
+      if(bar) bar.style.display="none";
+      title.textContent="Rang";
+    }
+  }
+
+  function pickSv(clientX, clientY){
+    const r=sv.getBoundingClientRect();
+    const x=clamp((clientX-r.left)/r.width,0,1);
+    const y=clamp((clientY-r.top)/r.height,0,1);
+    const a=getActive();
+    a.s=x;
+    a.v=1-y;
+    updateUi();
+  }
+
+  function pickHue(clientX){
+    const r=hue.getBoundingClientRect();
+    const x=clamp((clientX-r.left)/r.width,0,1);
+    const a=getActive();
+    a.h=x*360;
+    updateUi();
+  }
+
+  function pickAlpha(clientX){
+    const r=alpha.getBoundingClientRect();
+    const x=clamp((clientX-r.left)/r.width,0,1);
+    const a=getActive();
+    a.a=x;
+    updateUi();
+  }
+
+  function bindDrag(el, onPick){
+    let down=false;
+    el.addEventListener("mousedown",function(e){
+      down=true;
+      onPick(e.clientX,e.clientY);
+      e.preventDefault();
+    });
+    document.addEventListener("mousemove",function(e){
+      if(!down) return;
+      onPick(e.clientX,e.clientY);
+    });
+    document.addEventListener("mouseup",function(){ down=false; });
+  }
+
+  bindDrag(sv, pickSv);
+  bindDrag(hue, function(x){ pickHue(x); });
+  bindDrag(alpha, function(x){ pickAlpha(x); });
+
+  hexInput.addEventListener("input",function(){
+    const rgb=hexToRgb(hexInput.value);
+    if(!rgb) return;
+    const hsv=rgbToHsv(rgb.r,rgb.g,rgb.b);
+    const a=getActive();
+    a.h=hsv.h; a.s=hsv.s; a.v=hsv.v;
+    updateUi();
+  });
+
+  function setMode(m){
+    st.mode=m;
+    tabs.forEach(t=>t.classList.toggle("active", t.dataset.type===m));
+    updateUi();
+  }
+
+  tabs.forEach(function(t){
+    t.addEventListener("click",function(){
+      const m=t.dataset.type;
+      if(m==="radial"){ setMode("linear"); return; }
+      setMode(m);
+    });
+  });
+
+  panel.addEventListener("mousedown",function(e){
+    const stop = e.target.closest(".mtcp-stop");
+    if(stop){
+      st.linear.active = parseInt(stop.dataset.i,10) || 0;
+      updateUi();
+    }
+  });
+
+  okBtn.addEventListener("click",function(){
+    if(st.mode==="linear"){
+      swatch.style.background = gradCss();
+    }
+  });
+
+  updateUi();
+})();
+
+
