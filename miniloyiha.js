@@ -3271,9 +3271,61 @@ document.addEventListener("DOMContentLoaded", function () {
       siteName: site.name,
       repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
       branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
-      files: [
-      { path: "index.html", content: buildExportHtml() }
-      ]
+     files: (function(){
+    var site = sites.find(function(s){ return s.id === currentSiteId; });
+    if(!site) return [{ path: "index.html", content: buildExportHtml() }];
+
+    var pages = Array.isArray(site.pages) ? site.pages : [];
+    if(!pages.length) return [{ path: "index.html", content: buildExportHtml() }];
+
+    function slugifyName(name) {
+    return String(name || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[_\s]+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  function pageSlug(p){
+    var base = slugifyName(p && p.name ? p.name : "");
+    if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
+    if(!base) base = "page";
+    return base;
+  }
+
+  var homeId = site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
+  if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
+
+  var out = [];
+  var seen = {};
+
+  pages.forEach(function(p){
+    currentSiteId = site.id;
+    currentPageId = p.id;
+
+    if(p.builderState) loadStateFrom(p.builderState);
+    else initEmptyState();
+
+    var html = buildExportHtml();
+
+    var isHome = (p.id === homeId);
+    var path = isHome ? "index.html" : (pageSlug(p) + "/index.html");
+
+    if(seen[path]){
+      var i = 2;
+      while(seen[pageSlug(p) + "-" + i + "/index.html"]) i++;
+      path = pageSlug(p) + "-" + i + "/index.html";
+    }
+    seen[path] = true;
+
+    out.push({ path: path, content: html });
+  });
+
+  return out.length ? out : [{ path: "index.html", content: buildExportHtml() }];
+})()
+
       })
     })
     .then(function(r){ return r.json(); })
