@@ -3618,6 +3618,16 @@ function mtPublishSite(siteId){
   if(btn) btn.click();
 }
 
+var mtPublishAllBtn = document.getElementById("mtPublishAllBtn");
+if(mtPublishAllBtn){
+  mtPublishAllBtn.onclick = function(){
+    var site = sites.find(function(s){ return s.id === currentSiteId; });
+    if(!site){ alert("Sayt tanlanmagan"); return; }
+    mtPublishSite(site.id);
+  };
+}
+
+
 
 window.__mtPageSettings = { siteId: "", pageId: "" };
 
