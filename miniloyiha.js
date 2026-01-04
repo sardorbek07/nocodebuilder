@@ -672,6 +672,15 @@ function mtRenderPages(){
     actions.appendChild(editBtn);
     actions.appendChild(copyBtn);
     actions.appendChild(delBtn);
+    var setBtn = document.createElement("button");
+setBtn.className = "mt-btn secondary";
+setBtn.textContent = "⚙️";
+setBtn.onclick = function(e){
+  e.stopPropagation();
+  alert("Settings");
+};
+actions.appendChild(setBtn);
+
 
     card.appendChild(name);
     card.appendChild(meta);
