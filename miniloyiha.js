@@ -672,12 +672,12 @@ function mtRenderPages(){
     actions.appendChild(editBtn);
     actions.appendChild(copyBtn);
     actions.appendChild(delBtn);
-    var setBtn = document.createElement("button");
+   var setBtn = document.createElement("button");
 setBtn.className = "mt-btn secondary";
 setBtn.textContent = "⚙️";
 setBtn.onclick = function(e){
   e.stopPropagation();
-  alert("Settings");
+  mtOpenPageSettings(site.id, p.id);
 };
 actions.appendChild(setBtn);
 
@@ -3378,6 +3378,14 @@ function convertGithubToRaw(url) {
   return url
     .replace("github.com", "raw.githubusercontent.com")
     .replace("/blob/", "/");
+}
+
+window.__mtPageSettings = { siteId: "", pageId: "" };
+
+function mtOpenPageSettings(siteId, pageId){
+  window.__mtPageSettings = { siteId: siteId, pageId: pageId };
+  var modal = document.getElementById("mtPageSettingsModal");
+  if(modal) modal.style.display = "flex";
 }
 
 
