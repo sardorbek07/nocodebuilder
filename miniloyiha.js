@@ -669,9 +669,17 @@ function mtRenderPages(){
       mtDeletePage(p.id);
     };
 
+    var pubBtn = document.createElement("button");
+pubBtn.className = "mt-btn";
+pubBtn.textContent = "Publish";
+pubBtn.onclick = function(e){
+  e.stopPropagation();
+  mtPublishSite(site.id);
+};
+actions.appendChild(pubBtn);
     actions.appendChild(editBtn);
-    actions.appendChild(copyBtn);
-    actions.appendChild(delBtn);
+    // actions.appendChild(copyBtn);
+    
    var setBtn = document.createElement("button");
 setBtn.className = "mt-btn secondary";
 setBtn.textContent = "⚙️";
@@ -680,14 +688,8 @@ setBtn.onclick = function(e){
   mtOpenPageSettings(site.id, p.id);
 };
 actions.appendChild(setBtn);
-var pubBtn = document.createElement("button");
-pubBtn.className = "mt-btn";
-pubBtn.textContent = "Publish";
-pubBtn.onclick = function(e){
-  e.stopPropagation();
-  mtPublishSite(site.id);
-};
-actions.appendChild(pubBtn);
+    actions.appendChild(delBtn);
+
 
 
 
