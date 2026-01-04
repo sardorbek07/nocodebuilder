@@ -3429,6 +3429,10 @@ document.addEventListener("DOMContentLoaded", function () {
   if(!site.mtPublish){ site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } }; }
   if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
 
+  if(editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId){
+  saveCurrentSiteState();
+  }
+
   function doPublish(){
     fetch("https://api.nocodestudy.uz/api/github/publish",{
       method:"POST",
@@ -3440,41 +3444,66 @@ document.addEventListener("DOMContentLoaded", function () {
       siteName: site.name,
       repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
       branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
-     files: (function(){
-    var site = sites.find(function(s){ return s.id === currentSiteId; });
-    if(!site) return [{ path: "index.html", content: buildExportHtml() }];
+      files: (function(){
+      var site = sites.find(function(s){ return s.id === currentSiteId; });
+      if(!site) return [{ path: "index.html", content: buildExportHtml() }];
+  
+      var pages = Array.isArray(site.pages) ? site.pages : [];
+      if(!pages.length) return [{ path: "index.html", content: buildExportHtml() }];
 
-    var pages = Array.isArray(site.pages) ? site.pages : [];
-    if(!pages.length) return [{ path: "index.html", content: buildExportHtml() }];
-
-    function slugifyName(name) {
-    return String(name || "")
+      function slugifyName(name) {
+      return String(name || "")
       .toLowerCase()
       .trim()
       .replace(/[_\s]+/g, "-")
       .replace(/[^a-z0-9-]/g, "")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
+      }
+
+    function pageSlug(p){
+    var src = "";
+    if(p){
+      if(typeof p.slug === "string" && p.slug.trim()) src = p.slug.trim();
+      else if(typeof p.url === "string" && p.url.trim()) src = p.url.trim();
+      else if(typeof p.name === "string" && p.name.trim()) src = p.name.trim();
+    }
+    src = String(src || "").replace(/\\/g,"/").replace(/^\/+|\/+$/g,"");
+    src = src.split("/")[0];
+    var base = slugifyName(src);
+    if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
+    if(!base) base = "page";
+    return base;
   }
 
- function pageSlug(p){
-  var src = "";
-  if(p){
-    if(typeof p.slug === "string" && p.slug.trim()) src = p.slug.trim();
-    else if(typeof p.url === "string" && p.url.trim()) src = p.url.trim();
-    else if(typeof p.name === "string" && p.name.trim()) src = p.name.trim();
+  // --- snapshot: UI state ni eslab qolamiz (sakrash bo‘lmasin)
+  var prevSiteId = currentSiteId;
+  var prevPageId = currentPageId;
+
+  var prevBlocks = JSON.parse(JSON.stringify(state.blocks || []));
+  var prevCurrentBlockId = state.currentBlockId;
+  var prevCounterBlock = state.counterBlock;
+  var prevCounterItem = state.counterItem;
+  var prevSelectedId = state.selectedId;
+
+  function setStateSilent(saved){
+    state.blocks = Array.isArray(saved && saved.blocks) ? JSON.parse(JSON.stringify(saved.blocks)) : [];
+    state.currentBlockId = (saved && saved.currentBlockId) || (state.blocks[0] ? state.blocks[0].id : null);
+    state.counterBlock = (saved && saved.counterBlock) || state.blocks.length || 0;
+    state.counterItem = (saved && saved.counterItem) || 0;
+    state.previewMode = "mobile";
+    state.selectedId = null;
   }
 
-  src = String(src || "");
-  src = src.replace(/\\/g,"/").replace(/^\/+|\/+$/g,"");
-  src = src.split("/")[0];
-
-  var base = slugifyName(src);
-  if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
-  if(!base) base = "page";
-  return base;
-}
-
+  function makeEmptyState(){
+    return {
+      blocks: [{ id:"mt_b_1", name:"Blok 1", height:560, bgColor:"#ffffff", bgImage:"", items:[] }],
+      currentBlockId: "mt_b_1",
+      counterBlock: 1,
+      counterItem: 0,
+      previewMode: "mobile"
+    };
+  }
 
   var homeId = site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
   if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
@@ -3484,11 +3513,11 @@ document.addEventListener("DOMContentLoaded", function () {
   var seen = {};
 
   pages.forEach(function(p){
+    // title uchun vaqtincha currentPageId ni qo‘yamiz, lekin render chaqirmaymiz
     currentSiteId = site.id;
     currentPageId = p.id;
 
-    if(p.builderState) loadStateFrom(p.builderState);
-    else initEmptyState();
+    setStateSilent(p.builderState ? p.builderState : makeEmptyState());
 
     var html = buildExportHtml();
 
@@ -3501,13 +3530,33 @@ document.addEventListener("DOMContentLoaded", function () {
       path = pageSlug(p) + "-" + i + "/index.html";
     }
     seen[path] = true;
+
     map.push({ pageId: p.id, path: path });
     out.push({ path: path, content: html });
   });
-       
+
+  // publish plan saqlab qo‘yamiz
   window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
+
+  // --- restore: UI state ni joyiga qaytaramiz
+  currentSiteId = prevSiteId;
+  currentPageId = prevPageId;
+  state.blocks = prevBlocks;
+  state.currentBlockId = prevCurrentBlockId;
+  state.counterBlock = prevCounterBlock;
+  state.counterItem = prevCounterItem;
+  state.selectedId = prevSelectedId;
+
+  // editor ochiq bo‘lsa UI ni qayta chizib qo‘yamiz (sakrashsiz)
+  if(editorOverlay && editorOverlay.style.display !== "none"){
+    renderPreview();
+    renderLayers();
+    renderSettings();
+  }
+
   return out.length ? out : [{ path: "index.html", content: buildExportHtml() }];
 })()
+
 
       })
     })
