@@ -3453,6 +3453,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
         site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
         site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
+
+        if(window.__mtPublishPlan){
+        if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
+        if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
+  
+        site.mtPublish.github.paths = Array.isArray(window.__mtPublishPlan.paths) ? window.__mtPublishPlan.paths : [];
+        site.mtPublish.github.map = Array.isArray(window.__mtPublishPlan.map) ? window.__mtPublishPlan.map : [];
+        }
+
         saveSites();
         alert(data.status === "created" ? "Sayt GitHub’ga joylandi" : "Sayt yangilandi");
         return;
