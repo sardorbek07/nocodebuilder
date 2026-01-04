@@ -3405,6 +3405,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
 
   var out = [];
+  var map = [];
   var seen = {};
 
   pages.forEach(function(p){
@@ -3425,10 +3426,11 @@ document.addEventListener("DOMContentLoaded", function () {
       path = pageSlug(p) + "-" + i + "/index.html";
     }
     seen[path] = true;
-
+    map.push({ pageId: p.id, path: path });
     out.push({ path: path, content: html });
   });
-
+       
+  window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
   return out.length ? out : [{ path: "index.html", content: buildExportHtml() }];
 })()
 
