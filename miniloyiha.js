@@ -2611,6 +2611,64 @@ function getExportImageSrc(item){
   return escapeHtml(url);
 }
 
+function mtResolveHrefForExport(site, href){
+  var h = String(href || "").trim();
+  if(!h) return "";
+
+  if(h.indexOf("page:") !== 0) return h;
+
+  var key = h.slice(5).trim();
+  if(!key) return "";
+
+  var pages = Array.isArray(site && site.pages) ? site.pages : [];
+
+  var homeId = site && site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
+  if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
+
+  function slugifyName(name) {
+    return String(name || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[_\s]+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  function pageSlug(p){
+    var src = "";
+    if(p){
+      if(typeof p.slug === "string" && p.slug.trim()) src = p.slug.trim();
+      else if(typeof p.url === "string" && p.url.trim()) src = p.url.trim();
+      else if(typeof p.name === "string" && p.name.trim()) src = p.name.trim();
+    }
+    src = String(src || "");
+    src = src.replace(/\\/g,"/").replace(/^\/+|\/+$/g,"");
+    src = src.split("/")[0];
+
+    var base = slugifyName(src);
+    if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
+    if(!base) base = "page";
+    return base;
+  }
+
+  var target = null;
+
+  for(var i=0;i<pages.length;i++){
+    var p = pages[i];
+    if(!p) continue;
+    if(p.id === key) { target = p; break; }
+    if(typeof p.slug === "string" && p.slug.trim() === key) { target = p; break; }
+    if(typeof p.url === "string" && p.url.trim() === key) { target = p; break; }
+  }
+
+  if(!target) return "";
+
+  if(target.id === homeId) return "/";
+
+  return "/" + pageSlug(target) + "/";
+}
+
 function buildExportHtml() {
 //   var currentSite = sites.find(s => s.id === currentSiteId);
 // var pageTitle = currentSite && currentSite.name ? currentSite.name : "Sahifa";
@@ -2686,8 +2744,12 @@ function buildExportHtml() {
               ";" +
               "font-family:Arial,sans-serif;" +
               '">' +
-              escapeHtml(item.text || "") +
-              "</div>"
+              (
+            item.href && item.href.trim()
+            ? ('<a href="' + escapeHtml(mtResolveHrefForExport(currentSite, item.href.trim()) || item.href.trim()) + '" style="color:inherit;text-decoration:none;">' + escapeHtml(item.text || "") + "</a>")
+            : escapeHtml(item.text || "")
+            ) +
+          "</div>"
             );
           }
 
@@ -2769,11 +2831,11 @@ function buildExportHtml() {
               .filter(Boolean)
               .join(";");
 
-            var href =
-              item.href && item.href.trim()
-                ? escapeHtml(item.href.trim())
-                : "#";
-            var inner = escapeHtml(item.text || "");
+           var href =
+          item.href && item.href.trim()
+          ? escapeHtml(mtResolveHrefForExport(currentSite, item.href.trim()) || item.href.trim())
+          : "#";
+          var inner = escapeHtml(item.text || "");
 
             return (
               '<a href="' + href + '" style="' + styleBtn + '">' + inner + "</a>"
