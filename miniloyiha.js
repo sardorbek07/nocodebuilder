@@ -653,13 +653,13 @@ function mtRenderPages(){
       mtOpenEditorForPage(site.id, p.id);
     };
 
-    var copyBtn = document.createElement("button");
-    copyBtn.className = "mt-btn secondary";
-    copyBtn.textContent = "Nusxa";
-    copyBtn.onclick = function(e){
-      e.stopPropagation();
-      mtCopyPage(p.id);
-    };
+    // var copyBtn = document.createElement("button");
+    // copyBtn.className = "mt-btn secondary";
+    // copyBtn.textContent = "Nusxa";
+    // copyBtn.onclick = function(e){
+    //   e.stopPropagation();
+    //   mtCopyPage(p.id);
+    // };
 
     var delBtn = document.createElement("button");
     delBtn.className = "mt-btn danger";
