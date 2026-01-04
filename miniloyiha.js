@@ -801,18 +801,31 @@ function mtDeletePage(pageId){
       base = String(base || "").trim().replace(/^\/+/, "").replace(/\/+$/, "");
       base = base.replace(/\\/g, "/").replace(/\/{2,}/g, "/");
 
-      var isHome = (pageId === homeId);
       var paths = [];
 
-      if(isHome){
-        paths.push("index.html");
-      }else{
-        if(base){
-          paths.push(base + "/index.html");
-        }else{
-          paths.push(String(pageId).replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase() + "/index.html");
-        }
+      var m = site && site.mtPublish && site.mtPublish.github && Array.isArray(site.mtPublish.github.map)
+      ? site.mtPublish.github.map
+      : [];
+  
+    var found = null;
+    for(var i=0;i<m.length;i++){
+    if(m[i] && m[i].pageId === pageId){
+    found = m[i];
+    break;
       }
+    }
+
+  if(found && typeof found.path === "string" && found.path.trim()){
+  paths = [found.path.trim()];
+  }else{
+  var homeId2 = site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
+  if(!homeId2 && site.pages[0] && site.pages[0].id) homeId2 = site.pages[0].id;
+
+  paths = [(pageId === homeId2)
+    ? "index.html"
+    : (String(pageId).replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase() + "/index.html")
+    ];
+    }
 
       fetch("https://api.nocodestudy.uz/api/github/delete-paths",{
         method:"POST",
