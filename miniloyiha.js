@@ -3553,7 +3553,8 @@ setTimeout(function(){
     if(currentSiteId === obj.site.id && currentPageId === obj.page.id){
       if(editorTitle) editorTitle.textContent = (obj.site.name || "Sayt") + " • " + (obj.page.name || "Sahifa");
     }
-
+    
+    mtPublishSite(obj.site.id);
     mtClosePageSettings();
   };
 }, 0);
