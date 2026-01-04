@@ -3727,17 +3727,35 @@ function mtEnsureSlashBehavior(input){
   });
 }
 
+
+function mtEnsureSlugWrapper(input){
+  if(!input) return null;
+  if(input.closest && input.closest(".mt-slug-field")) return input.closest(".mt-slug-field");
+
+  var wrap = document.createElement("div");
+  wrap.className = "mt-slug-field";
+  wrap.style.position = "relative";
+  wrap.style.width = "100%";
+
+  var p = input.parentElement;
+  if(!p) return null;
+
+  p.insertBefore(wrap, input);
+  wrap.appendChild(input);
+
+  return wrap;
+}
+
 function mtAttachCopyIcon(input){
   if(!input) return;
 
-  var parent = input.parentElement;
-  if(!parent) return;
+  var wrap = mtEnsureSlugWrapper(input);
+  if(!wrap) return;
 
-  parent.style.position = "relative";
+  if(wrap.querySelector(".mt-slug-copy")) return;
 
-  if(parent.querySelector(".mt-slug-copy")) return;
-
-  input.style.paddingRight = "42px";
+  input.style.paddingRight = "46px";
+  input.style.boxSizing = "border-box";
 
   var btn = document.createElement("button");
   btn.type = "button";
@@ -3757,6 +3775,7 @@ function mtAttachCopyIcon(input){
   btn.style.display = "inline-flex";
   btn.style.alignItems = "center";
   btn.style.justifyContent = "center";
+  btn.style.zIndex = "2";
 
   btn.onclick = function(e){
     e.preventDefault();
@@ -3764,9 +3783,7 @@ function mtAttachCopyIcon(input){
     var val = String(input.value || "");
     val = mtSlugSanitize(val);
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(val).then(function(){
-        alert("Nusxalandi: " + val);
-      });
+      navigator.clipboard.writeText(val).then(function(){ alert("Nusxalandi: " + val); });
     }else{
       var ta = document.createElement("textarea");
       ta.value = val;
@@ -3779,26 +3796,33 @@ function mtAttachCopyIcon(input){
     }
   };
 
-  parent.appendChild(btn);
+  wrap.appendChild(btn);
 }
 
 function mtAttachSlugErrorText(input){
   if(!input) return null;
 
-  var parent = input.parentElement;
-  if(!parent) return null;
+  var wrap = mtEnsureSlugWrapper(input);
+  if(!wrap) return null;
 
-  var existing = parent.querySelector(".mt-slug-error");
+  var container = wrap.parentElement;
+  if(!container) return null;
+
+  var existing = container.querySelector(".mt-slug-error[data-for='mtSlug']");
   if(existing) return existing;
 
   var div = document.createElement("div");
   div.className = "mt-slug-error";
+  div.setAttribute("data-for","mtSlug");
   div.style.marginTop = "6px";
   div.style.fontSize = "12px";
   div.style.color = "#ff5a5a";
   div.style.display = "none";
+  div.style.lineHeight = "1.2";
   div.textContent = "Bu nom band";
-  parent.appendChild(div);
+
+  container.insertBefore(div, wrap.nextSibling);
+
   return div;
 }
 
