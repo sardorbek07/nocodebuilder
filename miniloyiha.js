@@ -3387,5 +3387,20 @@ function mtOpenPageSettings(siteId, pageId){
   var modal = document.getElementById("mtPageSettingsModal");
   if(modal) modal.style.display = "flex";
 }
+function mtClosePageSettings(){
+  var modal = document.getElementById("mtPageSettingsModal");
+  if(modal) modal.style.display = "none";
+}
+
+setTimeout(function(){
+  var xBtn = document.getElementById("mtClosePageSettingsBtn");
+  if(xBtn) xBtn.onclick = mtClosePageSettings;
+
+  var cancelBtn = document.getElementById("mtCancelPageSettingsBtn");
+  if(cancelBtn) cancelBtn.onclick = mtClosePageSettings;
+
+  var saveBtn = document.getElementById("mtSavePageSettingsBtn");
+  if(saveBtn) saveBtn.onclick = mtClosePageSettings;
+}, 0);
 
 
