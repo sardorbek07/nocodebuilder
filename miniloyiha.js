@@ -682,7 +682,7 @@ actions.appendChild(pubBtn);
     
    var setBtn = document.createElement("button");
 setBtn.className = "mt-btn secondary";
-setBtn.textContent = "⚙️";
+setBtn.textContent = "Sozlamalar";
 setBtn.onclick = function(e){
   e.stopPropagation();
   mtOpenPageSettings(site.id, p.id);
