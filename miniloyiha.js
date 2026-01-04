@@ -464,7 +464,7 @@ function renderSites(){
     const setBtn = document.createElement("button");
     setBtn.className = "mt-site-settings-btn";
     setBtn.type = "button";
-    setBtn.textContent = "⚙️";
+    setBtn.textContent = "Sozlamalar";
     setBtn.onclick = function(e){
     e.stopPropagation();
     mtOpenSiteSettings(site.id);
