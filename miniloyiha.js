@@ -400,6 +400,7 @@ function renderSites(){
   sites.forEach(site=>{
     const card=document.createElement("div");
     card.className="mt-site-card";
+    card.setAttribute("data-site-id", site.id);
     card.onclick=function(){mtOpenPages(site.id)};
     const top=document.createElement("div");
     top.className="mt-site-top";
@@ -507,6 +508,25 @@ function renderSites(){
     sitesGrid.appendChild(card);
   })
 }
+document.addEventListener("click", function(e){
+  var card = e.target.closest(".mt-site-card");
+  if(card){
+    if(e.target.closest("button")) return;
+    if(e.target.closest("input")) return;
+    if(e.target.closest("textarea")) return;
+
+    var siteId = card.getAttribute("data-site-id") || "";
+    if(siteId && typeof mtOpenPages === "function") mtOpenPages(siteId);
+    return;
+  }
+
+  if(e.target.closest("#mtCloseSiteSettingsBtn") || e.target.closest("#mtSaveSiteSettingsBtn") || e.target.closest("#mtCancelSiteSettingsBtn")){
+    var modal = document.getElementById("mtSiteSettingsModal");
+    if(modal) modal.style.display = "none";
+    return;
+  }
+});
+
 
 function initEmptyState(){
   state.blocks=[];
