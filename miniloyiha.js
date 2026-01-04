@@ -3553,7 +3553,6 @@ document.addEventListener("DOMContentLoaded", function () {
     renderLayers();
     renderSettings();
   }
-
   return out.length ? out : [{ path: "index.html", content: buildExportHtml() }];
 })()
 
@@ -3594,6 +3593,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("Publish xato");
     })
     .catch(function(){
+      mtPublishLoaderFail("Xatolik");
       alert("Publish xato");
     });
   }
@@ -3944,81 +3944,4 @@ setTimeout(function(){
   };
 }, 0);
 
-
-(function(){
-  const elOverlay = document.getElementById("mtPublishOverlay");
-  const elTitle = document.getElementById("mtPubTitle");
-  const elSub = document.getElementById("mtPubSub");
-  const elFill = document.getElementById("mtPubFill");
-
-  let mtPubMode = "one";
-  let mtPubTotal = 1;
-  let mtPubDone = 0;
-  let mtPubTimer = null;
-  let mtPubStart = 0;
-  let mtPubTargetMs = 1800;
-
-  function mtPubClamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
-
-  window.mtPublishLoaderStart = function(mode, total){
-    mtPubMode = mode === "all" ? "all" : "one";
-    mtPubTotal = Math.max(1, parseInt(total || 1, 10));
-    mtPubDone = 0;
-    mtPubStart = Date.now();
-    mtPubTargetMs = mtPubMode === "all" ? 3800 : 1600;
-
-    elTitle.textContent = mtPubMode === "all"
-      ? (mtPubTotal + " ta sahifa nashr qilinmoqda...")
-      : "Ushbu sahifa nashr qilinmoqda...";
-
-    elSub.textContent = mtPubMode === "all"
-      ? ("Nashr qilindi: 0 / " + mtPubTotal)
-      : "";
-
-    elFill.style.width = "0%";
-    elOverlay.style.display = "flex";
-
-    if(mtPubTimer) clearInterval(mtPubTimer);
-    mtPubTimer = setInterval(function(){
-      const t = Date.now() - mtPubStart;
-      const soft = mtPubClamp(t / mtPubTargetMs, 0, 1);
-      const base = mtPubMode === "all" ? 0.78 : 0.85;
-      const percent = Math.floor(soft * base * 100);
-      const current = parseInt(elFill.style.width || "0", 10) || 0;
-      if(percent > current) elFill.style.width = percent + "%";
-    }, 80);
-  };
-
-  window.mtPublishLoaderStep = function(doneCount){
-    mtPubDone = mtPubClamp(parseInt(doneCount || 0, 10), 0, mtPubTotal);
-    if(mtPubMode === "all"){
-      elSub.textContent = "Nashr qilindi: " + mtPubDone + " / " + mtPubTotal;
-      const real = Math.floor((mtPubDone / mtPubTotal) * 100);
-      const current = parseInt(elFill.style.width || "0", 10) || 0;
-      if(real > current) elFill.style.width = mtPubClamp(real, 0, 95) + "%";
-    }
-  };
-
-  window.mtPublishLoaderDone = function(){
-    if(mtPubTimer){ clearInterval(mtPubTimer); mtPubTimer = null; }
-    elFill.style.width = "100%";
-    setTimeout(function(){
-      elOverlay.style.display = "none";
-      elFill.style.width = "0%";
-      elSub.textContent = "";
-    }, 220);
-  };
-
-  window.mtPublishLoaderFail = function(msg){
-    if(mtPubTimer){ clearInterval(mtPubTimer); mtPubTimer = null; }
-    elTitle.textContent = "Nashrda xatolik";
-    elSub.textContent = msg ? String(msg) : "";
-    elFill.style.width = "100%";
-    setTimeout(function(){
-      elOverlay.style.display = "none";
-      elFill.style.width = "0%";
-      elSub.textContent = "";
-    }, 900);
-  };
-})();
 
