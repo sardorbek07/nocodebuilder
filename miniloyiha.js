@@ -464,7 +464,7 @@ function renderSites(){
     const setBtn = document.createElement("button");
     setBtn.className = "mt-site-settings-btn";
     setBtn.type = "button";
-    setBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3362-3438-4563-a334-313430373037/Vector_48.svg" style="width:16px;height:16px;" alt="">';
+    setBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3362-3438-4563-a334-313430373037/Vector_48.svg" style="width:20px;height:20px;background: transparent;" alt="">';
     setBtn.onclick = function(e){
     e.stopPropagation();
     mtOpenSiteSettings(site.id);
