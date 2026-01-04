@@ -770,6 +770,65 @@ function mtDeletePage(pageId){
   var idx = site.pages.findIndex(function(x){ return x.id === pageId; });
   if(idx === -1) return;
 
+    if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName){
+    (function(){
+      var repoFullName = String(site.mtPublish.github.repoFullName || "").trim();
+      if(!repoFullName) return;
+
+      var branch = String(site.mtPublish.github.branch || "").trim() || "main";
+
+      var homeId = site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
+      if(!homeId && site.pages[0] && site.pages[0].id) homeId = site.pages[0].id;
+
+      var page = site.pages.find(function(x){ return x.id === pageId; });
+      if(!page) return;
+
+      function slugifyName(name) {
+        return String(name || "")
+          .toLowerCase()
+          .trim()
+          .replace(/[_\s]+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+      }
+
+      var base = "";
+      if(typeof page.slug === "string" && page.slug.trim()) base = page.slug.trim();
+      else if(typeof page.url === "string" && page.url.trim()) base = page.url.trim();
+      else base = slugifyName(page.name || "");
+
+      base = String(base || "").trim().replace(/^\/+/, "").replace(/\/+$/, "");
+      base = base.replace(/\\/g, "/").replace(/\/{2,}/g, "/");
+
+      var isHome = (pageId === homeId);
+      var paths = [];
+
+      if(isHome){
+        paths.push("index.html");
+      }else{
+        if(base){
+          paths.push(base + "/index.html");
+        }else{
+          paths.push(String(pageId).replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase() + "/index.html");
+        }
+      }
+
+      fetch("https://api.nocodestudy.uz/api/github/delete-paths",{
+        method:"POST",
+        credentials:"include",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+          uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
+          siteId: site.id,
+          repoFullName: repoFullName,
+          branch: branch,
+          paths: paths
+        })
+      }).then(function(r){ return r.json(); });
+    })();
+  }
+
   site.pages.splice(idx,1);
 
   if(site.settings && site.settings.homePageId === pageId){
