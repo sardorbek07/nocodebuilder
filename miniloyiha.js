@@ -640,7 +640,7 @@ function mtRenderPages(){
 
     var meta = document.createElement("div");
     meta.className = "mt-page-meta";
-    meta.textContent = "Oxirgi: " + formatDateTime(p.updatedAt || p.createdAt || Date.now());
+    meta.textContent = "Oxirgi yangilanish: " + formatDateTime(p.updatedAt || p.createdAt || Date.now());
 
     var actions = document.createElement("div");
     actions.className = "mt-page-actions";
