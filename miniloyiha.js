@@ -2540,8 +2540,17 @@ function getExportImageSrc(item){
 }
 
 function buildExportHtml() {
-  var currentSite = sites.find(s => s.id === currentSiteId);
-var pageTitle = currentSite && currentSite.name ? currentSite.name : "Sahifa";
+//   var currentSite = sites.find(s => s.id === currentSiteId);
+// var pageTitle = currentSite && currentSite.name ? currentSite.name : "Sahifa";
+  var currentSite = sites.find(function(s){ return s.id === currentSiteId; });
+  var pageTitle = "Sahifa";
+
+  if(currentSite && Array.isArray(currentSite.pages) && currentPageId){
+    var pg = currentSite.pages.find(function(p){ return p.id === currentPageId; });
+    if(pg && pg.name) pageTitle = pg.name;
+  }else if(currentSite && currentSite.name){
+    pageTitle = currentSite.name;
+  }
   function escapeHtml(str) {
     if (!str) return "";
     return String(str)
