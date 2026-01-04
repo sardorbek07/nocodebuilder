@@ -3055,6 +3055,7 @@ if(mobileModeBtn)mobileModeBtn.onclick=function(){setPreviewMode("mobile")};
 if(closeEditorBtn){
   closeEditorBtn.onclick=function(){
     if(editorOverlay)editorOverlay.style.display="none";
+    if(currentSiteId) mtOpenPages(currentSiteId);
   };
 }
 
