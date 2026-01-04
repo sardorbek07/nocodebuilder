@@ -2543,6 +2543,10 @@ function buildExportHtml() {
 //   var currentSite = sites.find(s => s.id === currentSiteId);
 // var pageTitle = currentSite && currentSite.name ? currentSite.name : "Sahifa";
   var currentSite = sites.find(function(s){ return s.id === currentSiteId; });
+  var extraHead = "";
+  if(currentSite && currentSite.settings && typeof currentSite.settings.headScripts === "string"){
+  extraHead = String(currentSite.settings.headScripts || "");
+  }
   var pageTitle = "Sahifa";
 
   if(currentSite && Array.isArray(currentSite.pages) && currentPageId){
@@ -2921,6 +2925,7 @@ return "";
     '  <meta charset="UTF-8">\n' +
     '  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
     "  <title>" + escapeHtml(pageTitle) + "</title>\n" +
+    (extraHead ? ("\n" + extraHead + "\n") : "") +
     "  <style>\n" +
     "    *{box-sizing:border-box;margin:0;padding:0}\n" +
     "    body{\n" +
