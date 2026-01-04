@@ -3382,12 +3382,24 @@ document.addEventListener("DOMContentLoaded", function () {
       .replace(/^-|-$/g, "");
   }
 
-  function pageSlug(p){
-    var base = slugifyName(p && p.name ? p.name : "");
-    if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
-    if(!base) base = "page";
-    return base;
+ function pageSlug(p){
+  var src = "";
+  if(p){
+    if(typeof p.slug === "string" && p.slug.trim()) src = p.slug.trim();
+    else if(typeof p.url === "string" && p.url.trim()) src = p.url.trim();
+    else if(typeof p.name === "string" && p.name.trim()) src = p.name.trim();
   }
+
+  src = String(src || "");
+  src = src.replace(/\\/g,"/").replace(/^\/+|\/+$/g,"");
+  src = src.split("/")[0];
+
+  var base = slugifyName(src);
+  if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
+  if(!base) base = "page";
+  return base;
+}
+
 
   var homeId = site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
   if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
