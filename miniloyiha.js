@@ -40,7 +40,7 @@ window.mtSetUser = function(uid){
 // start holatda ham window da tursin
 window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
 
-const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;window.mtCreateSiteCardOnly = function(name){
+const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;let currentPageId=null;window.mtCreateSiteCardOnly = function(name){
   if(!Array.isArray(sites)) return;
   if(sites.length >= 3){
     alert("Limitingiz yakunlandi. Yangi sayt yaratish uchun eski birorta saytni o'chiring)");
@@ -58,8 +58,12 @@ const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counte
     createdAt: now,
     updatedAt: now,
     builderState: null,
-    mtPublish: { github: { repoFullName: "", repoId: "", branch: "main" } }
-  };
+    mtPublish: { github: { repoFullName: "", repoId: "", branch: "main" } },
+    pages: [
+    { id: "page_" + now, name: "Asosiy sahifa", createdAt: now, updatedAt: now, builderState: null }
+    ],
+    
+    };
 
   sites.push(site);
 
@@ -165,8 +169,13 @@ let MT_SUPPRESS_CLOUD = false;
   renderSites();
 
   if (editorOverlay && editorOverlay.style.display !== "none" && currentSiteId) {
+    if (editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId) {
     const s = sites.find(x => x.id === currentSiteId);
-    if (s && s.builderState) loadStateFrom(s.builderState);
+    if (s && Array.isArray(s.pages)) {
+    const p = s.pages.find(pp => pp.id === currentPageId);
+    if (p && p.builderState) loadStateFrom(p.builderState);
+    }
+  }
   }
 
   MT_SUPPRESS_CLOUD = false;
@@ -391,7 +400,7 @@ function renderSites(){
   sites.forEach(site=>{
     const card=document.createElement("div");
     card.className="mt-site-card";
-    card.onclick=function(){openEditorForSite(site.id)};
+    card.onclick=function(){mtOpenPages(site.id)};
     const top=document.createElement("div");
     top.className="mt-site-top";
 
@@ -432,8 +441,7 @@ function renderSites(){
   };
 }
 
-name.onclick = function(e){ e.stopPropagation(); startRename(); };
-editIcon.onclick = function(e){ e.stopPropagation(); startRename(); };
+
 
 
 
@@ -446,13 +454,22 @@ editIcon.onclick = function(e){ e.stopPropagation(); startRename(); };
     nameWrap.style.alignItems = "center";
 
     nameWrap.appendChild(name);
-    nameWrap.appendChild(editIcon);
 
     left.appendChild(nameWrap);
 
     left.appendChild(meta);
 
     const right=document.createElement("div");
+    const setBtn = document.createElement("button");
+    setBtn.className = "mt-site-settings-btn";
+    setBtn.type = "button";
+    setBtn.textContent = "⚙️";
+    setBtn.onclick = function(e){
+    e.stopPropagation();
+    mtOpenSiteSettings(site.id);
+    };
+    right.appendChild(setBtn);
+
     const delBtn=document.createElement("button");
     delBtn.className="mt-site-delete-btn";
 
@@ -472,7 +489,7 @@ editIcon.onclick = function(e){ e.stopPropagation(); startRename(); };
     const openBtn=document.createElement("button");
     openBtn.className="mt-btn";
     openBtn.textContent="Tahrirlash";
-    openBtn.onclick=function(){openEditorForSite(site.id)};
+    openBtn.onclick=function(){mtOpenPages(site.id)};
     openWrap.appendChild(openBtn);
 
     const bottom=document.createElement("div");
@@ -513,32 +530,321 @@ function loadStateFrom(saved){
 }
 
 function saveCurrentSiteState(){
+  if(!currentSiteId || !currentPageId) return;
+
   mtSetSaveStatus("saving");
   mtHistoryPush(false);
-  if(!currentSiteId)return;
-  const site=sites.find(s=>s.id===currentSiteId);
-  if(!site)return;
-  site.builderState={
-    blocks:JSON.parse(JSON.stringify(state.blocks)),
-    currentBlockId:state.currentBlockId,
-    counterBlock:state.counterBlock,
-    counterItem:state.counterItem,
-    previewMode:"mobile"
+
+  const site = sites.find(s => s.id === currentSiteId);
+  if(!site) return;
+
+  if(!Array.isArray(site.pages)) site.pages = [];
+  const page = site.pages.find(p => p.id === currentPageId);
+  if(!page) return;
+
+  page.builderState = {
+    blocks: JSON.parse(JSON.stringify(state.blocks)),
+    currentBlockId: state.currentBlockId,
+    counterBlock: state.counterBlock,
+    counterItem: state.counterItem,
+    previewMode: "mobile"
   };
-  site.updatedAt=Date.now();
-  saveSites();renderSites();
+
+  page.updatedAt = Date.now();
+  site.updatedAt = Date.now();
+  saveSites();
+  renderSites();
 }
 
-function openEditorForSite(id){
-  const site=sites.find(s=>s.id===id);
-  if(!site)return;
-  currentSiteId=id;
-  editorTitle.textContent=site.name||"Asosiy sahifa";
-  if(site.builderState)loadStateFrom(site.builderState);else initEmptyState();
+
+function mtOpenEditorForPage(siteId, pageId){
+  var site = sites.find(function(s){ return s.id === siteId; });
+  if(!site) return;
+
+  if(!Array.isArray(site.pages)) site.pages = [];
+  var page = site.pages.find(function(p){ return p.id === pageId; });
+  if(!page) return;
+
+  currentSiteId = siteId;
+  currentPageId = pageId;
+
+  var pagesOverlay = document.getElementById("mtPagesOverlay");
+  if(pagesOverlay) pagesOverlay.style.display = "none";
+
+  editorTitle.textContent = (site.name || "Sayt") + " • " + (page.name || "Sahifa");
+
+  if(page.builderState) loadStateFrom(page.builderState);
+  else initEmptyState();
+
   mtHistoryReset();
-  editorOverlay.style.display="flex";
+  editorOverlay.style.display = "flex";
   updateDesktopVisibility();
 }
+
+function mtOpenPages(siteId){
+  currentSiteId = siteId;
+  currentPageId = null;
+  if(editorOverlay) editorOverlay.style.display = "none";
+  var pagesOverlay = document.getElementById("mtPagesOverlay");
+  if(pagesOverlay) pagesOverlay.style.display = "flex";
+  mtRenderPages();
+}
+function mtRenderPages(){
+  var site = sites.find(function(s){ return s.id === currentSiteId; });
+  if(!site) return;
+
+  if(!Array.isArray(site.pages)) site.pages = [];
+
+  var titleEl = document.getElementById("mtPagesSiteTitle");
+  if(titleEl) titleEl.textContent = site.name || "Sayt";
+
+  var grid = document.getElementById("mtPagesGrid");
+  var empty = document.getElementById("mtPagesEmpty");
+  if(!grid) return;
+
+  grid.innerHTML = "";
+
+  if(!site.pages.length){
+    if(empty) empty.style.display = "block";
+  }else{
+    if(empty) empty.style.display = "none";
+  }
+
+  site.pages.forEach(function(p){
+    var card = document.createElement("div");
+    card.className = "mt-page-card";
+
+    var name = document.createElement("div");
+    name.className = "mt-page-name";
+    name.textContent = p.name || "Sahifa";
+
+    var meta = document.createElement("div");
+    meta.className = "mt-page-meta";
+    meta.textContent = "Oxirgi: " + formatDateTime(p.updatedAt || p.createdAt || Date.now());
+
+    var actions = document.createElement("div");
+    actions.className = "mt-page-actions";
+
+    var editBtn = document.createElement("button");
+    editBtn.className = "mt-btn";
+    editBtn.textContent = "Tahrirlash";
+    editBtn.onclick = function(e){
+      e.stopPropagation();
+      mtOpenEditorForPage(site.id, p.id);
+    };
+
+    var copyBtn = document.createElement("button");
+    copyBtn.className = "mt-btn secondary";
+    copyBtn.textContent = "Nusxa";
+    copyBtn.onclick = function(e){
+      e.stopPropagation();
+      mtCopyPage(p.id);
+    };
+
+    var delBtn = document.createElement("button");
+    delBtn.className = "mt-btn danger";
+    delBtn.textContent = "O‘chirish";
+    delBtn.onclick = function(e){
+      e.stopPropagation();
+      mtDeletePage(p.id);
+    };
+
+    actions.appendChild(editBtn);
+    actions.appendChild(copyBtn);
+    actions.appendChild(delBtn);
+
+    card.appendChild(name);
+    card.appendChild(meta);
+    card.appendChild(actions);
+
+    card.onclick = function(){
+      mtOpenEditorForPage(site.id, p.id);
+    };
+
+    grid.appendChild(card);
+  });
+
+  var addBtn = document.getElementById("mtCreatePageBtn");
+  if(addBtn){
+    addBtn.disabled = site.pages.length >= 3;
+    addBtn.onclick = function(){
+      mtCreatePage();
+    };
+  }
+}
+
+function mtCreatePage(){
+  var site = sites.find(function(s){ return s.id === currentSiteId; });
+  if(!site) return;
+  if(!Array.isArray(site.pages)) site.pages = [];
+  if(site.pages.length >= 3){
+    alert("Limit: 3 ta sahifa");
+    return;
+  }
+
+  var now = Date.now();
+  var id = "page_" + now;
+
+  site.pages.push({ id:id, name:"Sahifa " + (site.pages.length+1), createdAt: now, updatedAt: now, builderState: null });
+
+  site.updatedAt = now;
+  saveSites();
+  mtRenderPages();
+  mtRenderSiteSettings();
+}
+
+function mtCopyPage(pageId){
+  var site = sites.find(function(s){ return s.id === currentSiteId; });
+  if(!site) return;
+  if(site.pages.length >= 3){
+    alert("Limit: 3 ta sahifa");
+    return;
+  }
+
+  var p = site.pages.find(function(x){ return x.id === pageId; });
+  if(!p) return;
+
+  var now = Date.now();
+  var id = "page_" + now;
+
+  site.pages.push({
+    id:id,
+    name:(p.name || "Sahifa") + " (nusxa)",
+    createdAt: now,
+    updatedAt: now,
+    builderState: p.builderState ? JSON.parse(JSON.stringify(p.builderState)) : null
+  });
+
+  site.updatedAt = now;
+  saveSites();
+  mtRenderPages();
+  mtRenderSiteSettings();
+}
+
+function mtDeletePage(pageId){
+  var site = sites.find(function(s){ return s.id === currentSiteId; });
+  if(!site) return;
+
+  if(!confirm("Sahifani o‘chirishni xohlaysizmi?")) return;
+
+  var idx = site.pages.findIndex(function(x){ return x.id === pageId; });
+  if(idx === -1) return;
+
+  site.pages.splice(idx,1);
+
+  if(site.settings && site.settings.homePageId === pageId){
+    site.settings.homePageId = "";
+  }
+
+  site.updatedAt = Date.now();
+  saveSites();
+  mtRenderPages();
+  mtRenderSiteSettings();
+}
+
+function mtOpenSiteSettings(siteId){
+  currentSiteId = siteId;
+
+  var modal = document.getElementById("mtSiteSettingsModal");
+  if(modal) modal.style.display = "flex";
+
+  mtRenderSiteSettings();
+}
+function mtRenderSiteSettings(){
+  var site = sites.find(function(s){ return s.id === currentSiteId; });
+  if(!site) return;
+
+  if(!site.settings) site.settings = {};
+  if(typeof site.settings.homePageId !== "string") site.settings.homePageId = "";
+  if(typeof site.settings.domain !== "string") site.settings.domain = "";
+  if(typeof site.settings.domainStatus !== "string") site.settings.domainStatus = "Tekshirilmagan";
+  if(typeof site.settings.headScripts !== "string") site.settings.headScripts = "";
+
+  var nameInput = document.getElementById("mtSiteNameInput");
+  var homeSelect = document.getElementById("mtHomePageSelect");
+  var domainInput = document.getElementById("mtDomainInput");
+  var domainStatus = document.getElementById("mtDomainStatusText");
+  var headArea = document.getElementById("mtHeadScriptsTextarea");
+  var saveBtn = document.getElementById("mtSaveSiteSettingsBtn");
+
+  if(nameInput){
+    nameInput.value = site.name || "";
+    nameInput.oninput = function(){
+      site.name = String(nameInput.value || "").trim() || "Sayt";
+      site.updatedAt = Date.now();
+      saveSites();
+      renderSites();
+    };
+  }
+
+  if(homeSelect){
+    homeSelect.innerHTML = "";
+
+    var pages = Array.isArray(site.pages) ? site.pages : [];
+    var opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = pages.length ? "Tanlang…" : "Hozircha sahifa yo‘q";
+    homeSelect.appendChild(opt0);
+
+    pages.forEach(function(p){
+      var o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.name || "Sahifa";
+      homeSelect.appendChild(o);
+    });
+
+    homeSelect.value = site.settings.homePageId || "";
+
+    homeSelect.onchange = function(){
+      site.settings.homePageId = String(homeSelect.value || "").trim();
+      site.updatedAt = Date.now();
+      saveSites();
+      renderSites();
+    };
+  }
+
+  if(domainInput){
+    domainInput.value = site.settings.domain || "";
+    domainInput.oninput = function(){
+      site.settings.domain = String(domainInput.value || "").trim();
+      site.updatedAt = Date.now();
+      saveSites();
+    };
+  }
+
+  if(domainStatus){
+    domainStatus.textContent = site.settings.domainStatus || "Tekshirilmagan";
+  }
+
+  if(headArea){
+    headArea.value = site.settings.headScripts || "";
+    headArea.oninput = function(){
+      site.settings.headScripts = String(headArea.value || "");
+      site.updatedAt = Date.now();
+      saveSites();
+    };
+  }
+
+  if(saveBtn){
+    saveBtn.onclick = function(){
+      site.updatedAt = Date.now();
+      saveSites();
+      renderSites();
+      var modal = document.getElementById("mtSiteSettingsModal");
+      if(modal) modal.style.display = "none";
+    };
+  }
+}
+
+
+var mtCloseSiteSettingsBtn = document.getElementById("mtCloseSiteSettingsBtn");
+if(mtCloseSiteSettingsBtn){
+  mtCloseSiteSettingsBtn.onclick = function(){
+    var modal = document.getElementById("mtSiteSettingsModal");
+    if(modal) modal.style.display = "none";
+  };
+}
+
 
 function getCurrentBlock(){
   return state.blocks.find(b=>b.id===state.currentBlockId)||null
@@ -2787,11 +3093,21 @@ if(createSiteBtn){
     const id="site_"+Date.now();
     const name="Sayt "+(sites.length+1);
     const now=Date.now();
-    const site={id:id,name:name,createdAt:now,updatedAt:now,builderState:null,mtPublish:{github:{repoFullName:"",repoId:"",branch:"main"}}};
+    const site={id:id,name:name,createdAt:now,updatedAt:now,builderState:null,mtPublish:{github:{repoFullName:"",repoId:"",branch:"main"}},pages:[{id:"page_"+now,name:"Asosiy sahifa",createdAt:now,updatedAt:now,builderState:null}]};
     sites.push(site);
     saveSites();
     renderSites();
-    openEditorForSite(id);
+    mtOpenPages(id);
+  };
+}
+
+
+var mtClosePagesBtn = document.getElementById("mtClosePagesBtn");
+if(mtClosePagesBtn){
+  mtClosePagesBtn.onclick = function(){
+    var pagesOverlay = document.getElementById("mtPagesOverlay");
+    if(pagesOverlay) pagesOverlay.style.display = "none";
+    if(dashboardEl) dashboardEl.style.display = "block";
   };
 }
 
