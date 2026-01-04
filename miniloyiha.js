@@ -3760,7 +3760,7 @@ function mtAttachCopyIcon(input){
   var btn = document.createElement("button");
   btn.type = "button";
   btn.className = "mt-slug-copy";
-  btn.innerHTML = "⧉";
+  btn.innerHTML = '<span style="display:block; line-height:1; transform:translateY(1px);">⧉</span>';
   btn.style.position = "absolute";
   btn.style.right = "8px";
   btn.style.top = "50%";
@@ -3776,6 +3776,8 @@ function mtAttachCopyIcon(input){
   btn.style.alignItems = "center";
   btn.style.justifyContent = "center";
   btn.style.zIndex = "2";
+  btn.style.padding = "0";
+  btn.style.lineHeight = "1";
 
   btn.onclick = function(e){
     e.preventDefault();
