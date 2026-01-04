@@ -3939,7 +3939,7 @@ setTimeout(function(){
       if(editorTitle) editorTitle.textContent = (obj.site.name || "Sayt") + " • " + (obj.page.name || "Sahifa");
     }
     
-    mtPublishSite(obj.site.id);
+    // mtPublishSite(obj.site.id);
     mtClosePageSettings();
   };
 }, 0);
