@@ -680,6 +680,15 @@ setBtn.onclick = function(e){
   mtOpenPageSettings(site.id, p.id);
 };
 actions.appendChild(setBtn);
+var pubBtn = document.createElement("button");
+pubBtn.className = "mt-btn";
+pubBtn.textContent = "Publish";
+pubBtn.onclick = function(e){
+  e.stopPropagation();
+  mtPublishSite(site.id);
+};
+actions.appendChild(pubBtn);
+
 
 
     card.appendChild(name);
@@ -3379,6 +3388,13 @@ function convertGithubToRaw(url) {
     .replace("github.com", "raw.githubusercontent.com")
     .replace("/blob/", "/");
 }
+
+function mtPublishSite(siteId){
+  currentSiteId = siteId;
+  var btn = document.getElementById("mtExportBtn");
+  if(btn) btn.click();
+}
+
 
 window.__mtPageSettings = { siteId: "", pageId: "" };
 
