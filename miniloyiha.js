@@ -3384,6 +3384,7 @@ window.__mtPageSettings = { siteId: "", pageId: "" };
 
 function mtOpenPageSettings(siteId, pageId){
   window.__mtPageSettings = { siteId: siteId, pageId: pageId };
+  mtFillPageSettingsModal();
   var modal = document.getElementById("mtPageSettingsModal");
   if(modal) modal.style.display = "flex";
 }
@@ -3391,6 +3392,39 @@ function mtClosePageSettings(){
   var modal = document.getElementById("mtPageSettingsModal");
   if(modal) modal.style.display = "none";
 }
+function mtGetFirstEl(ids){
+  for(var i=0;i<ids.length;i++){
+    var el = document.getElementById(ids[i]);
+    if(el) return el;
+  }
+  return null;
+}
+
+function mtGetCurrentPageObj(){
+  var sId = window.__mtPageSettings ? window.__mtPageSettings.siteId : "";
+  var pId = window.__mtPageSettings ? window.__mtPageSettings.pageId : "";
+  var site = sites.find(function(s){ return s.id === sId; });
+  if(!site || !Array.isArray(site.pages)) return null;
+  var page = site.pages.find(function(p){ return p.id === pId; });
+  if(!page) return null;
+  return { site: site, page: page };
+}
+
+function mtFillPageSettingsModal(){
+  var obj = mtGetCurrentPageObj();
+  if(!obj) return;
+
+  var nameInput = mtGetFirstEl(["mtPageNameInput","mtPageTitleInput","mtPageSettingsNameInput"]);
+  var urlInput  = mtGetFirstEl(["mtPageUrlInput","mtPageSlugInput","mtPagePathInput","mtPageSettingsUrlInput"]);
+
+  if(nameInput) nameInput.value = obj.page.name || "";
+  if(urlInput){
+    if(typeof obj.page.slug === "string") urlInput.value = obj.page.slug;
+    else if(typeof obj.page.url === "string") urlInput.value = obj.page.url;
+    else urlInput.value = "";
+  }
+}
+
 
 setTimeout(function(){
   var xBtn = document.getElementById("mtClosePageSettingsBtn");
@@ -3400,7 +3434,37 @@ setTimeout(function(){
   if(cancelBtn) cancelBtn.onclick = mtClosePageSettings;
 
   var saveBtn = document.getElementById("mtSavePageSettingsBtn");
-  if(saveBtn) saveBtn.onclick = mtClosePageSettings;
+  if(saveBtn) saveBtn.onclick = function(){
+    var obj = mtGetCurrentPageObj();
+    if(!obj) return;
+
+    var nameInput = mtGetFirstEl(["mtPageNameInput","mtPageTitleInput","mtPageSettingsNameInput"]);
+    var urlInput  = mtGetFirstEl(["mtPageUrlInput","mtPageSlugInput","mtPagePathInput","mtPageSettingsUrlInput"]);
+
+    var newName = nameInput ? String(nameInput.value || "").trim() : "";
+    var newUrl  = urlInput ? String(urlInput.value || "").trim() : "";
+
+    if(newName) obj.page.name = newName;
+
+    if(urlInput){
+      if(typeof obj.page.slug === "string") obj.page.slug = newUrl;
+      else obj.page.url = newUrl;
+    }
+
+    obj.page.updatedAt = Date.now();
+    obj.site.updatedAt = Date.now();
+
+    saveSites();
+    mtRenderPages();
+    mtRenderSiteSettings();
+
+    if(currentSiteId === obj.site.id && currentPageId === obj.page.id){
+      if(editorTitle) editorTitle.textContent = (obj.site.name || "Sayt") + " • " + (obj.page.name || "Sahifa");
+    }
+
+    mtClosePageSettings();
+  };
 }, 0);
+
 
 
