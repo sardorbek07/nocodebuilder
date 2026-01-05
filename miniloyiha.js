@@ -3557,8 +3557,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.__mtPublishSiteId = site.id;
 
     if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
-    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" } 
-  };
+    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" } ;
 
     if(editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId){
       saveCurrentSiteState();
