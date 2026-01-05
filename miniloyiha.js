@@ -3679,20 +3679,21 @@ console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.pa
     window.__mtPublishAssets = [{ path: "assets/test.txt", b64: btoa("asset-test-ok") }];
 console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
 
-
-    fetch("https://api.nocodestudy.uz/api/github/publish",{
-      method:"POST",
-      credentials:"include",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        uid: uid,
-        siteId: site.id,
-        siteName: site.name,
-        repoFullName: repoFullName,
-        branch: branch,
-        files: files,
-        assets: Array.isArray(window.__mtPublishAssets) ? window.__mtPublishAssets : []
-      })
+  var assets = window.__mtPublishAssets;
+    
+   fetch("https://api.nocodestudy.uz/api/github/publish",{
+  method:"POST",
+  credentials:"include",
+  headers:{ "Content-Type":"application/json" },
+  body: JSON.stringify({
+    uid: uid,
+    siteId: site.id,
+    siteName: site.name,
+    repoFullName: repoFullName,
+    branch: branch,
+    files: files,
+    assets: assets
+  })
     })
     .then(function(r){ return r.json(); })
     .then(function(data){
