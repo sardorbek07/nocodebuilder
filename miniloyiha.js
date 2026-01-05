@@ -347,7 +347,7 @@ function deleteSite(id){
   if(idx===-1)return;
   const site = sites.find(s => s.id === id);
 
-if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName){
+if(site && site.mt && site.mtPublish.github && site.mtPublish.github.repoFullName){
   fetch("https://api.nocodestudy.uz/api/github/delete-repo",{
     method:"POST",
     credentials:"include",
@@ -671,7 +671,8 @@ function mtRenderPages(){
 
     var pubBtn = document.createElement("button");
 pubBtn.className = "mt-btn";
-pubBtn.textContent = "Publish";
+// pubBtn.textContent = "Publish";
+    pubBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3234-3033-4466-a635-343037636165/Vector_51.svg" style="width:18px;height:18px;">';
 pubBtn.onclick = function(e){
   e.stopPropagation();
   mtPublishSite(site.id);
