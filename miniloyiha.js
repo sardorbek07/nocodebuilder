@@ -3669,7 +3669,7 @@ document.addEventListener("DOMContentLoaded", function () {
    var files = mtBuildPublishFiles(site);
 
 if(!Array.isArray(files)) files = [];
-files.push({ path: "assets/images/keep.txt", content: "keep" });
+files.push({ path: "assets/images/keep.html", content: "<!-- keep -->" });
 
 
 
