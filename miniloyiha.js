@@ -3678,6 +3678,13 @@ console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.pa
 console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
 
   
+      if (!Array.isArray(assets)) assets = [];
+    if (assets.length === 0) {
+    assets.push({
+    path: "assets/.keep",
+    b64: "QQ==" 
+    });
+    }
     
    fetch("https://api.nocodestudy.uz/api/github/publish",{
   method:"POST",
