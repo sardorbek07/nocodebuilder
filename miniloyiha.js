@@ -665,8 +665,8 @@ function mtRenderPages(){
 
     var editBtn = document.createElement("button");
     editBtn.className = "mt-btn";
-    editBtn.title = "Tahrirlash";
-    editBtn.innerHTML = "Tahrirlash";
+   editBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+editBtn.title = "Tahrirlash";
     editBtn.onclick = function(e){
       e.stopPropagation();
       mtOpenEditorForPage(site.id, p.id);
