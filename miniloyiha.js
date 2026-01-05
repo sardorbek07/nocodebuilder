@@ -495,6 +495,8 @@ function renderSites(){
 
     openBtn.onclick=function(){mtOpenPages(site.id)};
     openWrap.appendChild(openBtn);
+    openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+
 
     const bottom=document.createElement("div");
     bottom.className="mt-site-bottom";
