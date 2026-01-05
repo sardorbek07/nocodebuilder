@@ -347,7 +347,7 @@ function deleteSite(id){
   if(idx===-1)return;
   const site = sites.find(s => s.id === id);
 
-if(site && site.mt && site.mtPublish.github && site.mtPublish.github.repoFullName){
+if(site && site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName){
   fetch("https://api.nocodestudy.uz/api/github/delete-repo",{
     method:"POST",
     credentials:"include",
