@@ -2783,7 +2783,7 @@ function buildExportHtml() {
 
           // ==== RASM ====
           if (item.type === "image") {
-            var fileName = normalizeGithubImage(item.url || "");
+            var fileName = mtImagePathFromUrl(item.url || "");
             if (!fileName) {
               return "";
             }
@@ -2890,8 +2890,8 @@ function buildExportHtml() {
             var bStyleShape = "border-style:solid;";
 
             var bgImgStyle = "";
-            if (item.bgImage) {
-              var bgFile = normalizeGithubImage(item.bgImage);
+            if (item.url) {
+              var bgFile = mtImagePathFromUrl(item.url);
               if (bgFile) {
                 bgImgStyle =
                   "background-image:url(" +
@@ -3001,7 +3001,7 @@ return "";
       if (block.bgColor) styleParts.push("background:" + block.bgColor);
 
       if (block.bgImage) {
-        var bgFile2 = normalizeGithubImage(block.bgImage);
+        var bgFile2 = mtImagePathFromUrl(block.bgImage);
         if (bgFile2) {
           styleParts.push("background-image:url(" + escapeHtml(bgFile2) + ")");
           styleParts.push("background-size:cover");
@@ -3531,6 +3531,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var out = [];
     var map = [];
     var seen = {};
+    var assets = [];
+    var assetsSeen = {};
+
 
     currentSiteId = site.id;
 
@@ -3540,6 +3543,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       currentPageId = p.id;
       mtSetStateSilent(p.builderState ? p.builderState : mtMakeEmptyState());
+      mtCollectAssetsFromState(state, assets, assetsSeen);
 
       var html = buildExportHtml();
       var isHome = (p.id === homeId);
@@ -3558,6 +3562,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     mtRestoreUi(snap);
+    window.__mtPublishAssets = assets;
 
     if(!out.length){
       out = [{ path: "index.html", content: buildExportHtml() }];
@@ -3609,7 +3614,8 @@ document.addEventListener("DOMContentLoaded", function () {
         siteName: site.name,
         repoFullName: repoFullName,
         branch: branch,
-        files: files
+        files: files,
+        assets: Array.isArray(window.__mtPublishAssets) ? window.__mtPublishAssets : []
       })
     })
     .then(function(r){ return r.json(); })
@@ -3656,6 +3662,49 @@ function convertGithubToRaw(url) {
   return url
     .replace("github.com", "raw.githubusercontent.com")
     .replace("/blob/", "/");
+}
+function mtHash32(str){
+  var s=String(str||"");
+  var h=5381;
+  for(var i=0;i<s.length;i++){ h=((h<<5)+h)+s.charCodeAt(i); h=h>>>0; }
+  return ("00000000"+h.toString(16)).slice(-8);
+}
+
+function mtImagePathFromUrl(url){
+  var v=String(url||"").trim();
+  if(!v) return "";
+  if(!isGithubImageUrl(v)) return "";
+  var raw=convertGithubToRaw(v);
+  var noQuery = raw.split("?")[0];
+  var name = noQuery.split("/").pop() || "image";
+  try{ name=decodeURIComponent(name); }catch(e){}
+  name = name.replace(/[^\w.\-]+/g,"-");
+  if(name.indexOf(".")===-1) name = name + ".png";
+  var hash = mtHash32(noQuery);
+  return "images/" + hash + "_" + name;
+}
+
+function mtCollectAssetsFromState(saved, outArr, seen){
+  var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
+  for(var b=0;b<blocks.length;b++){
+    var blk=blocks[b]||{};
+    var bg=String(blk.bgImage||"").trim();
+    if(isGithubImageUrl(bg)){
+      var p=mtImagePathFromUrl(bg);
+      if(p && !seen[p]){ seen[p]=true; outArr.push({ url:bg, path:p }); }
+    }
+    var items = Array.isArray(blk.items)?blk.items:[];
+    for(var j=0;j<items.length;j++){
+      var it=items[j]||{};
+      if(it.type==="image"||it.type==="shape"){
+        var u=String(it.url||"").trim();
+        if(isGithubImageUrl(u)){
+          var p2=mtImagePathFromUrl(u);
+          if(p2 && !seen[p2]){ seen[p2]=true; outArr.push({ url:u, path:p2 }); }
+        }
+      }
+    }
+  }
 }
 
 function mtPublishSite(siteId){
