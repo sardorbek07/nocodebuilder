@@ -500,13 +500,13 @@ openBtn.className="mt-btn";
 openBtn.title = "Tahrirlash";
 
 openBtn.textContent = "";
-openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+openBtn.innerHTML = "Tahrirlash";
 
 openBtn.onclick=function(){mtOpenPages(site.id)};
 openWrap.appendChild(openBtn);
 
 setTimeout(function(){
-  openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+  openBtn.innerHTML = "Tahrirlash";
 }, 0);
 
 
