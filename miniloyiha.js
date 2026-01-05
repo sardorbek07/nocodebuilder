@@ -487,14 +487,28 @@ function renderSites(){
     const openWrap=document.createElement("div");
     openWrap.className="mt-site-open";
 
-    const openBtn=document.createElement("button");
-    openBtn.className="mt-btn";
-    // openBtn.textContent="Tahrirlash";
-    openBtn.title = "Tahrirlash";
+    // const openBtn=document.createElement("button");
+    // openBtn.className="mt-btn";
+    // // openBtn.textContent="Tahrirlash";
+    // openBtn.title = "Tahrirlash";
 
-    openBtn.onclick=function(){mtOpenPages(site.id)};
-    openWrap.appendChild(openBtn);
-    openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+    // openBtn.onclick=function(){mtOpenPages(site.id)};
+    // openWrap.appendChild(openBtn);
+    // openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+    const openBtn=document.createElement("button");
+openBtn.className="mt-btn";
+openBtn.title = "Tahrirlash";
+
+openBtn.textContent = "";
+openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+
+openBtn.onclick=function(){mtOpenPages(site.id)};
+openWrap.appendChild(openBtn);
+
+setTimeout(function(){
+  openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+}, 0);
+
 
 
     const bottom=document.createElement("div");
