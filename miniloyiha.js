@@ -3675,6 +3675,9 @@ document.addEventListener("DOMContentLoaded", function () {
     window.__mtPublishAssets = mtBuildPublishAssets(site, files);
     console.log("PUBLISH files:", files.map(f=>({path:f.path, size:(f.content||"").length})));
 console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.path, b64len:(a.b64||"").length})));
+    
+    window.__mtPublishAssets = [{ path: "assets/test.txt", b64: btoa("asset-test-ok") }];
+console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
 
 
     fetch("https://api.nocodestudy.uz/api/github/publish",{
