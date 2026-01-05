@@ -2032,7 +2032,37 @@ function buildImageSettings(item){
   const inUrl=document.createElement("input");
   inUrl.type="url";
   inUrl.value=item.url||"";
-  inUrl.oninput=function(e){updateItemField(item,"url",e.target.value)};
+  
+  inUrl.oninput = function(e){
+  const rawUrl = String(e.target.value || "").trim();
+
+  if(!rawUrl){
+    updateItemField(item,"url","");
+    return;
+  }
+
+  fetch("https://api.nocodestudy.uz/api/github/image-import",{
+    method:"POST",
+    credentials:"include",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      url: rawUrl,
+      owner: site.mtPublish.github.owner,
+      repo: site.mtPublish.github.repo,
+      branch: site.mtPublish.github.branch || "main",
+      oldPath: (item.url && item.url.startsWith("images/")) ? item.url : ""
+    })
+  })
+  .then(r => r.json())
+  .then(data=>{
+    if(!data || !data.ok){
+      alert(data && data.error ? data.error : "Rasm yuklanmadi");
+      return;
+    }
+    updateItemField(item,"url",data.src);
+  });
+};
+
   fUrl.appendChild(l1);
   fUrl.appendChild(inUrl);
 
