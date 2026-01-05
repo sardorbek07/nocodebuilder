@@ -3667,6 +3667,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var branch = site.mtPublish.github.branch || "main";
 
     var files = mtBuildPublishFiles(site);
+    window.__mtPublishAssets = [{
+  path: "assets/test.txt",
+  b64: btoa("asset-test-ok")
+}];
+
     window.__mtPublishAssets = mtBuildPublishAssets(site, files);
     console.log("PUBLISH files:", files.map(f=>({path:f.path, size:(f.content||"").length})));
 console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.path, b64len:(a.b64||"").length})));
