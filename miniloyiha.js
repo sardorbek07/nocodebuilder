@@ -3572,6 +3572,70 @@ document.addEventListener("DOMContentLoaded", function () {
     window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
     return out;
   }
+  function mtBuildPublishAssets(site, files){
+  var out = [];
+  var seen = Object.create(null);
+
+  function extFromMime(m){
+    m = String(m||"").toLowerCase();
+    if(m.indexOf("image/webp") === 0) return "webp";
+    if(m.indexOf("image/png") === 0) return "png";
+    if(m.indexOf("image/jpeg") === 0) return "jpg";
+    if(m.indexOf("image/svg+xml") === 0) return "svg";
+    return "bin";
+  }
+
+  function hash(s){
+    return "a" + mtHash32(String(s||""));
+  }
+
+  function pushAsset(dataUrl){
+    var m = String(dataUrl||"").match(/^data:([^;]+);base64,(.+)$/i);
+    if(!m) return null;
+
+    var mime = m[1] || "";
+    var b64 = m[2] || "";
+    if(!b64) return null;
+
+    var key = hash(mime + ":" + b64.slice(0, 200));
+    if(seen[key]) return seen[key];
+
+    var ext = extFromMime(mime);
+    var path = "assets/" + key + "." + ext;
+
+    out.push({ path: path, b64: b64 });
+    seen[key] = path;
+    return path;
+  }
+
+  function replaceInHtml(html){
+    if(!html) return html;
+
+    return String(html).replace(/src\s*=\s*"(data:[^"]+)"/gi, function(full, dataUrl){
+      var p = pushAsset(dataUrl);
+      if(!p) return full;
+      return 'src="' + p + '"';
+    }).replace(/url\(\s*(["']?)(data:[^)'" ]+)\1\s*\)/gi, function(full, q, dataUrl){
+      var p = pushAsset(dataUrl);
+      if(!p) return full;
+      return "url(" + p + ")";
+    });
+  }
+
+  if(Array.isArray(files)){
+    for(var i=0;i<files.length;i++){
+      if(files[i] && typeof files[i].content === "string" && /\.html?$/i.test(String(files[i].path||""))){
+        files[i].content = replaceInHtml(files[i].content);
+      }
+      if(files[i] && typeof files[i].content === "string" && /\.css$/i.test(String(files[i].path||""))){
+        files[i].content = replaceInHtml(files[i].content);
+      }
+    }
+  }
+
+  return out;
+}
+
 
   function mtGetSiteById(id){
     for(var i=0;i<sites.length;i++){
@@ -3603,6 +3667,10 @@ document.addEventListener("DOMContentLoaded", function () {
     var branch = site.mtPublish.github.branch || "main";
 
     var files = mtBuildPublishFiles(site);
+    window.__mtPublishAssets = mtBuildPublishAssets(site, files);
+    console.log("PUBLISH files:", files.map(f=>({path:f.path, size:(f.content||"").length})));
+console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.path, b64len:(a.b64||"").length})));
+
 
     fetch("https://api.nocodestudy.uz/api/github/publish",{
       method:"POST",
