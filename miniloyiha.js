@@ -3661,13 +3661,10 @@ document.addEventListener("DOMContentLoaded", function () {
     var repoFullName = site.mtPublish.github.repoFullName || "";
     var branch = site.mtPublish.github.branch || "main";
 
-    var files = mtBuildPublishFiles(site);
-   var assets = window.__mtPublishAssets || [];
-    if (!Array.isArray(assets)) assets = [];
-    assets.push({ path: "assets/images/.keep", b64: "QQ==" });
-    if(!Array.isArray(files)) files = [];
-files = files.concat(assets);
+   var files = mtBuildPublishFiles(site);
 
+if(!Array.isArray(files)) files = [];
+files.push({ path: "assets/images/.keep", content: "keep" });
 
 
 
@@ -3680,13 +3677,7 @@ console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.pa
 console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
 
   
-      if (!Array.isArray(assets)) assets = [];
-    if (assets.length === 0) {
-    assets.push({
-    path: "assets/.keep",
-    b64: "QQ==" 
-    });
-    }
+    
     
    fetch("https://api.nocodestudy.uz/api/github/publish",{
   method:"POST",
@@ -3699,7 +3690,7 @@ console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
     repoFullName: repoFullName,
     branch: branch,
     files: files,
-    assets: assets,
+    assets: [],
     debug: true
   })
     })
