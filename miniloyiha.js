@@ -3420,48 +3420,19 @@ document.addEventListener("DOMContentLoaded", function () {
   var publishBtn = document.getElementById("mtExportBtn");
   if (!publishBtn) return;
 
- publishBtn.addEventListener("click", function () {
-  var site = sites.find(function(s){ return s.id === currentSiteId; });
-  if(!site){ alert("Sayt topilmadi"); return; }
+  var MT_PUBLISH_LOCK = false;
 
-  window.__mtPublishSiteId = site.id;
-
-  if(!site.mtPublish){ site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } }; }
-  if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
-
-  if(editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId){
-  saveCurrentSiteState();
-  }
-
-  function doPublish(){
-    fetch("https://api.nocodestudy.uz/api/github/publish",{
-      method:"POST",
-      credentials:"include",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({
-      uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
-      siteId: site.id,
-      siteName: site.name,
-      repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
-      branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
-      files: (function(){
-      var site = sites.find(function(s){ return s.id === currentSiteId; });
-      if(!site) return [{ path: "index.html", content: buildExportHtml() }];
-  
-      var pages = Array.isArray(site.pages) ? site.pages : [];
-      if(!pages.length) return [{ path: "index.html", content: buildExportHtml() }];
-
-      function slugifyName(name) {
-      return String(name || "")
+  function mtSlugifyName(name){
+    return String(name || "")
       .toLowerCase()
       .trim()
       .replace(/[_\s]+/g, "-")
       .replace(/[^a-z0-9-]/g, "")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
-      }
+  }
 
-    function pageSlug(p){
+  function mtPageSlug(p){
     var src = "";
     if(p){
       if(typeof p.slug === "string" && p.slug.trim()) src = p.slug.trim();
@@ -3470,32 +3441,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     src = String(src || "").replace(/\\/g,"/").replace(/^\/+|\/+$/g,"");
     src = src.split("/")[0];
-    var base = slugifyName(src);
+    var base = mtSlugifyName(src);
     if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
     if(!base) base = "page";
     return base;
   }
 
-  // --- snapshot: UI state ni eslab qolamiz (sakrash bo‘lmasin)
-  var prevSiteId = currentSiteId;
-  var prevPageId = currentPageId;
-
-  var prevBlocks = JSON.parse(JSON.stringify(state.blocks || []));
-  var prevCurrentBlockId = state.currentBlockId;
-  var prevCounterBlock = state.counterBlock;
-  var prevCounterItem = state.counterItem;
-  var prevSelectedId = state.selectedId;
-
-  function setStateSilent(saved){
-    state.blocks = Array.isArray(saved && saved.blocks) ? JSON.parse(JSON.stringify(saved.blocks)) : [];
-    state.currentBlockId = (saved && saved.currentBlockId) || (state.blocks[0] ? state.blocks[0].id : null);
-    state.counterBlock = (saved && saved.counterBlock) || state.blocks.length || 0;
-    state.counterItem = (saved && saved.counterItem) || 0;
-    state.previewMode = "mobile";
-    state.selectedId = null;
-  }
-
-  function makeEmptyState(){
+  function mtMakeEmptyState(){
     return {
       blocks: [{ id:"mt_b_1", name:"Blok 1", height:560, bgColor:"#ffffff", bgImage:"", items:[] }],
       currentBlockId: "mt_b_1",
@@ -3505,84 +3457,151 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  var homeId = site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
-  if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
-
-  var out = [];
-  var map = [];
-  var seen = {};
-
-  pages.forEach(function(p){
-    // title uchun vaqtincha currentPageId ni qo‘yamiz, lekin render chaqirmaymiz
-    currentSiteId = site.id;
-    currentPageId = p.id;
-
-    setStateSilent(p.builderState ? p.builderState : makeEmptyState());
-
-    var html = buildExportHtml();
-
-    var isHome = (p.id === homeId);
-    var path = isHome ? "index.html" : (pageSlug(p) + "/index.html");
-
-    if(seen[path]){
-      var i = 2;
-      while(seen[pageSlug(p) + "-" + i + "/index.html"]) i++;
-      path = pageSlug(p) + "-" + i + "/index.html";
-    }
-    seen[path] = true;
-
-    map.push({ pageId: p.id, path: path });
-    out.push({ path: path, content: html });
-  });
-
-  // publish plan saqlab qo‘yamiz
-  window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
-
-  // --- restore: UI state ni joyiga qaytaramiz
-  currentSiteId = prevSiteId;
-  currentPageId = prevPageId;
-  state.blocks = prevBlocks;
-  state.currentBlockId = prevCurrentBlockId;
-  state.counterBlock = prevCounterBlock;
-  state.counterItem = prevCounterItem;
-  state.selectedId = prevSelectedId;
-
-  // editor ochiq bo‘lsa UI ni qayta chizib qo‘yamiz (sakrashsiz)
-  if(editorOverlay && editorOverlay.style.display !== "none"){
-    renderPreview();
-    renderLayers();
-    renderSettings();
+  function mtSetStateSilent(saved){
+    state.blocks = Array.isArray(saved && saved.blocks) ? JSON.parse(JSON.stringify(saved.blocks)) : [];
+    state.currentBlockId = (saved && saved.currentBlockId) || (state.blocks[0] ? state.blocks[0].id : null);
+    state.counterBlock = (saved && saved.counterBlock) || state.blocks.length || 0;
+    state.counterItem = (saved && saved.counterItem) || 0;
+    state.previewMode = "mobile";
+    state.selectedId = null;
   }
-  return out.length ? out : [{ path: "index.html", content: buildExportHtml() }];
-})()
 
+  function mtSnapshotUi(){
+    return {
+      siteId: currentSiteId,
+      pageId: currentPageId,
+      blocks: JSON.parse(JSON.stringify(state.blocks || [])),
+      currentBlockId: state.currentBlockId,
+      counterBlock: state.counterBlock,
+      counterItem: state.counterItem,
+      selectedId: state.selectedId
+    };
+  }
 
+  function mtRestoreUi(snap){
+    currentSiteId = snap.siteId;
+    currentPageId = snap.pageId;
+    state.blocks = snap.blocks;
+    state.currentBlockId = snap.currentBlockId;
+    state.counterBlock = snap.counterBlock;
+    state.counterItem = snap.counterItem;
+    state.selectedId = snap.selectedId;
+
+    if(editorOverlay && editorOverlay.style.display !== "none"){
+      renderPreview();
+      renderLayers();
+      renderSettings();
+    }
+  }
+
+  function mtBuildPublishFiles(site){
+    var pages = Array.isArray(site && site.pages) ? site.pages : [];
+    var homeId = site && site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
+    if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
+
+    var snap = mtSnapshotUi();
+    var out = [];
+    var map = [];
+    var seen = {};
+
+    currentSiteId = site.id;
+
+    for(var i=0;i<pages.length;i++){
+      var p = pages[i];
+      if(!p) continue;
+
+      currentPageId = p.id;
+      mtSetStateSilent(p.builderState ? p.builderState : mtMakeEmptyState());
+
+      var html = buildExportHtml();
+      var isHome = (p.id === homeId);
+      var slug = mtPageSlug(p);
+      var path = isHome ? "index.html" : (slug + "/index.html");
+
+      if(seen[path]){
+        var n = 2;
+        while(seen[slug + "-" + n + "/index.html"]) n++;
+        path = slug + "-" + n + "/index.html";
+      }
+      seen[path] = true;
+
+      map.push({ pageId: p.id, path: path });
+      out.push({ path: path, content: html });
+    }
+
+    mtRestoreUi(snap);
+
+    if(!out.length){
+      out = [{ path: "index.html", content: buildExportHtml() }];
+      map = [{ pageId: (pages[0] ? pages[0].id : ""), path: "index.html" }];
+    }
+
+    window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
+    return out;
+  }
+
+  function mtGetSiteById(id){
+    for(var i=0;i<sites.length;i++){
+      if(sites[i] && sites[i].id === id) return sites[i];
+    }
+    return null;
+  }
+
+  publishBtn.addEventListener("click", function () {
+    if(MT_PUBLISH_LOCK) return;
+
+    var site = mtGetSiteById(currentSiteId);
+    if(!site){ alert("Sayt topilmadi"); return; }
+
+    MT_PUBLISH_LOCK = true;
+    window.__mtPublishSiteId = site.id;
+
+    if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
+    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" } };
+
+    if(editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId){
+      saveCurrentSiteState();
+    }
+
+    var uid = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
+    if(!uid) uid = "guest";
+
+    var repoFullName = site.mtPublish.github.repoFullName || "";
+    var branch = site.mtPublish.github.branch || "main";
+
+    var files = mtBuildPublishFiles(site);
+
+    fetch("https://api.nocodestudy.uz/api/github/publish",{
+      method:"POST",
+      credentials:"include",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        uid: uid,
+        siteId: site.id,
+        siteName: site.name,
+        repoFullName: repoFullName,
+        branch: branch,
+        files: files
       })
     })
     .then(function(r){ return r.json(); })
     .then(function(data){
       if(data && data.needAuth){
-        window.__mtPublishRetry = doPublish;
-
-        var uid = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
-        if(!uid) uid = "guest";
-
+        window.__mtPublishRetry = function(){
+          MT_PUBLISH_LOCK = false;
+          publishBtn.click();
+        };
         if(window.mtGithubConnect) window.mtGithubConnect(uid, site.id);
         return;
       }
 
       if(data && data.ok){
-        if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
-        if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
         site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
         site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
 
         if(window.__mtPublishPlan){
-        if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
-        if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
-  
-        site.mtPublish.github.paths = Array.isArray(window.__mtPublishPlan.paths) ? window.__mtPublishPlan.paths : [];
-        site.mtPublish.github.map = Array.isArray(window.__mtPublishPlan.map) ? window.__mtPublishPlan.map : [];
+          site.mtPublish.github.paths = Array.isArray(window.__mtPublishPlan.paths) ? window.__mtPublishPlan.paths : [];
+          site.mtPublish.github.map = Array.isArray(window.__mtPublishPlan.map) ? window.__mtPublishPlan.map : [];
         }
 
         saveSites();
@@ -3593,14 +3612,13 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("Publish xato");
     })
     .catch(function(){
-      mtPublishLoaderFail("Xatolik");
+      if(typeof mtPublishLoaderFail === "function") mtPublishLoaderFail("Xatolik");
       alert("Publish xato");
+    })
+    .finally(function(){
+      MT_PUBLISH_LOCK = false;
     });
-  }
-
-  doPublish();
-});
-
+  });
 });
 
 
