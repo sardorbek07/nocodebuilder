@@ -671,6 +671,7 @@ function mtRenderPages(){
 
     var pubBtn = document.createElement("button");
 pubBtn.className = "mt-btn";
+    pubBtn.title = "Publish";
 // pubBtn.textContent = "Publish";
     pubBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3234-3033-4466-a635-343037636165/Vector_51.svg" style="width:18px;height:18px;">';
 pubBtn.onclick = function(e){
