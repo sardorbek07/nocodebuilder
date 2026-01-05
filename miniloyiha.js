@@ -3668,6 +3668,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var files = mtBuildPublishFiles(site);
    var assets = window.__mtPublishAssets || [];
+    if (!Array.isArray(assets)) assets = [];
+assets.push({
+  path: "assets/images/.keep",
+  b64: "QQ=="
+});
+
 
 
    
