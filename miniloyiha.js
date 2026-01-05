@@ -1196,12 +1196,13 @@ function updateItemField(item,field,value){
       saveCurrentSiteState();
       return;
     }
-    if(!isGithubImageUrl(v)){
-      renderPreview();
-      renderLayers();
-      saveCurrentSiteState();
-      return;
-    }
+if(!isGithubImageUrl(v)){
+  item.url = v;              // <<< MUHIM: GitHub bo‘lmasa ham saqlansin
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+  return;
+}
     item.url=v;
     renderPreview();
     renderLayers();
@@ -2034,34 +2035,7 @@ function buildImageSettings(item){
   inUrl.value=item.url||"";
   
   inUrl.oninput = function(e){
-  const rawUrl = String(e.target.value || "").trim();
-
-  if(!rawUrl){
-    updateItemField(item,"url","");
-    return;
-  }
-    
-  const prevLocal = (item.url && item.url.startsWith("images/")) ? item.url : "";
-  fetch("https://api.nocodestudy.uz/api/github/image-import",{
-    method:"POST",
-    credentials:"include",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      url: rawUrl,
-      owner: site.mtPublish.github.owner,
-      repo: site.mtPublish.github.repo,
-      branch: site.mtPublish.github.branch || "main",
-      oldPath: prevLocal
-    })
-  })
-  .then(r => r.json())
-  .then(data=>{
-    if(!data || !data.ok){
-      alert(data && data.error ? data.error : "Rasm yuklanmadi");
-      return;
-    }
-    updateItemField(item,"url",data.src);
-  });
+  updateItemField(item, "url", e.target.value);
 };
 
   fUrl.appendChild(l1);
