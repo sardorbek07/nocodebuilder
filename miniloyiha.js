@@ -489,7 +489,10 @@ function renderSites(){
 
     const openBtn=document.createElement("button");
     openBtn.className="mt-btn";
-    openBtn.textContent="Tahrirlash";
+    // openBtn.textContent="Tahrirlash";
+    openBtn.title = "Tahrirlash";
+    openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+
     openBtn.onclick=function(){mtOpenPages(site.id)};
     openWrap.appendChild(openBtn);
 
@@ -663,7 +666,10 @@ function mtRenderPages(){
 
     var delBtn = document.createElement("button");
     delBtn.className = "mt-btn danger";
-    delBtn.textContent = "O‘chirish";
+    // delBtn.textContent = "O‘chirish";
+    delBtn.title = "O‘chirish";
+delBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3964-3537-4434-b634-323937383332/Vector_54.svg" style="width:18px;height:18px;">';
+
     delBtn.onclick = function(e){
       e.stopPropagation();
       mtDeletePage(p.id);
@@ -684,7 +690,10 @@ actions.appendChild(pubBtn);
     
    var setBtn = document.createElement("button");
 setBtn.className = "mt-btn secondary";
-setBtn.textContent = "Sozlamalar";
+// setBtn.textContent = "Sozlamalar";
+    setBtn.title = "Sozlamalar";
+setBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3735-6437-4735-a338-613732623665/Vector_53.svg" style="width:18px;height:18px;">';
+
 setBtn.onclick = function(e){
   e.stopPropagation();
   mtOpenPageSettings(site.id, p.id);
