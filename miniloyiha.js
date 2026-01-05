@@ -1491,7 +1491,7 @@ function renderPreview(){
         box.style.border=item.borderWidth+"px solid "+(item.borderColor||"#111827");
       }
       if(item.url){
-        box.style.backgroundImage="url("+item.url+")";
+       box.style.backgroundImage = "url(" + convertGithubToRaw(item.url) + ")";
         box.style.backgroundSize="cover";
         box.style.backgroundPosition="center center";
       }
@@ -2611,12 +2611,7 @@ function escapeHtml(str){
 }
 
 // Faqat GitHub rasmlarini qabul qilish
-function isGithubImageUrl(url){
-  const u=String(url||"").trim();
-  if(!u)return false;
-  if(!u.startsWith("https://github.com/"))return false;
-  return /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(u);
-}
+
 
 function getGithubImageFileName(url){
   const u=String(url||"").trim();
@@ -2790,9 +2785,9 @@ function buildExportHtml() {
             var wImg = item.width ? "width:" + item.width + "px;" : "";
             var hImg = item.height ? "height:" + item.height + "px;" : "";
             var bSize =
-              item.borderSize != null
-                ? "border-width:" + item.borderSize + "px;"
-                : "border-width:0;";
+              item.borderWidth != null
+                ? "item.borderWidth" + item.borderWidth + "px;"
+                : "item.borderWidth:0;";
             var bColor =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyle = "border-style:solid;";
@@ -2826,9 +2821,9 @@ function buildExportHtml() {
             var wBtn = item.width ? "width:" + item.width + "px;" : "";
             var hBtn = "height:" + (item.height || 50) + "px;";
             var bSizeBtn =
-              item.borderSize != null
-                ? "border-width:" + item.borderSize + "px;"
-                : "border-width:0;";
+              item.borderWidth != null
+                ? "item.borderWidth" + item.borderWidth + "px;"
+                : "item.borderWidth: 0;";
             var bColorBtn =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyleBtn = "border-style:solid;";
@@ -2882,9 +2877,9 @@ function buildExportHtml() {
               (item.radius != null ? item.radius : 16) +
               "px;";
             var bSizeShape =
-              item.borderSize != null
-                ? "border-width:" + item.borderSize + "px;"
-                : "border-width:0;";
+              item.borderWidth != null
+                ? "item.borderWidth" + item.borderWidth + "px;"
+                : "border-widt:0;";
             var bColorShape =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyleShape = "border-style:solid;";
@@ -3669,10 +3664,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var files = mtBuildPublishFiles(site);
    var assets = window.__mtPublishAssets || [];
     if (!Array.isArray(assets)) assets = [];
-assets.push({
-  path: "assets/images/.keep",
-  b64: "QQ=="
-});
+    assets.push({ path: "assets/images/.keep", b64: "QQ==" });
+
 
 
 
@@ -3770,7 +3763,7 @@ function mtImagePathFromUrl(url){
   name = name.replace(/[^\w.\-]+/g,"-");
   if(name.indexOf(".")===-1) name = name + ".png";
   var hash = mtHash32(noQuery);
-  return "images/" + hash + "_" + name;
+  return "assets/images/" + hash + "_" + name;
 }
 
 function mtCollectAssetsFromState(saved, outArr, seen){
