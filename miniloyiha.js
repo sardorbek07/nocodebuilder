@@ -2040,7 +2040,8 @@ function buildImageSettings(item){
     updateItemField(item,"url","");
     return;
   }
-
+    
+  const prevLocal = (item.url && item.url.startsWith("images/")) ? item.url : "";
   fetch("https://api.nocodestudy.uz/api/github/image-import",{
     method:"POST",
     credentials:"include",
@@ -2050,7 +2051,7 @@ function buildImageSettings(item){
       owner: site.mtPublish.github.owner,
       repo: site.mtPublish.github.repo,
       branch: site.mtPublish.github.branch || "main",
-      oldPath: (item.url && item.url.startsWith("images/")) ? item.url : ""
+      oldPath: prevLocal
     })
   })
   .then(r => r.json())
