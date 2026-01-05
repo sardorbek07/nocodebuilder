@@ -3697,7 +3697,8 @@ console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
     repoFullName: repoFullName,
     branch: branch,
     files: files,
-    assets: assets
+    assets: assets,
+    debug: true
   })
     })
     .then(function(r){ return r.json(); })
