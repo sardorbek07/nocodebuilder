@@ -465,6 +465,7 @@ function renderSites(){
     setBtn.className = "mt-site-settings-btn";
     setBtn.type = "button";
     setBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3362-3438-4563-a334-313430373037/Vector_48.svg" style="width:20px;height:20px;background: transparent;" alt="">';
+    setBtn.title = "Sozlamalar";
     setBtn.onclick = function(e){
     e.stopPropagation();
     mtOpenSiteSettings(site.id);
@@ -487,11 +488,29 @@ function renderSites(){
     const openWrap=document.createElement("div");
     openWrap.className="mt-site-open";
 
+    // const openBtn=document.createElement("button");
+    // openBtn.className="mt-btn";
+    // // openBtn.textContent="Tahrirlash";
+    // openBtn.title = "Tahrirlash";
+
+    // openBtn.onclick=function(){mtOpenPages(site.id)};
+    // openWrap.appendChild(openBtn);
+    // openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
     const openBtn=document.createElement("button");
-    openBtn.className="mt-btn";
-    openBtn.textContent="Tahrirlash";
-    openBtn.onclick=function(){mtOpenPages(site.id)};
-    openWrap.appendChild(openBtn);
+openBtn.className="mt-btn";
+openBtn.title = "Tahrirlash";
+
+openBtn.textContent = "";
+openBtn.innerHTML = "Tahrirlash";
+
+openBtn.onclick=function(){mtOpenPages(site.id)};
+openWrap.appendChild(openBtn);
+
+setTimeout(function(){
+  openBtn.innerHTML = "Tahrirlash";
+}, 0);
+
+
 
     const bottom=document.createElement("div");
     bottom.className="mt-site-bottom";
@@ -647,7 +666,8 @@ function mtRenderPages(){
 
     var editBtn = document.createElement("button");
     editBtn.className = "mt-btn";
-    editBtn.textContent = "Tahrirlash";
+   editBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
+editBtn.title = "Tahrirlash";
     editBtn.onclick = function(e){
       e.stopPropagation();
       mtOpenEditorForPage(site.id, p.id);
@@ -663,7 +683,10 @@ function mtRenderPages(){
 
     var delBtn = document.createElement("button");
     delBtn.className = "mt-btn danger";
-    delBtn.textContent = "O‘chirish";
+    // delBtn.textContent = "O‘chirish";
+    delBtn.title = "O‘chirish";
+delBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3964-3537-4434-b634-323937383332/Vector_54.svg" style="width:18px;height:18px;">';
+
     delBtn.onclick = function(e){
       e.stopPropagation();
       mtDeletePage(p.id);
@@ -671,7 +694,9 @@ function mtRenderPages(){
 
     var pubBtn = document.createElement("button");
 pubBtn.className = "mt-btn";
-pubBtn.textContent = "Publish";
+    pubBtn.title = "Publish";
+// pubBtn.textContent = "Publish";
+    pubBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3234-3033-4466-a635-343037636165/Vector_51.svg" style="width:18px;height:18px;">';
 pubBtn.onclick = function(e){
   e.stopPropagation();
   mtPublishSite(site.id);
@@ -682,7 +707,10 @@ actions.appendChild(pubBtn);
     
    var setBtn = document.createElement("button");
 setBtn.className = "mt-btn secondary";
-setBtn.textContent = "Sozlamalar";
+// setBtn.textContent = "Sozlamalar";
+    setBtn.title = "Sozlamalar";
+setBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3735-6437-4735-a338-613732623665/Vector_53.svg" style="width:18px;height:18px;">';
+
 setBtn.onclick = function(e){
   e.stopPropagation();
   mtOpenPageSettings(site.id, p.id);
@@ -1463,7 +1491,7 @@ function renderPreview(){
         box.style.border=item.borderWidth+"px solid "+(item.borderColor||"#111827");
       }
       if(item.url){
-        box.style.backgroundImage="url("+item.url+")";
+       box.style.backgroundImage = "url(" + convertGithubToRaw(item.url) + ")";
         box.style.backgroundSize="cover";
         box.style.backgroundPosition="center center";
       }
@@ -2583,12 +2611,7 @@ function escapeHtml(str){
 }
 
 // Faqat GitHub rasmlarini qabul qilish
-function isGithubImageUrl(url){
-  const u=String(url||"").trim();
-  if(!u)return false;
-  if(!u.startsWith("https://github.com/"))return false;
-  return /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(u);
-}
+
 
 function getGithubImageFileName(url){
   const u=String(url||"").trim();
@@ -2755,16 +2778,16 @@ function buildExportHtml() {
 
           // ==== RASM ====
           if (item.type === "image") {
-            var fileName = normalizeGithubImage(item.url || "");
+            var fileName = mtImagePathFromUrl(item.url || "");
             if (!fileName) {
               return "";
             }
             var wImg = item.width ? "width:" + item.width + "px;" : "";
             var hImg = item.height ? "height:" + item.height + "px;" : "";
             var bSize =
-              item.borderSize != null
-                ? "border-width:" + item.borderSize + "px;"
-                : "border-width:0;";
+              item.borderWidth != null
+                ? "item.borderWidth" + item.borderWidth + "px;"
+                : "item.borderWidth:0;";
             var bColor =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyle = "border-style:solid;";
@@ -2798,9 +2821,9 @@ function buildExportHtml() {
             var wBtn = item.width ? "width:" + item.width + "px;" : "";
             var hBtn = "height:" + (item.height || 50) + "px;";
             var bSizeBtn =
-              item.borderSize != null
-                ? "border-width:" + item.borderSize + "px;"
-                : "border-width:0;";
+              item.borderWidth != null
+                ? "item.borderWidth" + item.borderWidth + "px;"
+                : "item.borderWidth: 0;";
             var bColorBtn =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyleBtn = "border-style:solid;";
@@ -2854,16 +2877,16 @@ function buildExportHtml() {
               (item.radius != null ? item.radius : 16) +
               "px;";
             var bSizeShape =
-              item.borderSize != null
-                ? "border-width:" + item.borderSize + "px;"
-                : "border-width:0;";
+              item.borderWidth != null
+                ? "item.borderWidth" + item.borderWidth + "px;"
+                : "border-widt:0;";
             var bColorShape =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyleShape = "border-style:solid;";
 
             var bgImgStyle = "";
-            if (item.bgImage) {
-              var bgFile = normalizeGithubImage(item.bgImage);
+            if (item.url) {
+              var bgFile = mtImagePathFromUrl(item.url);
               if (bgFile) {
                 bgImgStyle =
                   "background-image:url(" +
@@ -2973,7 +2996,7 @@ return "";
       if (block.bgColor) styleParts.push("background:" + block.bgColor);
 
       if (block.bgImage) {
-        var bgFile2 = normalizeGithubImage(block.bgImage);
+        var bgFile2 = mtImagePathFromUrl(block.bgImage);
         if (bgFile2) {
           styleParts.push("background-image:url(" + escapeHtml(bgFile2) + ")");
           styleParts.push("background-size:cover");
@@ -3503,6 +3526,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var out = [];
     var map = [];
     var seen = {};
+    var assets = [];
+    var assetsSeen = {};
+
 
     currentSiteId = site.id;
 
@@ -3512,6 +3538,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       currentPageId = p.id;
       mtSetStateSilent(p.builderState ? p.builderState : mtMakeEmptyState());
+      mtCollectAssetsFromState(state, assets, assetsSeen);
 
       var html = buildExportHtml();
       var isHome = (p.id === homeId);
@@ -3530,6 +3557,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     mtRestoreUi(snap);
+    window.__mtPublishAssets = assets;
 
     if(!out.length){
       out = [{ path: "index.html", content: buildExportHtml() }];
@@ -3539,6 +3567,70 @@ document.addEventListener("DOMContentLoaded", function () {
     window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
     return out;
   }
+  function mtBuildPublishAssets(site, files){
+  var out = [];
+  var seen = Object.create(null);
+
+  function extFromMime(m){
+    m = String(m||"").toLowerCase();
+    if(m.indexOf("image/webp") === 0) return "webp";
+    if(m.indexOf("image/png") === 0) return "png";
+    if(m.indexOf("image/jpeg") === 0) return "jpg";
+    if(m.indexOf("image/svg+xml") === 0) return "svg";
+    return "bin";
+  }
+
+  function hash(s){
+    return "a" + mtHash32(String(s||""));
+  }
+
+  function pushAsset(dataUrl){
+    var m = String(dataUrl||"").match(/^data:([^;]+);base64,(.+)$/i);
+    if(!m) return null;
+
+    var mime = m[1] || "";
+    var b64 = m[2] || "";
+    if(!b64) return null;
+
+    var key = hash(mime + ":" + b64.slice(0, 200));
+    if(seen[key]) return seen[key];
+
+    var ext = extFromMime(mime);
+    var path = "assets/" + key + "." + ext;
+
+    out.push({ path: path, b64: b64 });
+    seen[key] = path;
+    return path;
+  }
+
+  function replaceInHtml(html){
+    if(!html) return html;
+
+    return String(html).replace(/src\s*=\s*"(data:[^"]+)"/gi, function(full, dataUrl){
+      var p = pushAsset(dataUrl);
+      if(!p) return full;
+      return 'src="' + p + '"';
+    }).replace(/url\(\s*(["']?)(data:[^)'" ]+)\1\s*\)/gi, function(full, q, dataUrl){
+      var p = pushAsset(dataUrl);
+      if(!p) return full;
+      return "url(" + p + ")";
+    });
+  }
+
+  if(Array.isArray(files)){
+    for(var i=0;i<files.length;i++){
+      if(files[i] && typeof files[i].content === "string" && /\.html?$/i.test(String(files[i].path||""))){
+        files[i].content = replaceInHtml(files[i].content);
+      }
+      if(files[i] && typeof files[i].content === "string" && /\.css$/i.test(String(files[i].path||""))){
+        files[i].content = replaceInHtml(files[i].content);
+      }
+    }
+  }
+
+  return out;
+}
+
 
   function mtGetSiteById(id){
     for(var i=0;i<sites.length;i++){
@@ -3557,7 +3649,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.__mtPublishSiteId = site.id;
 
     if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
-    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
+    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" } ;
 
     if(editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId){
       saveCurrentSiteState();
@@ -3569,20 +3661,38 @@ document.addEventListener("DOMContentLoaded", function () {
     var repoFullName = site.mtPublish.github.repoFullName || "";
     var branch = site.mtPublish.github.branch || "main";
 
-    var files = mtBuildPublishFiles(site);
+   var files = mtBuildPublishFiles(site);
 
-    fetch("https://api.nocodestudy.uz/api/github/publish",{
-      method:"POST",
-      credentials:"include",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        uid: uid,
-        siteId: site.id,
-        siteName: site.name,
-        repoFullName: repoFullName,
-        branch: branch,
-        files: files
-      })
+if(!Array.isArray(files)) files = [];
+files.push({ path: "assets/images/.keep", content: "keep" });
+
+
+
+
+   
+    console.log("PUBLISH files:", files.map(f=>({path:f.path, size:(f.content||"").length})));
+console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.path, b64len:(a.b64||"").length})));
+    
+   
+console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
+
+  
+    
+    
+   fetch("https://api.nocodestudy.uz/api/github/publish",{
+  method:"POST",
+  credentials:"include",
+  headers:{ "Content-Type":"application/json" },
+  body: JSON.stringify({
+    uid: uid,
+    siteId: site.id,
+    siteName: site.name,
+    repoFullName: repoFullName,
+    branch: branch,
+    files: files,
+    assets: [],
+    debug: true
+  })
     })
     .then(function(r){ return r.json(); })
     .then(function(data){
@@ -3628,6 +3738,49 @@ function convertGithubToRaw(url) {
   return url
     .replace("github.com", "raw.githubusercontent.com")
     .replace("/blob/", "/");
+}
+function mtHash32(str){
+  var s=String(str||"");
+  var h=5381;
+  for(var i=0;i<s.length;i++){ h=((h<<5)+h)+s.charCodeAt(i); h=h>>>0; }
+  return ("00000000"+h.toString(16)).slice(-8);
+}
+
+function mtImagePathFromUrl(url){
+  var v=String(url||"").trim();
+  if(!v) return "";
+  if(!isGithubImageUrl(v)) return "";
+  var raw=convertGithubToRaw(v);
+  var noQuery = raw.split("?")[0];
+  var name = noQuery.split("/").pop() || "image";
+  try{ name=decodeURIComponent(name); }catch(e){}
+  name = name.replace(/[^\w.\-]+/g,"-");
+  if(name.indexOf(".")===-1) name = name + ".png";
+  var hash = mtHash32(noQuery);
+  return "assets/images/" + hash + "_" + name;
+}
+
+function mtCollectAssetsFromState(saved, outArr, seen){
+  var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
+  for(var b=0;b<blocks.length;b++){
+    var blk=blocks[b]||{};
+    var bg=String(blk.bgImage||"").trim();
+    if(isGithubImageUrl(bg)){
+      var p=mtImagePathFromUrl(bg);
+      if(p && !seen[p]){ seen[p]=true; outArr.push({ url:bg, path:p }); }
+    }
+    var items = Array.isArray(blk.items)?blk.items:[];
+    for(var j=0;j<items.length;j++){
+      var it=items[j]||{};
+      if(it.type==="image"||it.type==="shape"){
+        var u=String(it.url||"").trim();
+        if(isGithubImageUrl(u)){
+          var p2=mtImagePathFromUrl(u);
+          if(p2 && !seen[p2]){ seen[p2]=true; outArr.push({ url:u, path:p2 }); }
+        }
+      }
+    }
+  }
 }
 
 function mtPublishSite(siteId){
@@ -3961,4 +4114,5 @@ setTimeout(function(){
     mtClosePageSettings();
   };
 }, 0);
+
 
