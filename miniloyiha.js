@@ -3690,7 +3690,7 @@ console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
     repoFullName: repoFullName,
     branch: branch,
     files: files,
-    assets: [],
+    assets: (window.__mtPublishAssets || []),
     debug: true
   })
     })
