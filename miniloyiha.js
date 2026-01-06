@@ -465,7 +465,6 @@ function renderSites(){
     setBtn.className = "mt-site-settings-btn";
     setBtn.type = "button";
     setBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3362-3438-4563-a334-313430373037/Vector_48.svg" style="width:20px;height:20px;background: transparent;" alt="">';
-    setBtn.title = "Sozlamalar";
     setBtn.onclick = function(e){
     e.stopPropagation();
     mtOpenSiteSettings(site.id);
@@ -488,29 +487,11 @@ function renderSites(){
     const openWrap=document.createElement("div");
     openWrap.className="mt-site-open";
 
-    // const openBtn=document.createElement("button");
-    // openBtn.className="mt-btn";
-    // // openBtn.textContent="Tahrirlash";
-    // openBtn.title = "Tahrirlash";
-
-    // openBtn.onclick=function(){mtOpenPages(site.id)};
-    // openWrap.appendChild(openBtn);
-    // openBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
     const openBtn=document.createElement("button");
-openBtn.className="mt-btn";
-openBtn.title = "Tahrirlash";
-
-openBtn.textContent = "";
-openBtn.innerHTML = "Tahrirlash";
-
-openBtn.onclick=function(){mtOpenPages(site.id)};
-openWrap.appendChild(openBtn);
-
-setTimeout(function(){
-  openBtn.innerHTML = "Tahrirlash";
-}, 0);
-
-
+    openBtn.className="mt-btn";
+    openBtn.textContent="Tahrirlash";
+    openBtn.onclick=function(){mtOpenPages(site.id)};
+    openWrap.appendChild(openBtn);
 
     const bottom=document.createElement("div");
     bottom.className="mt-site-bottom";
@@ -666,8 +647,7 @@ function mtRenderPages(){
 
     var editBtn = document.createElement("button");
     editBtn.className = "mt-btn";
-   editBtn.innerHTML = '<img src="https://static.tildacdn.com/tild6161-3863-4639-b630-326263373631/Vector_52.svg" style="width:18px;height:18px;">';
-editBtn.title = "Tahrirlash";
+    editBtn.textContent = "Tahrirlash";
     editBtn.onclick = function(e){
       e.stopPropagation();
       mtOpenEditorForPage(site.id, p.id);
@@ -683,10 +663,7 @@ editBtn.title = "Tahrirlash";
 
     var delBtn = document.createElement("button");
     delBtn.className = "mt-btn danger";
-    // delBtn.textContent = "O‘chirish";
-    delBtn.title = "O‘chirish";
-delBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3964-3537-4434-b634-323937383332/Vector_54.svg" style="width:18px;height:18px;">';
-
+    delBtn.textContent = "O‘chirish";
     delBtn.onclick = function(e){
       e.stopPropagation();
       mtDeletePage(p.id);
@@ -694,9 +671,7 @@ delBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3964-3537-4434-b63
 
     var pubBtn = document.createElement("button");
 pubBtn.className = "mt-btn";
-    pubBtn.title = "Publish";
-// pubBtn.textContent = "Publish";
-    pubBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3234-3033-4466-a635-343037636165/Vector_51.svg" style="width:18px;height:18px;">';
+pubBtn.textContent = "Publish";
 pubBtn.onclick = function(e){
   e.stopPropagation();
   mtPublishSite(site.id);
@@ -707,10 +682,7 @@ actions.appendChild(pubBtn);
     
    var setBtn = document.createElement("button");
 setBtn.className = "mt-btn secondary";
-// setBtn.textContent = "Sozlamalar";
-    setBtn.title = "Sozlamalar";
-setBtn.innerHTML = '<img src="https://static.tildacdn.com/tild3735-6437-4735-a338-613732623665/Vector_53.svg" style="width:18px;height:18px;">';
-
+setBtn.textContent = "Sozlamalar";
 setBtn.onclick = function(e){
   e.stopPropagation();
   mtOpenPageSettings(site.id, p.id);
@@ -1491,7 +1463,7 @@ function renderPreview(){
         box.style.border=item.borderWidth+"px solid "+(item.borderColor||"#111827");
       }
       if(item.url){
-       box.style.backgroundImage = "url(" + convertGithubToRaw(item.url) + ")";
+        box.style.backgroundImage="url("+item.url+")";
         box.style.backgroundSize="cover";
         box.style.backgroundPosition="center center";
       }
@@ -2611,7 +2583,12 @@ function escapeHtml(str){
 }
 
 // Faqat GitHub rasmlarini qabul qilish
-
+function isGithubImageUrl(url){
+  const u=String(url||"").trim();
+  if(!u)return false;
+  if(!u.startsWith("https://github.com/"))return false;
+  return /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(u);
+}
 
 function getGithubImageFileName(url){
   const u=String(url||"").trim();
@@ -2778,16 +2755,16 @@ function buildExportHtml() {
 
           // ==== RASM ====
           if (item.type === "image") {
-            var fileName = mtImagePathFromUrl(item.url || "");
+            var fileName = normalizeGithubImage(item.url || "");
             if (!fileName) {
               return "";
             }
             var wImg = item.width ? "width:" + item.width + "px;" : "";
             var hImg = item.height ? "height:" + item.height + "px;" : "";
             var bSize =
-              item.borderWidth != null
-                ? "item.borderWidth" + item.borderWidth + "px;"
-                : "item.borderWidth:0;";
+              item.borderSize != null
+                ? "border-width:" + item.borderSize + "px;"
+                : "border-width:0;";
             var bColor =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyle = "border-style:solid;";
@@ -2821,9 +2798,9 @@ function buildExportHtml() {
             var wBtn = item.width ? "width:" + item.width + "px;" : "";
             var hBtn = "height:" + (item.height || 50) + "px;";
             var bSizeBtn =
-              item.borderWidth != null
-                ? "item.borderWidth" + item.borderWidth + "px;"
-                : "item.borderWidth: 0;";
+              item.borderSize != null
+                ? "border-width:" + item.borderSize + "px;"
+                : "border-width:0;";
             var bColorBtn =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyleBtn = "border-style:solid;";
@@ -2877,16 +2854,16 @@ function buildExportHtml() {
               (item.radius != null ? item.radius : 16) +
               "px;";
             var bSizeShape =
-              item.borderWidth != null
-                ? "item.borderWidth" + item.borderWidth + "px;"
-                : "border-widt:0;";
+              item.borderSize != null
+                ? "border-width:" + item.borderSize + "px;"
+                : "border-width:0;";
             var bColorShape =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyleShape = "border-style:solid;";
 
             var bgImgStyle = "";
-            if (item.url) {
-              var bgFile = mtImagePathFromUrl(item.url);
+            if (item.bgImage) {
+              var bgFile = normalizeGithubImage(item.bgImage);
               if (bgFile) {
                 bgImgStyle =
                   "background-image:url(" +
@@ -2996,7 +2973,7 @@ return "";
       if (block.bgColor) styleParts.push("background:" + block.bgColor);
 
       if (block.bgImage) {
-        var bgFile2 = mtImagePathFromUrl(block.bgImage);
+        var bgFile2 = normalizeGithubImage(block.bgImage);
         if (bgFile2) {
           styleParts.push("background-image:url(" + escapeHtml(bgFile2) + ")");
           styleParts.push("background-size:cover");
@@ -3443,19 +3420,48 @@ document.addEventListener("DOMContentLoaded", function () {
   var publishBtn = document.getElementById("mtExportBtn");
   if (!publishBtn) return;
 
-  var MT_PUBLISH_LOCK = false;
+ publishBtn.addEventListener("click", function () {
+  var site = sites.find(function(s){ return s.id === currentSiteId; });
+  if(!site){ alert("Sayt topilmadi"); return; }
 
-  function mtSlugifyName(name){
-    return String(name || "")
+  window.__mtPublishSiteId = site.id;
+
+  if(!site.mtPublish){ site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } }; }
+  if(!site.mtPublish.github){ site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" }; }
+
+  if(editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId){
+  saveCurrentSiteState();
+  }
+
+  function doPublish(){
+    fetch("https://api.nocodestudy.uz/api/github/publish",{
+      method:"POST",
+      credentials:"include",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+      uid: (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim(),
+      siteId: site.id,
+      siteName: site.name,
+      repoFullName: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName) ? site.mtPublish.github.repoFullName : "",
+      branch: (site.mtPublish && site.mtPublish.github && site.mtPublish.github.branch) ? site.mtPublish.github.branch : "main",
+      files: (function(){
+      var site = sites.find(function(s){ return s.id === currentSiteId; });
+      if(!site) return [{ path: "index.html", content: buildExportHtml() }];
+  
+      var pages = Array.isArray(site.pages) ? site.pages : [];
+      if(!pages.length) return [{ path: "index.html", content: buildExportHtml() }];
+
+      function slugifyName(name) {
+      return String(name || "")
       .toLowerCase()
       .trim()
       .replace(/[_\s]+/g, "-")
       .replace(/[^a-z0-9-]/g, "")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
-  }
+      }
 
-  function mtPageSlug(p){
+    function pageSlug(p){
     var src = "";
     if(p){
       if(typeof p.slug === "string" && p.slug.trim()) src = p.slug.trim();
@@ -3464,13 +3470,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     src = String(src || "").replace(/\\/g,"/").replace(/^\/+|\/+$/g,"");
     src = src.split("/")[0];
-    var base = mtSlugifyName(src);
+    var base = slugifyName(src);
     if(!base) base = String(p && p.id ? p.id : "").replace(/[^a-zA-Z0-9_-]/g,"").toLowerCase();
     if(!base) base = "page";
     return base;
   }
 
-  function mtMakeEmptyState(){
+  // --- snapshot: UI state ni eslab qolamiz (sakrash bo‘lmasin)
+  var prevSiteId = currentSiteId;
+  var prevPageId = currentPageId;
+
+  var prevBlocks = JSON.parse(JSON.stringify(state.blocks || []));
+  var prevCurrentBlockId = state.currentBlockId;
+  var prevCounterBlock = state.counterBlock;
+  var prevCounterItem = state.counterItem;
+  var prevSelectedId = state.selectedId;
+
+  function setStateSilent(saved){
+    state.blocks = Array.isArray(saved && saved.blocks) ? JSON.parse(JSON.stringify(saved.blocks)) : [];
+    state.currentBlockId = (saved && saved.currentBlockId) || (state.blocks[0] ? state.blocks[0].id : null);
+    state.counterBlock = (saved && saved.counterBlock) || state.blocks.length || 0;
+    state.counterItem = (saved && saved.counterItem) || 0;
+    state.previewMode = "mobile";
+    state.selectedId = null;
+  }
+
+  function makeEmptyState(){
     return {
       blocks: [{ id:"mt_b_1", name:"Blok 1", height:560, bgColor:"#ffffff", bgImage:"", items:[] }],
       currentBlockId: "mt_b_1",
@@ -3480,238 +3505,84 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  function mtSetStateSilent(saved){
-    state.blocks = Array.isArray(saved && saved.blocks) ? JSON.parse(JSON.stringify(saved.blocks)) : [];
-    state.currentBlockId = (saved && saved.currentBlockId) || (state.blocks[0] ? state.blocks[0].id : null);
-    state.counterBlock = (saved && saved.counterBlock) || state.blocks.length || 0;
-    state.counterItem = (saved && saved.counterItem) || 0;
-    state.previewMode = "mobile";
-    state.selectedId = null;
-  }
+  var homeId = site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
+  if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
 
-  function mtSnapshotUi(){
-    return {
-      siteId: currentSiteId,
-      pageId: currentPageId,
-      blocks: JSON.parse(JSON.stringify(state.blocks || [])),
-      currentBlockId: state.currentBlockId,
-      counterBlock: state.counterBlock,
-      counterItem: state.counterItem,
-      selectedId: state.selectedId
-    };
-  }
-
-  function mtRestoreUi(snap){
-    currentSiteId = snap.siteId;
-    currentPageId = snap.pageId;
-    state.blocks = snap.blocks;
-    state.currentBlockId = snap.currentBlockId;
-    state.counterBlock = snap.counterBlock;
-    state.counterItem = snap.counterItem;
-    state.selectedId = snap.selectedId;
-
-    if(editorOverlay && editorOverlay.style.display !== "none"){
-      renderPreview();
-      renderLayers();
-      renderSettings();
-    }
-  }
-
-  function mtBuildPublishFiles(site){
-    var pages = Array.isArray(site && site.pages) ? site.pages : [];
-    var homeId = site && site.settings && typeof site.settings.homePageId === "string" ? site.settings.homePageId : "";
-    if(!homeId && pages[0] && pages[0].id) homeId = pages[0].id;
-
-    var snap = mtSnapshotUi();
-    var out = [];
-    var map = [];
-    var seen = {};
-    var assets = [];
-    var assetsSeen = {};
-
-
-    currentSiteId = site.id;
-
-    for(var i=0;i<pages.length;i++){
-      var p = pages[i];
-      if(!p) continue;
-
-      currentPageId = p.id;
-      mtSetStateSilent(p.builderState ? p.builderState : mtMakeEmptyState());
-      mtCollectAssetsFromState(state, assets, assetsSeen);
-
-      var html = buildExportHtml();
-      var isHome = (p.id === homeId);
-      var slug = mtPageSlug(p);
-      var path = isHome ? "index.html" : (slug + "/index.html");
-
-      if(seen[path]){
-        var n = 2;
-        while(seen[slug + "-" + n + "/index.html"]) n++;
-        path = slug + "-" + n + "/index.html";
-      }
-      seen[path] = true;
-
-      map.push({ pageId: p.id, path: path });
-      out.push({ path: path, content: html });
-    }
-
-    mtRestoreUi(snap);
-    window.__mtPublishAssets = assets;
-
-    if(!out.length){
-      out = [{ path: "index.html", content: buildExportHtml() }];
-      map = [{ pageId: (pages[0] ? pages[0].id : ""), path: "index.html" }];
-    }
-
-    window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
-    return out;
-  }
-  function mtBuildPublishAssets(site, files){
   var out = [];
-  var seen = Object.create(null);
+  var map = [];
+  var seen = {};
 
-  function extFromMime(m){
-    m = String(m||"").toLowerCase();
-    if(m.indexOf("image/webp") === 0) return "webp";
-    if(m.indexOf("image/png") === 0) return "png";
-    if(m.indexOf("image/jpeg") === 0) return "jpg";
-    if(m.indexOf("image/svg+xml") === 0) return "svg";
-    return "bin";
-  }
+  pages.forEach(function(p){
+    // title uchun vaqtincha currentPageId ni qo‘yamiz, lekin render chaqirmaymiz
+    currentSiteId = site.id;
+    currentPageId = p.id;
 
-  function hash(s){
-    return "a" + mtHash32(String(s||""));
-  }
+    setStateSilent(p.builderState ? p.builderState : makeEmptyState());
 
-  function pushAsset(dataUrl){
-    var m = String(dataUrl||"").match(/^data:([^;]+);base64,(.+)$/i);
-    if(!m) return null;
+    var html = buildExportHtml();
 
-    var mime = m[1] || "";
-    var b64 = m[2] || "";
-    if(!b64) return null;
+    var isHome = (p.id === homeId);
+    var path = isHome ? "index.html" : (pageSlug(p) + "/index.html");
 
-    var key = hash(mime + ":" + b64.slice(0, 200));
-    if(seen[key]) return seen[key];
-
-    var ext = extFromMime(mime);
-    var path = "assets/" + key + "." + ext;
-
-    out.push({ path: path, b64: b64 });
-    seen[key] = path;
-    return path;
-  }
-
-  function replaceInHtml(html){
-    if(!html) return html;
-
-    return String(html).replace(/src\s*=\s*"(data:[^"]+)"/gi, function(full, dataUrl){
-      var p = pushAsset(dataUrl);
-      if(!p) return full;
-      return 'src="' + p + '"';
-    }).replace(/url\(\s*(["']?)(data:[^)'" ]+)\1\s*\)/gi, function(full, q, dataUrl){
-      var p = pushAsset(dataUrl);
-      if(!p) return full;
-      return "url(" + p + ")";
-    });
-  }
-
-  if(Array.isArray(files)){
-    for(var i=0;i<files.length;i++){
-      if(files[i] && typeof files[i].content === "string" && /\.html?$/i.test(String(files[i].path||""))){
-        files[i].content = replaceInHtml(files[i].content);
-      }
-      if(files[i] && typeof files[i].content === "string" && /\.css$/i.test(String(files[i].path||""))){
-        files[i].content = replaceInHtml(files[i].content);
-      }
+    if(seen[path]){
+      var i = 2;
+      while(seen[pageSlug(p) + "-" + i + "/index.html"]) i++;
+      path = pageSlug(p) + "-" + i + "/index.html";
     }
+    seen[path] = true;
+
+    map.push({ pageId: p.id, path: path });
+    out.push({ path: path, content: html });
+  });
+
+  // publish plan saqlab qo‘yamiz
+  window.__mtPublishPlan = { paths: out.map(function(x){ return x.path; }), map: map };
+
+  // --- restore: UI state ni joyiga qaytaramiz
+  currentSiteId = prevSiteId;
+  currentPageId = prevPageId;
+  state.blocks = prevBlocks;
+  state.currentBlockId = prevCurrentBlockId;
+  state.counterBlock = prevCounterBlock;
+  state.counterItem = prevCounterItem;
+  state.selectedId = prevSelectedId;
+
+  // editor ochiq bo‘lsa UI ni qayta chizib qo‘yamiz (sakrashsiz)
+  if(editorOverlay && editorOverlay.style.display !== "none"){
+    renderPreview();
+    renderLayers();
+    renderSettings();
   }
-
-  return out;
-}
-
-
-  function mtGetSiteById(id){
-    for(var i=0;i<sites.length;i++){
-      if(sites[i] && sites[i].id === id) return sites[i];
-    }
-    return null;
-  }
-
-  publishBtn.addEventListener("click", function () {
-    if(MT_PUBLISH_LOCK) return;
-
-    var site = mtGetSiteById(currentSiteId);
-    if(!site){ alert("Sayt topilmadi"); return; }
-
-    MT_PUBLISH_LOCK = true;
-    window.__mtPublishSiteId = site.id;
-
-    if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
-    if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" } ;
-
-    if(editorOverlay && editorOverlay.style.display !== "none" && currentSiteId && currentPageId){
-      saveCurrentSiteState();
-    }
-
-    var uid = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
-    if(!uid) uid = "guest";
-
-    var repoFullName = site.mtPublish.github.repoFullName || "";
-    var branch = site.mtPublish.github.branch || "main";
-
-   var files = mtBuildPublishFiles(site);
-
-if(!Array.isArray(files)) files = [];
-files.push({ path: "assets/images/.keep", content: "keep" });
+  return out.length ? out : [{ path: "index.html", content: buildExportHtml() }];
+})()
 
 
-
-
-   
-    console.log("PUBLISH files:", files.map(f=>({path:f.path, size:(f.content||"").length})));
-console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.path, b64len:(a.b64||"").length})));
-    
-   
-console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
-
-  
-    
-    
-   fetch("https://api.nocodestudy.uz/api/github/publish",{
-  method:"POST",
-  credentials:"include",
-  headers:{ "Content-Type":"application/json" },
-  body: JSON.stringify({
-    uid: uid,
-    siteId: site.id,
-    siteName: site.name,
-    repoFullName: repoFullName,
-    branch: branch,
-    files: files,
-    assets: [],
-    debug: true
-  })
+      })
     })
     .then(function(r){ return r.json(); })
     .then(function(data){
       if(data && data.needAuth){
-        window.__mtPublishRetry = function(){
-          MT_PUBLISH_LOCK = false;
-          publishBtn.click();
-        };
+        window.__mtPublishRetry = doPublish;
+
+        var uid = (typeof MT_CURRENT_USER_ID === "string" ? MT_CURRENT_USER_ID : "").trim();
+        if(!uid) uid = "guest";
+
         if(window.mtGithubConnect) window.mtGithubConnect(uid, site.id);
         return;
       }
 
       if(data && data.ok){
+        if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
+        if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
         site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
         site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
 
         if(window.__mtPublishPlan){
-          site.mtPublish.github.paths = Array.isArray(window.__mtPublishPlan.paths) ? window.__mtPublishPlan.paths : [];
-          site.mtPublish.github.map = Array.isArray(window.__mtPublishPlan.map) ? window.__mtPublishPlan.map : [];
+        if(!site.mtPublish) site.mtPublish = { github:{ repoFullName:"", repoId:"", branch:"main" } };
+        if(!site.mtPublish.github) site.mtPublish.github = { repoFullName:"", repoId:"", branch:"main" };
+  
+        site.mtPublish.github.paths = Array.isArray(window.__mtPublishPlan.paths) ? window.__mtPublishPlan.paths : [];
+        site.mtPublish.github.map = Array.isArray(window.__mtPublishPlan.map) ? window.__mtPublishPlan.map : [];
         }
 
         saveSites();
@@ -3722,13 +3593,14 @@ console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
       alert("Publish xato");
     })
     .catch(function(){
-      if(typeof mtPublishLoaderFail === "function") mtPublishLoaderFail("Xatolik");
+      mtPublishLoaderFail("Xatolik");
       alert("Publish xato");
-    })
-    .finally(function(){
-      MT_PUBLISH_LOCK = false;
     });
-  });
+  }
+
+  doPublish();
+});
+
 });
 
 
@@ -3738,49 +3610,6 @@ function convertGithubToRaw(url) {
   return url
     .replace("github.com", "raw.githubusercontent.com")
     .replace("/blob/", "/");
-}
-function mtHash32(str){
-  var s=String(str||"");
-  var h=5381;
-  for(var i=0;i<s.length;i++){ h=((h<<5)+h)+s.charCodeAt(i); h=h>>>0; }
-  return ("00000000"+h.toString(16)).slice(-8);
-}
-
-function mtImagePathFromUrl(url){
-  var v=String(url||"").trim();
-  if(!v) return "";
-  if(!isGithubImageUrl(v)) return "";
-  var raw=convertGithubToRaw(v);
-  var noQuery = raw.split("?")[0];
-  var name = noQuery.split("/").pop() || "image";
-  try{ name=decodeURIComponent(name); }catch(e){}
-  name = name.replace(/[^\w.\-]+/g,"-");
-  if(name.indexOf(".")===-1) name = name + ".png";
-  var hash = mtHash32(noQuery);
-  return "assets/images/" + hash + "_" + name;
-}
-
-function mtCollectAssetsFromState(saved, outArr, seen){
-  var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
-  for(var b=0;b<blocks.length;b++){
-    var blk=blocks[b]||{};
-    var bg=String(blk.bgImage||"").trim();
-    if(isGithubImageUrl(bg)){
-      var p=mtImagePathFromUrl(bg);
-      if(p && !seen[p]){ seen[p]=true; outArr.push({ url:bg, path:p }); }
-    }
-    var items = Array.isArray(blk.items)?blk.items:[];
-    for(var j=0;j<items.length;j++){
-      var it=items[j]||{};
-      if(it.type==="image"||it.type==="shape"){
-        var u=String(it.url||"").trim();
-        if(isGithubImageUrl(u)){
-          var p2=mtImagePathFromUrl(u);
-          if(p2 && !seen[p2]){ seen[p2]=true; outArr.push({ url:u, path:p2 }); }
-        }
-      }
-    }
-  }
 }
 
 function mtPublishSite(siteId){
