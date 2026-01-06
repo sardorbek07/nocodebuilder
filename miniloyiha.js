@@ -1196,13 +1196,12 @@ function updateItemField(item,field,value){
       saveCurrentSiteState();
       return;
     }
-if(!isGithubImageUrl(v)){
-  item.url = v;              // <<< MUHIM: GitHub bo‘lmasa ham saqlansin
-  renderPreview();
-  renderLayers();
-  saveCurrentSiteState();
-  return;
-}
+    if(!isGithubImageUrl(v)){
+      renderPreview();
+      renderLayers();
+      saveCurrentSiteState();
+      return;
+    }
     item.url=v;
     renderPreview();
     renderLayers();
@@ -2033,11 +2032,7 @@ function buildImageSettings(item){
   const inUrl=document.createElement("input");
   inUrl.type="url";
   inUrl.value=item.url||"";
-  
-  inUrl.oninput = function(e){
-  updateItemField(item, "url", e.target.value);
-};
-
+  inUrl.oninput=function(e){updateItemField(item,"url",e.target.value)};
   fUrl.appendChild(l1);
   fUrl.appendChild(inUrl);
 
@@ -3669,7 +3664,7 @@ document.addEventListener("DOMContentLoaded", function () {
    var files = mtBuildPublishFiles(site);
 
 if(!Array.isArray(files)) files = [];
-files.push({ path: "assets/images/keep.html", content: "<!-- keep -->" });
+files.push({ path: "assets/images/.keep", content: "keep" });
 
 
 
@@ -3682,12 +3677,7 @@ console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.pa
 console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
 
   
-    console.log(
-  "ASSETS TO SEND:",
-  Array.isArray(window.__mtPublishAssets) ? window.__mtPublishAssets.length : 0,
-  window.__mtPublishAssets
-);
-
+    
     
    fetch("https://api.nocodestudy.uz/api/github/publish",{
   method:"POST",
@@ -3700,7 +3690,7 @@ console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
     repoFullName: repoFullName,
     branch: branch,
     files: files,
-    assets: (Array.isArray(window.__mtPublishAssets) ? window.__mtPublishAssets : []),
+    assets: [],
     debug: true
   })
     })
