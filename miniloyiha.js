@@ -1095,16 +1095,16 @@ function createItemBase(type){
     base.borderWidth=0;
     base.borderColor="transparent";
   }
-  if(type==="shape"){
-    base.width=200;
-    base.height=80;
-    base.bgColor="#e5e7eb";
-    base.radius=16;
-    base.borderWidth=0;
-    base.borderColor="transparent";
-    base.url="";
-    base.href="";
-  }
+if(type==="shape"){
+  base.width=200;
+  base.height=80;
+  base.bgColor="#e5e7eb";
+  base.radius=16;
+  base.borderWidth=0;
+  base.borderColor="transparent";
+  base.assetId="";
+  base.href="";
+}
   if(type==="video"){
     base.width=320;
     base.height=180;
@@ -2513,17 +2513,49 @@ function buildShapeSettings(item){
   inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
   fR.appendChild(lr);
   fR.appendChild(inR);
+const fUp=document.createElement("div");
+fUp.className="field";
+const lUp=document.createElement("label");
+lUp.textContent="Fon rasm (Upload)";
+const inUp=document.createElement("input");
+inUp.type="file";
+inUp.accept="image/*";
 
-  const fUrl=document.createElement("div");
-  fUrl.className="field";
-  const l1=document.createElement("label");
-  l1.textContent="Fon rasm (GitHub URL)";
-  const inUrl=document.createElement("input");
-  inUrl.type="url";
-  inUrl.value=item.url||"";
-  inUrl.oninput=function(e){updateItemField(item,"url",e.target.value)};
-  fUrl.appendChild(l1);
-  fUrl.appendChild(inUrl);
+inUp.onchange=function(e){
+  const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+  e.target.value = "";
+  if(!file) return;
+
+  if(file.size > 300 * 1024){
+    alert("Rasmingiz o'lchami 300KB dan katta");
+    return;
+  }
+
+  mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+    const assetId = mtNewAssetId();
+
+    window.MT_ASSETS[assetId] = {
+      blob: webpBlob,
+      mime: "image/webp",
+      size: webpBlob.size,
+      name: assetId + ".webp"
+    };
+
+    mtSetAssetPreviewUrl(assetId, webpBlob);
+
+    item.assetId = assetId;
+
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }).catch(function(){
+    alert("Rasmni qayta ishlashda xatolik");
+  });
+};
+
+fUp.appendChild(lUp);
+fUp.appendChild(inUp);
+
 
   const fHref=document.createElement("div");
   fHref.className="field";
@@ -2540,7 +2572,7 @@ function buildShapeSettings(item){
   settingsBody.appendChild(fBg);
   settingsBody.appendChild(rowBorder);
   settingsBody.appendChild(fR);
-  settingsBody.appendChild(fUrl);
+  settingsBody.appendChild(fUp);
   settingsBody.appendChild(fHref);
 
   const del=document.createElement("button");
