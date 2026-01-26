@@ -40,7 +40,30 @@ window.mtSetUser = function(uid){
 // start holatda ham window da tursin
 window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
 
-const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;let currentPageId=null;window.mtCreateSiteCardOnly = function(name){
+const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;let currentPageId=null;
+window.MT_ASSETS = window.MT_ASSETS || {};
+window.MT_ASSET_URLS = window.MT_ASSET_URLS || {};
+
+function mtNewAssetId(){
+  return "img_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+}
+
+function mtSetAssetPreviewUrl(assetId, blob){
+  try{
+    if(window.MT_ASSET_URLS[assetId]) URL.revokeObjectURL(window.MT_ASSET_URLS[assetId]);
+  }catch(e){}
+  window.MT_ASSET_URLS[assetId] = URL.createObjectURL(blob);
+  return window.MT_ASSET_URLS[assetId];
+}
+
+function mtClearAssetPreviewUrl(assetId){
+  try{
+    if(window.MT_ASSET_URLS[assetId]) URL.revokeObjectURL(window.MT_ASSET_URLS[assetId]);
+  }catch(e){}
+  delete window.MT_ASSET_URLS[assetId];
+}
+
+window.mtCreateSiteCardOnly = function(name){
   if(!Array.isArray(sites)) return;
   if(sites.length >= 3){
     alert("Limitingiz yakunlandi. Yangi sayt yaratish uchun eski birorta saytni o'chiring)");
@@ -1054,7 +1077,7 @@ function createItemBase(type){
   if(type==="image"){
     base.width=260;
     base.height=160;
-    base.url="";
+    base.assetId="";
     base.borderWidth=0;
     base.borderColor="transparent";
     base.radius=0;
@@ -1462,9 +1485,13 @@ function renderPreview(){
       el.appendChild(btn);
     }
 
-    if(item.type==="image"){
+      if(item.type==="image"){
       const img=document.createElement("img");
-      img.src = convertGithubToRaw(item.url || "");
+      let src = "";
+      if(item.assetId && window.MT_ASSET_URLS && window.MT_ASSET_URLS[item.assetId]){
+      src = window.MT_ASSET_URLS[item.assetId];
+      }
+      img.src = src;
       if(item.width)img.style.width=item.width+"px";
       if(item.height)img.style.height=item.height+"px";
       img.draggable=false;
@@ -2020,21 +2047,111 @@ function buildTextSettings(item){
   settingsBody.appendChild(del);
 }
 
+function mtCompressToWebp(file, maxBytes){
+  return new Promise(function(resolve, reject){
+    try{
+      var img = new Image();
+      img.onload = function(){
+        try{
+          var maxW = 1600;
+          var w = img.naturalWidth || img.width || 1;
+          var h = img.naturalHeight || img.height || 1;
+
+          var scale = 1;
+          if(w > maxW) scale = maxW / w;
+          var outW = Math.max(1, Math.round(w * scale));
+          var outH = Math.max(1, Math.round(h * scale));
+
+          var canvas = document.createElement("canvas");
+          canvas.width = outW;
+          canvas.height = outH;
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, outW, outH);
+
+          var qualities = [0.82, 0.72, 0.62, 0.52, 0.45];
+          var qi = 0;
+
+          function tryNext(){
+            var q = qualities[Math.min(qi, qualities.length - 1)];
+            canvas.toBlob(function(blob){
+              if(!blob){ reject(new Error("toBlob failed")); return; }
+              if(blob.size <= maxBytes){ resolve(blob); return; }
+              qi += 1;
+              if(qi >= qualities.length){ resolve(blob); return; }
+              tryNext();
+            }, "image/webp", q);
+          }
+
+          tryNext();
+        }catch(e){ reject(e); }
+      };
+      img.onerror = function(){ reject(new Error("image load failed")); };
+
+      var url = URL.createObjectURL(file);
+      img.onloadend = null;
+      img.onload = (function(orig){
+        return function(){
+          try{ URL.revokeObjectURL(url); }catch(e){}
+          orig.call(this);
+        };
+      })(img.onload);
+
+      img.src = url;
+    }catch(e){
+      reject(e);
+    }
+  });
+}
+
 function buildImageSettings(item){
   settingsBody.innerHTML="";
   const alignRow=buildAlignRow(item);
   settingsBody.appendChild(alignRow);
 
-  const fUrl=document.createElement("div");
-  fUrl.className="field";
-  const l1=document.createElement("label");
-  l1.textContent="Rasm (GitHub URL)";
-  const inUrl=document.createElement("input");
-  inUrl.type="url";
-  inUrl.value=item.url||"";
-  inUrl.oninput=function(e){updateItemField(item,"url",e.target.value)};
-  fUrl.appendChild(l1);
-  fUrl.appendChild(inUrl);
+  const fUp=document.createElement("div");
+  fUp.className="field";
+  const lUp=document.createElement("label");
+  lUp.textContent="Rasm (Upload)";
+  const inUp=document.createElement("input");
+  inUp.type="file";
+  inUp.accept="image/*";
+
+  inUp.onchange=function(e){
+    const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    e.target.value = "";
+    if(!file) return;
+
+    if(file.size > 300 * 1024){
+      alert("Rasmingiz o'lchami 300KB dan katta");
+      return;
+    }
+
+    mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+      const assetId = mtNewAssetId();
+
+      window.MT_ASSETS[assetId] = {
+        blob: webpBlob,
+        mime: "image/webp",
+        size: webpBlob.size,
+        name: assetId + ".webp"
+      };
+
+      const previewUrl = mtSetAssetPreviewUrl(assetId, webpBlob);
+
+      item.assetId = assetId;
+      item._previewUrl = previewUrl;
+
+      renderPreview();
+      renderLayers();
+      saveCurrentSiteState();
+    }).catch(function(){
+      alert("Rasmni qayta ishlashda xatolik");
+    });
+  };
+
+  fUp.appendChild(lUp);
+  fUp.appendChild(inUp);
+  settingsBody.appendChild(fUp);
 
   const rowWH=document.createElement("div");
   rowWH.style.display="flex";
@@ -2116,7 +2233,6 @@ function buildImageSettings(item){
   fHref.appendChild(lh2);
   fHref.appendChild(inHref);
 
-  settingsBody.appendChild(fUrl);
   settingsBody.appendChild(rowWH);
   settingsBody.appendChild(rowBorder);
   settingsBody.appendChild(fR);
@@ -2778,10 +2894,13 @@ function buildExportHtml() {
 
           // ==== RASM ====
           if (item.type === "image") {
-            var fileName = mtImagePathFromUrl(item.url || "");
-            if (!fileName) {
-              return "";
-            }
+          var fileName = "";
+          if (item.assetId) {
+          fileName = "assets/" + String(item.assetId).replace(/[^\w\-]+/g, "") + ".webp";
+          }
+          if (!fileName) {
+          return "";
+          }
             var wImg = item.width ? "width:" + item.width + "px;" : "";
             var hImg = item.height ? "height:" + item.height + "px;" : "";
             var bSize =
@@ -3637,8 +3756,60 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     return null;
   }
+function mtBlobToBase64(blob){
+  return new Promise(function(resolve, reject){
+    try{
+      var r = new FileReader();
+      r.onload = function(){
+        var s = String(r.result || "");
+        var i = s.indexOf("base64,");
+        if(i === -1){ reject(new Error("no base64")); return; }
+        resolve(s.slice(i + 7));
+      };
+      r.onerror = function(){ reject(new Error("read fail")); };
+      r.readAsDataURL(blob);
+    }catch(e){ reject(e); }
+  });
+}
 
-  publishBtn.addEventListener("click", function () {
+async function mtBuildAssetsPayload(site){
+  var seen = Object.create(null);
+
+  function scanState(saved){
+    var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
+    for(var b=0;b<blocks.length;b++){
+      var items = Array.isArray(blocks[b] && blocks[b].items) ? blocks[b].items : [];
+      for(var i=0;i<items.length;i++){
+        var it = items[i] || {};
+        if(it.type === "image" && it.assetId){
+          var id = String(it.assetId);
+          if(id) seen[id] = true;
+        }
+      }
+    }
+  }
+
+  var pages = Array.isArray(site && site.pages) ? site.pages : [];
+  for(var p=0;p<pages.length;p++){
+    var st = pages[p] && pages[p].builderState ? pages[p].builderState : null;
+    if(st) scanState(st);
+  }
+
+  var ids = Object.keys(seen);
+  var out = [];
+
+  for(var k=0;k<ids.length;k++){
+    var id2 = ids[k];
+    var rec = window.MT_ASSETS && window.MT_ASSETS[id2] ? window.MT_ASSETS[id2] : null;
+    if(!rec || !rec.blob) continue;
+    var b64 = await mtBlobToBase64(rec.blob);
+    out.push({ path: "assets/" + id2 + ".webp", b64: b64 });
+  }
+
+  return out;
+}
+
+ publishBtn.addEventListener("click", async function () {
     if(MT_PUBLISH_LOCK) return;
 
     var site = mtGetSiteById(currentSiteId);
@@ -3663,6 +3834,12 @@ document.addEventListener("DOMContentLoaded", function () {
    var files = mtBuildPublishFiles(site);
 console.log("📦 FILES:", files);
 if(!Array.isArray(files)) files = [];
+   var assets = [];
+try{
+  assets = await mtBuildAssetsPayload(site);
+}catch(e){
+  assets = [];
+}
 
 
 
@@ -3692,7 +3869,7 @@ console.log("📦 FILES FULL:", files);
    repoFullName: site.mtPublish?.github?.repoFullName || "",
     branch: branch,
     files: files,
-assets: [],
+assets: assets,
     debug: true
   })
     })
