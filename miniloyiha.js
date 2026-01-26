@@ -1015,7 +1015,7 @@ function getCurrentBlock(){
 
 function createBlock(){
   const id="mt_b_"+(++state.counterBlock);
-  const block={id,name:"Blok "+state.counterBlock,height:560,bgColor:"#ffffff",bgImage:"",items:[]};
+  const block={id,name:"Blok "+state.counterBlock,height:560,bgColor:"#ffffff",bgAssetId:"",items:[]};
   state.blocks.push(block);
   state.currentBlockId=id;
   state.selectedId=null;
@@ -1423,13 +1423,19 @@ function renderPreview(){
   blockDiv.className="screen-block";
   blockDiv.style.height=block.height+"px";
   if(block.bgColor)blockDiv.style.backgroundColor=block.bgColor;
-  if(block.bgImage){
-    blockDiv.style.backgroundImage="url("+block.bgImage+")";
-    blockDiv.style.backgroundSize="cover";
-    blockDiv.style.backgroundPosition="center center";
-  }else{
-    blockDiv.style.backgroundImage="";
-  }
+let bgSrc = "";
+if(block.bgAssetId && window.MT_ASSET_URLS && window.MT_ASSET_URLS[block.bgAssetId]){
+  bgSrc = window.MT_ASSET_URLS[block.bgAssetId];
+}
+
+if(bgSrc){
+  blockDiv.style.backgroundImage="url("+bgSrc+")";
+  blockDiv.style.backgroundSize="cover";
+  blockDiv.style.backgroundPosition="center center";
+}else{
+  blockDiv.style.backgroundImage="";
+}
+
   const placeholder=document.createElement("div");
   placeholder.className="screen-block-placeholder";
   placeholder.textContent=block.items.length?"":"Element qo‘shing";
@@ -1830,32 +1836,49 @@ function buildSectionSettings(block){
   fBgColor.appendChild(l1);
   fBgColor.appendChild(inColor);
 
-  const fBgImage=document.createElement("div");
-  fBgImage.className="field";
-  const l2=document.createElement("label");
-  l2.textContent="Fon rasm (GitHub URL)";
-  const inUrl=document.createElement("input");
-  inUrl.type="url";
-  inUrl.value=block.bgImage||"";
-  inUrl.oninput=function(e){
-    const v=String(e.target.value||"").trim();
-    if(!v){
-      block.bgImage="";
-      renderPreview();
-      saveCurrentSiteState();
-      return;
-    }
-    if(!isGithubImageUrl(v)){
-      renderPreview();
-      saveCurrentSiteState();
-      return;
-    }
-    block.bgImage=v;
+const fBgImage=document.createElement("div");
+fBgImage.className="field";
+
+const l2=document.createElement("label");
+l2.textContent="Fon rasm (Upload)";
+
+const inUp=document.createElement("input");
+inUp.type="file";
+inUp.accept="image/*";
+
+inUp.onchange=function(e){
+  const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+  e.target.value = "";
+  if(!file) return;
+
+  if(file.size > 300 * 1024){
+    alert("Rasmingiz o'lchami 300KB dan katta");
+    return;
+  }
+
+  mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+    const assetId = mtNewAssetId();
+
+    window.MT_ASSETS[assetId] = {
+      blob: webpBlob,
+      mime: "image/webp",
+      size: webpBlob.size,
+      name: assetId + ".webp"
+    };
+
+    mtSetAssetPreviewUrl(assetId, webpBlob);
+
+    block.bgAssetId = assetId;
+
     renderPreview();
     saveCurrentSiteState();
-  };
-  fBgImage.appendChild(l2);
-  fBgImage.appendChild(inUrl);
+  }).catch(function(){
+    alert("Rasmni qayta ishlashda xatolik");
+  });
+};
+
+fBgImage.appendChild(l2);
+fBgImage.appendChild(inUp);
 
   const fHeight=document.createElement("div");
   fHeight.className="field";
