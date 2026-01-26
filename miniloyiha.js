@@ -3699,6 +3699,11 @@ assets: [],
     .then(function(r){ return r.json(); })
     .then(function(data){
       console.log("✅ SERVER RESPONSE:", data);
+      console.log("✅ data.ok:", data && data.ok);
+console.log("✅ data.repoFullName:", data && data.repoFullName);
+console.log("✅ data.branch:", data && data.branch);
+console.log("✅ saved repoFullName after:", site.mtPublish && site.mtPublish.github && site.mtPublish.github.repoFullName);
+
       if(data && data.needAuth){
         window.__mtPublishRetry = function(){
           MT_PUBLISH_LOCK = false;
