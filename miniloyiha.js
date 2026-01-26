@@ -1523,11 +1523,18 @@ if(bgSrc){
       if(item.borderWidth>0){
         box.style.border=item.borderWidth+"px solid "+(item.borderColor||"#111827");
       }
-      if(item.url){
-       box.style.backgroundImage = "url(" + convertGithubToRaw(item.url) + ")";
-        box.style.backgroundSize="cover";
-        box.style.backgroundPosition="center center";
-      }
+     let ssrc = "";
+if(item.assetId && window.MT_ASSET_URLS && window.MT_ASSET_URLS[item.assetId]){
+  ssrc = window.MT_ASSET_URLS[item.assetId];
+}
+if(ssrc){
+  box.style.backgroundImage = "url(" + ssrc + ")";
+  box.style.backgroundSize = "cover";
+  box.style.backgroundPosition = "center center";
+}else{
+  box.style.backgroundImage = "";
+}
+
       el.appendChild(box);
       if(item.href){
         el.style.cursor="pointer";
