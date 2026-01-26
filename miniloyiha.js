@@ -3678,6 +3678,7 @@ if(!Array.isArray(files)) files = [];
     console.log("🚀 SENDING files count:", files.length);
 console.log("🚀 SENDING payload:", { uid: uid, siteId: site.id, filesCount: files.length });
 
+console.log("📦 FILES FULL:", files);
 
 
    fetch("https://api.nocodestudy.uz/api/github/publish",{
