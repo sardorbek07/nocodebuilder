@@ -3538,8 +3538,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       currentPageId = p.id;
       mtSetStateSilent(p.builderState ? p.builderState : mtMakeEmptyState());
-      mtCollectAssetsFromState(state, assets, assetsSeen);
-
+  
       var html = buildExportHtml();
       var isHome = (p.id === homeId);
       var slug = mtPageSlug(p);
@@ -3557,7 +3556,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     mtRestoreUi(snap);
-    window.__mtPublishAssets = assets;
+
 
     if(!out.length){
       out = [{ path: "index.html", content: buildExportHtml() }];
@@ -3664,17 +3663,15 @@ document.addEventListener("DOMContentLoaded", function () {
    var files = mtBuildPublishFiles(site);
 
 if(!Array.isArray(files)) files = [];
-files.push({ path: "assets/images/.keep", content: "keep" });
 
 
 
 
    
-    console.log("PUBLISH files:", files.map(f=>({path:f.path, size:(f.content||"").length})));
-console.log("PUBLISH assets:", (window.__mtPublishAssets||[]).map(a=>({path:a.path, b64len:(a.b64||"").length})));
+    // console.log("PUBLISH files:", files.map(f=>({path:f.path, size:(f.content||"").length})));
+
     
-   
-console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
+
 
   
     
@@ -3690,7 +3687,7 @@ console.log("PUBLISH assets BEFORE fetch:", window.__mtPublishAssets);
     repoFullName: repoFullName,
     branch: branch,
     files: files,
-    assets: (window.__mtPublishAssets || []),
+   assets: [],
     debug: true
   })
     })
