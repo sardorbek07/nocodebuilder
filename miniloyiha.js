@@ -3704,18 +3704,21 @@ if(!Array.isArray(files)) files = [];
       }
 
       if(data && data.ok){
-        site.mtPublish.github.repoFullName = data.repoFullName || site.mtPublish.github.repoFullName;
-        site.mtPublish.github.branch = data.branch || site.mtPublish.github.branch || "main";
+  site.mtPublish = site.mtPublish || {};
+  site.mtPublish.github = site.mtPublish.github || {};
 
-        if(window.__mtPublishPlan){
-          site.mtPublish.github.paths = Array.isArray(window.__mtPublishPlan.paths) ? window.__mtPublishPlan.paths : [];
-          site.mtPublish.github.map = Array.isArray(window.__mtPublishPlan.map) ? window.__mtPublishPlan.map : [];
-        }
+  if(data.repoFullName) site.mtPublish.github.repoFullName = data.repoFullName;
+  if(data.branch) site.mtPublish.github.branch = data.branch;
 
-        saveSites();
-        alert(data.status === "created" ? "Sayt GitHub’ga joylandi" : "Sayt yangilandi");
-        return;
-      }
+  if(window.__mtPublishPlan){
+    site.mtPublish.github.paths = Array.isArray(window.__mtPublishPlan.paths) ? window.__mtPublishPlan.paths : [];
+    site.mtPublish.github.map = Array.isArray(window.__mtPublishPlan.map) ? window.__mtPublishPlan.map : [];
+  }
+
+  saveSites();
+  alert("Publish OK");
+  return;
+}
 
       alert("Publish xato");
     })
