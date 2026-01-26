@@ -3726,7 +3726,12 @@ console.log("✅ saved repoFullName after:", site.mtPublish && site.mtPublish.gi
   }
 
   saveSites();
-  alert("Publish OK");
+  if(data.stage === "initial_commit_done"){
+  alert("Sayt yaratildi");
+}else{
+  alert("Sayt yangilandi");
+}
+
   return;
 }
 
