@@ -3526,8 +3526,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var out = [];
     var map = [];
     var seen = {};
-    var assets = [];
-    var assetsSeen = {};
+    // var assets = [];
+    // var assetsSeen = {};
 
 
     currentSiteId = site.id;
@@ -3677,7 +3677,9 @@ if(!Array.isArray(files)) files = [];
 
     console.log("🚀 SENDING files count:", files.length);
 console.log("🚀 SENDING payload:", { uid: uid, siteId: site.id, filesCount: files.length });
-    
+
+
+
    fetch("https://api.nocodestudy.uz/api/github/publish",{
   method:"POST",
   credentials:"include",
@@ -3689,7 +3691,7 @@ console.log("🚀 SENDING payload:", { uid: uid, siteId: site.id, filesCount: fi
    repoFullName: site.mtPublish?.github?.repoFullName || "",
     branch: branch,
     files: files,
-   assets: [],
+assets: [],
     debug: true
   })
     })
