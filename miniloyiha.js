@@ -3673,7 +3673,8 @@ if(!Array.isArray(files)) files = [];
     
 
 
-  
+  console.log("PUBLISH repoFullName =>", site.mtPublish?.github?.repoFullName);
+
     
     
    fetch("https://api.nocodestudy.uz/api/github/publish",{
@@ -3684,7 +3685,7 @@ if(!Array.isArray(files)) files = [];
     uid: uid,
     siteId: site.id,
     siteName: site.name,
-    repoFullName: repoFullName,
+   repoFullName: site.mtPublish?.github?.repoFullName || "",
     branch: branch,
     files: files,
    assets: [],
