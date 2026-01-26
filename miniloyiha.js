@@ -3137,14 +3137,12 @@ return "";
       var styleParts = ["height:" + (block.height || 560) + "px"];
       if (block.bgColor) styleParts.push("background:" + block.bgColor);
 
-      if (block.bgImage) {
-        var bgFile2 = mtImagePathFromUrl(block.bgImage);
-        if (bgFile2) {
-          styleParts.push("background-image:url(" + escapeHtml(bgFile2) + ")");
-          styleParts.push("background-size:cover");
-          styleParts.push("background-position:center center");
-        }
-      }
+ if (block.bgAssetId) {
+  var bgFile2 = "assets/" + String(block.bgAssetId).replace(/[^\w\-]+/g, "") + ".webp";
+  styleParts.push("background-image:url(" + escapeHtml(bgFile2) + ")");
+  styleParts.push("background-size:cover");
+  styleParts.push("background-position:center center");
+}
 
       var sectionStyle = styleParts.join(";");
 
@@ -3614,7 +3612,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function mtMakeEmptyState(){
     return {
-      blocks: [{ id:"mt_b_1", name:"Blok 1", height:560, bgColor:"#ffffff", bgImage:"", items:[] }],
+    blocks: [{ id:"mt_b_1", name:"Blok 1", height:560, bgColor:"#ffffff", bgAssetId:"", items:[] }],
       currentBlockId: "mt_b_1",
       counterBlock: 1,
       counterItem: 0,
@@ -3798,19 +3796,27 @@ function mtBlobToBase64(blob){
 async function mtBuildAssetsPayload(site){
   var seen = Object.create(null);
 
-  function scanState(saved){
-    var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
-    for(var b=0;b<blocks.length;b++){
-      var items = Array.isArray(blocks[b] && blocks[b].items) ? blocks[b].items : [];
-      for(var i=0;i<items.length;i++){
-        var it = items[i] || {};
-        if(it.type === "image" && it.assetId){
-          var id = String(it.assetId);
-          if(id) seen[id] = true;
-        }
+function scanState(saved){
+  var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
+  for(var b=0;b<blocks.length;b++){
+    var blk = blocks[b] || {};
+
+    if(blk.bgAssetId){
+      var bid = String(blk.bgAssetId);
+      if(bid) seen[bid] = true;
+    }
+
+    var items = Array.isArray(blk.items) ? blk.items : [];
+    for(var i=0;i<items.length;i++){
+      var it = items[i] || {};
+      if(it.type === "image" && it.assetId){
+        var id = String(it.assetId);
+        if(id) seen[id] = true;
       }
     }
   }
+}
+
 
   var pages = Array.isArray(site && site.pages) ? site.pages : [];
   for(var p=0;p<pages.length;p++){
