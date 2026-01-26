@@ -3661,7 +3661,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var branch = site.mtPublish.github.branch || "main";
 
    var files = mtBuildPublishFiles(site);
-
+console.log("📦 FILES:", files);
 if(!Array.isArray(files)) files = [];
 
 
@@ -3675,7 +3675,8 @@ if(!Array.isArray(files)) files = [];
 
   console.log("PUBLISH repoFullName =>", site.mtPublish?.github?.repoFullName);
 
-    
+    console.log("🚀 SENDING files count:", files.length);
+console.log("🚀 SENDING payload:", { uid: uid, siteId: site.id, filesCount: files.length });
     
    fetch("https://api.nocodestudy.uz/api/github/publish",{
   method:"POST",
@@ -3694,6 +3695,7 @@ if(!Array.isArray(files)) files = [];
     })
     .then(function(r){ return r.json(); })
     .then(function(data){
+      console.log("✅ SERVER RESPONSE:", data);
       if(data && data.needAuth){
         window.__mtPublishRetry = function(){
           MT_PUBLISH_LOCK = false;
