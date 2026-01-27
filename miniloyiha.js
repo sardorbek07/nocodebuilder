@@ -2776,15 +2776,9 @@ function buildShapeSettings(item){
   inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
   fR.appendChild(lr);
   fR.appendChild(inR);
-var shapeUp = mtMakeNiceUploadField({
-  label: "Fon rasm",
-  buttonText: "Rasm yuklash",
+var shapeUp = mtCreateUploadBox({
+  title: "Fon rasm",
   onPick: function(file){
-    if(!file) return false;
-    if(file.size > 300 * 1024){
-      alert("Rasmingiz o'lchami 300KB dan katta");
-      return false;
-    }
     return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
       var assetId = mtNewAssetId();
 
@@ -2805,12 +2799,10 @@ var shapeUp = mtMakeNiceUploadField({
       saveCurrentSiteState();
 
       return true;
-    }).catch(function(){
-      alert("Rasmni qayta ishlashda xatolik");
-      return false;
     });
   }
 });
+if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
 
 
 
