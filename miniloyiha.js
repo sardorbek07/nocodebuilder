@@ -2408,26 +2408,17 @@ function buildImageSettings(item){
   const alignRow=buildAlignRow(item);
   settingsBody.appendChild(alignRow);
 
-  const fUp=document.createElement("div");
-  fUp.className="field";
-  const lUp=document.createElement("label");
-  lUp.textContent="Rasm (Upload)";
-  const inUp=document.createElement("input");
-  inUp.type="file";
-  inUp.accept="image/*";
-
-  inUp.onchange=function(e){
-    const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-    e.target.value = "";
-    if(!file) return;
-
+var imgUp = mtMakeNiceUploadField({
+  label: "Rasm",
+  buttonText: "Rasm yuklash",
+  onPick: function(file){
+    if(!file) return false;
     if(file.size > 300 * 1024){
       alert("Rasmingiz o'lchami 300KB dan katta");
-      return;
+      return false;
     }
-
-    mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
-      const assetId = mtNewAssetId();
+    return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+      var assetId = mtNewAssetId();
 
       window.MT_ASSETS[assetId] = {
         blob: webpBlob,
@@ -2436,23 +2427,24 @@ function buildImageSettings(item){
         name: assetId + ".webp"
       };
 
-      const previewUrl = mtSetAssetPreviewUrl(assetId, webpBlob);
+      mtSetAssetPreviewUrl(assetId, webpBlob);
       mtPreviewPutBlob(assetId, webpBlob);
 
       item.assetId = assetId;
-      item._previewUrl = previewUrl;
 
       renderPreview();
       renderLayers();
       saveCurrentSiteState();
+
+      return true;
     }).catch(function(){
       alert("Rasmni qayta ishlashda xatolik");
+      return false;
     });
-  };
+  }
+});
+settingsBody.appendChild(imgUp);
 
-  fUp.appendChild(lUp);
-  fUp.appendChild(inUp);
-  settingsBody.appendChild(fUp);
 
   const rowWH=document.createElement("div");
   rowWH.style.display="flex";
