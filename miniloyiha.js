@@ -3842,8 +3842,8 @@ function mtCenter(){
     return;
   }
 
-  viewport.scrollLeft = 4000 - (w / 2);
-  viewport.scrollTop  = 4000 - (h / 2);
+viewport.scrollLeft = (4000 * mtZoom) - (w / 2);
+viewport.scrollTop  = (4000 * mtZoom) - (h / 2);
   mtClamp();
 }
   window.mtCenter = mtCenter;
