@@ -3806,6 +3806,7 @@ if (
 
 if(previewShell){
   const stage = document.getElementById("mtCanvasStage");
+  const viewport = document.getElementById("mtCanvasViewport");
   let mtZoom = 1;
 
   function mtApplyZoom(){
@@ -3815,20 +3816,34 @@ if(previewShell){
     }
   }
 
-  previewShell.addEventListener("wheel",function(e){
-    if(!e.ctrlKey) return;
+  previewShell.addEventListener("wheel", function(e){
+    if(!viewport) return;
 
-    e.preventDefault();
+    // Ctrl + scroll = zoom
+    if(e.ctrlKey){
+      e.preventDefault();
 
-    const dir = e.deltaY > 0 ? -1 : 1;
-    const step = 0.1;
+      const dir = e.deltaY > 0 ? -1 : 1;
+      const step = 0.1;
 
-    mtZoom = mtZoom + dir * step;
-    if(mtZoom < 0.25) mtZoom = 0.25;
-    if(mtZoom > 2.5) mtZoom = 2.5;
+      mtZoom = mtZoom + dir * step;
+      if(mtZoom < 0.25) mtZoom = 0.25;
+      if(mtZoom > 2.5) mtZoom = 2.5;
 
-    mtApplyZoom();
-  },{passive:false});
+      mtApplyZoom();
+      return;
+    }
+
+    // Shift + scroll = gorizontal yurish
+    if(e.shiftKey){
+      e.preventDefault();
+      viewport.scrollLeft += e.deltaY;
+      return;
+    }
+
+    // Oddiy scroll = vertikal yurish
+    viewport.scrollTop += e.deltaY;
+  }, { passive:false });
 }
 
 
