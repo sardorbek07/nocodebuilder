@@ -3819,13 +3819,21 @@ if(previewShell){
     if(viewport.scrollTop > maxY) viewport.scrollTop = maxY;
   }
 
-  function mtCenter(){
-    if(!viewport) return;
-    viewport.scrollLeft = 4000 - (viewport.clientWidth / 2);
-    viewport.scrollTop = 4000 - (viewport.clientHeight / 2);
-    mtClamp();
+function mtCenter(){
+  if(!viewport) return;
+
+  const w = viewport.clientWidth;
+  const h = viewport.clientHeight;
+
+  if(!w || !h){
+    requestAnimationFrame(mtCenter);
+    return;
   }
 
+  viewport.scrollLeft = 4000 - (w / 2);
+  viewport.scrollTop  = 4000 - (h / 2);
+  mtClamp();
+}
   function mtApplyZoom(oldZoom){
     if(!stage || !viewport) return;
 
@@ -3875,13 +3883,6 @@ if(previewShell){
     mtClamp();
   }, { passive:false });
 }
-setTimeout(function(){
-  var v = document.getElementById("mtCanvasViewport");
-  if(!v) return;
-
-  v.scrollLeft = 4000 - (v.clientWidth / 2);
-  v.scrollTop  = 4000 - (v.clientHeight / 2);
-}, 0);
 
 
 
