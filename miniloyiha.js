@@ -2006,6 +2006,21 @@ const bgUp = mtCreateUploadBox({
   }
 });
 if(bgUp && bgUp.mtSetDone) bgUp.mtSetDone(!!block.bgAssetId);
+  if(bgUp && bgUp.mtSetClearVisible) bgUp.mtSetClearVisible(!!block.bgAssetId);
+
+if(bgUp && bgUp.mtOnClear){
+  bgUp.mtOnClear(function(){
+    if(block.bgAssetId){
+      mtClearAssetPreviewUrl(block.bgAssetId);
+    }
+    block.bgAssetId = "";
+    if(bgUp.mtSetDone) bgUp.mtSetDone(false);
+    if(bgUp.mtSetClearVisible) bgUp.mtSetClearVisible(false);
+    renderPreview();
+    saveCurrentSiteState();
+  });
+}
+
 
   const fHeight=document.createElement("div");
   fHeight.className="field";
@@ -2343,6 +2358,28 @@ function mtCreateUploadBox(opts){
   box.appendChild(right);
 
   wrap.mtSetDone = setDone;
+  var clearBtn = document.createElement("button");
+clearBtn.type = "button";
+clearBtn.textContent = "Rasmni o‘chirish";
+clearBtn.style.marginTop = "6px";
+clearBtn.style.fontSize = "12px";
+clearBtn.style.opacity = ".7";
+clearBtn.style.background = "transparent";
+clearBtn.style.border = "none";
+clearBtn.style.color = "#ff6b6b";
+clearBtn.style.cursor = "pointer";
+clearBtn.style.display = "none";
+
+wrap.appendChild(clearBtn);
+
+wrap.mtSetClearVisible = function(v){
+  clearBtn.style.display = v ? "block" : "none";
+};
+
+wrap.mtOnClear = function(fn){
+  clearBtn.onclick = fn;
+};
+
 
   return wrap;
 }
@@ -2436,6 +2473,23 @@ var imgUp = mtCreateUploadBox({
 });
 
 if(imgUp && imgUp.mtSetDone) imgUp.mtSetDone(!!item.assetId);
+  if(imgUp && imgUp.mtSetClearVisible) imgUp.mtSetClearVisible(!!item.assetId);
+
+if(imgUp && imgUp.mtOnClear){
+  imgUp.mtOnClear(function(){
+    if(item.assetId){
+      mtClearAssetPreviewUrl(item.assetId);
+    }
+    item.assetId = "";
+    if(imgUp.mtSetDone) imgUp.mtSetDone(false);
+    if(imgUp.mtSetClearVisible) imgUp.mtSetClearVisible(false);
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  });
+}
+
+  
 settingsBody.appendChild(imgUp);
 
 
@@ -2821,6 +2875,23 @@ if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
   settingsBody.appendChild(fBg);
   settingsBody.appendChild(rowBorder);
   settingsBody.appendChild(fR);
+  if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
+if(shapeUp && shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(!!item.assetId);
+
+if(shapeUp && shapeUp.mtOnClear){
+  shapeUp.mtOnClear(function(){
+    if(item.assetId){
+      mtClearAssetPreviewUrl(item.assetId);
+    }
+    item.assetId = "";
+    if(shapeUp.mtSetDone) shapeUp.mtSetDone(false);
+    if(shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(false);
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  });
+}
+
   settingsBody.appendChild(shapeUp);
   settingsBody.appendChild(fHref);
 
