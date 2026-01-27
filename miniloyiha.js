@@ -3805,11 +3805,32 @@ if (
 });
 
 if(previewShell){
+  const stage = document.getElementById("mtCanvasStage");
+  let mtZoom = 1;
+
+  function mtApplyZoom(){
+    if(stage){
+      stage.style.transform = "translate(-50%,-50%) scale(" + mtZoom + ")";
+      stage.style.transformOrigin = "center center";
+    }
+  }
+
   previewShell.addEventListener("wheel",function(e){
-    if(!e.ctrlKey&&!e.shiftKey)return;
+    if(!e.ctrlKey) return;
+
     e.preventDefault();
+
+    const dir = e.deltaY > 0 ? -1 : 1;
+    const step = 0.1;
+
+    mtZoom = mtZoom + dir * step;
+    if(mtZoom < 0.25) mtZoom = 0.25;
+    if(mtZoom > 2.5) mtZoom = 2.5;
+
+    mtApplyZoom();
   },{passive:false});
 }
+
 
 if(createSiteBtn){
   createSiteBtn.onclick=function(){
