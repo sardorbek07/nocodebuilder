@@ -2285,10 +2285,29 @@ function mtCreateUploadBox(opts){
   arrow.textContent = "›";
   arrow.style.fontSize = "20px";
   arrow.style.transform = "translateY(-1px)";
+var clearBtn = document.createElement("button");
+clearBtn.type = "button";
+clearBtn.textContent = "×";
+clearBtn.style.width = "26px";
+clearBtn.style.height = "26px";
+clearBtn.style.borderRadius = "10px";
+clearBtn.style.border = "1px solid rgba(255,255,255,.14)";
+clearBtn.style.background = "rgba(255,255,255,.05)";
+clearBtn.style.color = "#fff";
+clearBtn.style.cursor = "pointer";
+clearBtn.style.display = "none";
+clearBtn.style.padding = "0";
+clearBtn.style.lineHeight = "1";
+clearBtn.style.fontSize = "18px";
 
-  right.appendChild(check);
-  right.appendChild(arrow);
-
+clearBtn.onclick = function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  if(typeof wrap.__mtOnClear === "function") wrap.__mtOnClear();
+};
+right.appendChild(check);
+right.appendChild(clearBtn);
+right.appendChild(arrow);
   var input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
@@ -2311,16 +2330,19 @@ function mtCreateUploadBox(opts){
   }
 
   function setDone(isDone){
-    if(isDone){
-      check.style.display = "block";
-      arrow.style.display = "none";
-      right.style.opacity = "1";
-      return;
-    }
+  if(isDone){
     check.style.display = "none";
-    arrow.style.display = "block";
-    right.style.opacity = ".65";
+    clearBtn.style.display = "block";
+    arrow.style.display = "none";
+    right.style.opacity = "1";
+    return;
   }
+  clearBtn.style.display = "none";
+  check.style.display = "none";
+  arrow.style.display = "block";
+  right.style.opacity = ".65";
+}
+
 
   box.onclick = function(){
     input.click();
@@ -2358,27 +2380,6 @@ function mtCreateUploadBox(opts){
   box.appendChild(right);
 
   wrap.mtSetDone = setDone;
-  var clearBtn = document.createElement("button");
-clearBtn.type = "button";
-clearBtn.textContent = "Rasmni o‘chirish";
-clearBtn.style.marginTop = "6px";
-clearBtn.style.fontSize = "12px";
-clearBtn.style.opacity = ".7";
-clearBtn.style.background = "transparent";
-clearBtn.style.border = "none";
-clearBtn.style.color = "#ff6b6b";
-clearBtn.style.cursor = "pointer";
-clearBtn.style.display = "none";
-
-wrap.appendChild(clearBtn);
-
-wrap.mtSetClearVisible = function(v){
-  clearBtn.style.display = v ? "block" : "none";
-};
-
-wrap.mtOnClear = function(fn){
-  clearBtn.onclick = fn;
-};
 
 
   return wrap;
