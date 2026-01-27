@@ -778,7 +778,12 @@ function mtOpenEditorForPage(siteId, pageId){
   mtHistoryReset();
   editorOverlay.style.display = "flex";
   updateDesktopVisibility();
-setTimeout(function(){ if(typeof mtCenter === "function") mtCenter(); }, 0);
+  setTimeout(function(){
+  if(typeof mtCenter === "function"){
+    mtCenter();
+    requestAnimationFrame(mtCenter);
+  }
+}, 0);
 }
 
 function mtOpenPages(siteId){
@@ -3745,6 +3750,10 @@ if(closeEditorBtn){
     mtApplyZoom(1);
     if(editorOverlay)editorOverlay.style.display="none";
     if(currentSiteId) mtOpenPages(currentSiteId);
+    setTimeout(function(){
+  if(typeof mtCenter === "function") mtCenter();
+}, 0);
+
   };
 }
 
