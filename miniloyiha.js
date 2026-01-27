@@ -354,6 +354,70 @@ const dashboardEl=document.getElementById("mtDashboard");
 const mobileWarningEl=document.getElementById("mtMobileWarning");
 const exportBtn=document.getElementById("mtExportBtn");
 let resizeState=null;let previewTimerIntervals=[];
+const mtLeftPanel = document.querySelector(".panel.panel-left");
+const mtRightPanel = document.querySelector(".panel.panel-right");
+const mtLeftX = document.getElementById("mtLeftPanelX");
+const mtRightX = document.getElementById("mtRightPanelX");
+
+function mtShowLeftPanel(){
+  if(mtLeftPanel) mtLeftPanel.style.display = "flex";
+}
+function mtHideLeftPanel(){
+  if(mtLeftPanel) mtLeftPanel.style.display = "none";
+}
+function mtToggleLeftPanel(){
+  if(!mtLeftPanel) return;
+  const isHidden = (getComputedStyle(mtLeftPanel).display === "none");
+  if(isHidden) mtShowLeftPanel(); else mtHideLeftPanel();
+}
+
+function mtShowRightPanel(){
+  if(mtRightPanel) mtRightPanel.style.display = "flex";
+}
+function mtHideRightPanel(){
+  if(mtRightPanel) mtRightPanel.style.display = "none";
+}
+function mtToggleRightPanel(){
+  if(!mtRightPanel) return;
+  const isHidden = (getComputedStyle(mtRightPanel).display === "none");
+  if(isHidden) mtShowRightPanel(); else mtHideRightPanel();
+}
+
+if(mtLeftX){
+  mtLeftX.onclick = function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    mtHideLeftPanel();
+  };
+}
+
+if(mtRightX){
+  mtRightX.onclick = function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    mtHideRightPanel();
+  };
+}
+
+window.addEventListener("keydown", function(e){
+  // faqat editor ochiq bo‘lsa ishlasin
+  if(!editorOverlay || editorOverlay.style.display === "none") return;
+
+  // Ctrl + L => left toggle
+  if((e.ctrlKey || e.metaKey) && (e.key === "l" || e.key === "L")){
+    e.preventDefault();
+    mtToggleLeftPanel();
+    return;
+  }
+
+  // Tab => right toggle
+  if(e.key === "Tab"){
+    e.preventDefault();
+    mtToggleRightPanel();
+    return;
+  }
+});
+
 
 function mtSetSaveStatus(type){
   const el=document.getElementById("mtSaveStatus");
@@ -778,6 +842,8 @@ function mtOpenEditorForPage(siteId, pageId){
   mtHistoryReset();
   editorOverlay.style.display = "flex";
   updateDesktopVisibility();
+  mtShowLeftPanel();
+  mtShowRightPanel();
   if(window.mtSetZoomDefault) window.mtSetZoomDefault();
   setTimeout(function(){
   if(typeof mtCenter === "function"){
