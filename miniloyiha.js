@@ -827,7 +827,7 @@ function mtOpenEditorForPage(siteId, pageId){
   var pagesOverlay = document.getElementById("mtPagesOverlay");
   if(pagesOverlay) pagesOverlay.style.display = "none";
 
-  editorTitle.textContent = (site.name || "Sayt") + " • " + (page.name || "Sahifa");
+  editorTitle.textContent = (site.name || "Sayt") + " => " + (page.name || "Sahifa");
 
  if(page.builderState){
     loadStateFromSilent(page.builderState);
