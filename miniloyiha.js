@@ -3875,6 +3875,14 @@ if(previewShell){
     mtClamp();
   }, { passive:false });
 }
+setTimeout(function(){
+  var v = document.getElementById("mtCanvasViewport");
+  if(!v) return;
+
+  v.scrollLeft = 4000 - (v.clientWidth / 2);
+  v.scrollTop  = 4000 - (v.clientHeight / 2);
+}, 0);
+
 
 
 
