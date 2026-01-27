@@ -62,6 +62,60 @@ function mtClearAssetPreviewUrl(assetId){
   }catch(e){}
   delete window.MT_ASSET_URLS[assetId];
 }
+async function mtRestoreAssetPreviews(site){
+  if(!site || !site.mtPublish || !site.mtPublish.github) return;
+
+  var repo = String(site.mtPublish.github.repoFullName || "").trim();
+  if(!repo) return;
+
+  var branch = String(site.mtPublish.github.branch || "").trim() || "main";
+
+  var seen = Object.create(null);
+
+  function scan(st){
+    var blocks = st && Array.isArray(st.blocks) ? st.blocks : [];
+    for(var b=0;b<blocks.length;b++){
+      var blk = blocks[b] || {};
+      if(blk.bgAssetId) seen[String(blk.bgAssetId)] = true;
+
+      var items = Array.isArray(blk.items) ? blk.items : [];
+      for(var i=0;i<items.length;i++){
+        var it = items[i] || {};
+        if(it.assetId) seen[String(it.assetId)] = true;
+      }
+    }
+  }
+
+  var pages = Array.isArray(site.pages) ? site.pages : [];
+  for(var p=0;p<pages.length;p++){
+    if(pages[p] && pages[p].builderState) scan(pages[p].builderState);
+  }
+
+  var ids = Object.keys(seen);
+
+  for(var k=0;k<ids.length;k++){
+    var id = ids[k];
+    if(!id) continue;
+
+    if(window.MT_ASSET_URLS && window.MT_ASSET_URLS[id]) continue;
+
+    try{
+      var url = "https://raw.githubusercontent.com/" + repo + "/" + branch + "/assets/" + id + ".webp";
+      var r = await fetch(url, { cache:"no-store" });
+      if(!r.ok) continue;
+      var blob = await r.blob();
+
+      mtSetAssetPreviewUrl(id, blob);
+
+      window.MT_ASSETS[id] = window.MT_ASSETS[id] || {};
+      window.MT_ASSETS[id].blob = blob;
+      window.MT_ASSETS[id].mime = "image/webp";
+      window.MT_ASSETS[id].size = blob.size;
+      window.MT_ASSETS[id].name = id + ".webp";
+    }catch(e){}
+  }
+}
+
 
 window.mtCreateSiteCardOnly = function(name){
   if(!Array.isArray(sites)) return;
@@ -197,6 +251,11 @@ let MT_SUPPRESS_CLOUD = false;
     if (s && Array.isArray(s.pages)) {
     const p = s.pages.find(pp => pp.id === currentPageId);
     if (p && p.builderState) loadStateFrom(p.builderState);
+    mtRestoreAssetPreviews(s).then(function(){
+    renderPreview();
+    renderLayers();
+    renderSettings();
+    });
     }
   }
   }
@@ -637,6 +696,12 @@ function mtOpenEditorForPage(siteId, pageId){
 
   if(page.builderState) loadStateFrom(page.builderState);
   else initEmptyState();
+
+  mtRestoreAssetPreviews(site).then(function(){
+  renderPreview();
+  renderLayers();
+  renderSettings();
+  });
 
   mtHistoryReset();
   editorOverlay.style.display = "flex";
