@@ -2286,8 +2286,7 @@ function mtCreateUploadBox(opts){
   arrow.style.fontSize = "20px";
   arrow.style.transform = "translateY(-1px)";
 var clearBtn = document.createElement("div");
-  clearBtn.setAttribute("role","button");
-clearBtn.type = "button";
+clearBtn.setAttribute("role","button");
 clearBtn.textContent = "×";
 clearBtn.style.width = "26px";
 clearBtn.style.height = "26px";
@@ -2297,6 +2296,8 @@ clearBtn.style.background = "rgba(255,255,255,.05)";
 clearBtn.style.color = "#fff";
 clearBtn.style.cursor = "pointer";
 clearBtn.style.display = "none";
+clearBtn.style.alignItems = "center";
+clearBtn.style.justifyContent = "center";
 clearBtn.style.padding = "0";
 clearBtn.style.lineHeight = "1";
 clearBtn.style.fontSize = "18px";
@@ -2334,7 +2335,7 @@ right.appendChild(arrow);
   function setDone(isDone){
   if(isDone){
     check.style.display = "none";
-    clearBtn.style.display = "block";
+    clearBtn.style.display = "inline-flex";
     arrow.style.display = "none";
     right.style.opacity = "1";
     return;
