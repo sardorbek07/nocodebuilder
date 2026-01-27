@@ -778,6 +778,7 @@ function mtOpenEditorForPage(siteId, pageId){
   mtHistoryReset();
   editorOverlay.style.display = "flex";
   updateDesktopVisibility();
+setTimeout(function(){ if(typeof mtCenter === "function") mtCenter(); }, 0);
 }
 
 function mtOpenPages(siteId){
@@ -3836,6 +3837,8 @@ function mtCenter(){
   viewport.scrollTop  = 4000 - (h / 2);
   mtClamp();
 }
+  window.mtCenter = mtCenter;
+
   function mtApplyZoom(oldZoom){
     if(!stage || !viewport) return;
 
