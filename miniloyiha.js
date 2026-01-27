@@ -3207,7 +3207,15 @@ function buildExportHtml() {
             var bStyleShape = "border-style:solid;";
 
             var bgImgStyle = "";
-            if (item.url) {
+            if(item.assetId){
+  var aid = String(item.assetId).replace(/[^\w\-]+/g, "");
+  if(aid){
+    bgImgStyle = "background-image:url(" + escapeHtml("assets/" + aid + ".webp") + ");background-size:cover;background-position:center;";
+  }
+}
+
+if(!bgImgStyle && item.url){
+
               var bgFile = mtImagePathFromUrl(item.url);
               if (bgFile) {
                 bgImgStyle =
@@ -3989,10 +3997,11 @@ function scanState(saved){
     var items = Array.isArray(blk.items) ? blk.items : [];
     for(var i=0;i<items.length;i++){
       var it = items[i] || {};
-      if(it.type === "image" && it.assetId){
-        var id = String(it.assetId);
-        if(id) seen[id] = true;
-      }
+     if((it.type === "image" || it.type === "shape") && it.assetId){
+  var id = String(it.assetId);
+  if(id) seen[id] = true;
+}
+
     }
   }
 }
