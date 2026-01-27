@@ -2783,50 +2783,42 @@ function buildShapeSettings(item){
   inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
   fR.appendChild(lr);
   fR.appendChild(inR);
-const fUp=document.createElement("div");
-fUp.className="field";
-const lUp=document.createElement("label");
-lUp.textContent="Fon rasm (Upload)";
-const inUp=document.createElement("input");
-inUp.type="file";
-inUp.accept="image/*";
+var shapeUp = mtMakeNiceUploadField({
+  label: "Fon rasm",
+  buttonText: "Rasm yuklash",
+  onPick: function(file){
+    if(!file) return false;
+    if(file.size > 300 * 1024){
+      alert("Rasmingiz o'lchami 300KB dan katta");
+      return false;
+    }
+    return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+      var assetId = mtNewAssetId();
 
-inUp.onchange=function(e){
-  const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-  e.target.value = "";
-  if(!file) return;
+      window.MT_ASSETS[assetId] = {
+        blob: webpBlob,
+        mime: "image/webp",
+        size: webpBlob.size,
+        name: assetId + ".webp"
+      };
 
-  if(file.size > 300 * 1024){
-    alert("Rasmingiz o'lchami 300KB dan katta");
-    return;
+      mtSetAssetPreviewUrl(assetId, webpBlob);
+      mtPreviewPutBlob(assetId, webpBlob);
+
+      item.assetId = assetId;
+
+      renderPreview();
+      renderLayers();
+      saveCurrentSiteState();
+
+      return true;
+    }).catch(function(){
+      alert("Rasmni qayta ishlashda xatolik");
+      return false;
+    });
   }
+});
 
-  mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
-    const assetId = mtNewAssetId();
-
-    window.MT_ASSETS[assetId] = {
-      blob: webpBlob,
-      mime: "image/webp",
-      size: webpBlob.size,
-      name: assetId + ".webp"
-    };
-
-    mtSetAssetPreviewUrl(assetId, webpBlob);
-    mtPreviewPutBlob(assetId, webpBlob);
-
-
-    item.assetId = assetId;
-
-    renderPreview();
-    renderLayers();
-    saveCurrentSiteState();
-  }).catch(function(){
-    alert("Rasmni qayta ishlashda xatolik");
-  });
-};
-
-fUp.appendChild(lUp);
-fUp.appendChild(inUp);
 
 
   const fHref=document.createElement("div");
@@ -2844,7 +2836,6 @@ fUp.appendChild(inUp);
   settingsBody.appendChild(fBg);
   settingsBody.appendChild(rowBorder);
   settingsBody.appendChild(fR);
-  settingsBody.appendChild(fUp);
   settingsBody.appendChild(fHref);
 
   const del=document.createElement("button");
