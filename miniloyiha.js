@@ -2285,7 +2285,8 @@ function mtCreateUploadBox(opts){
   arrow.textContent = "›";
   arrow.style.fontSize = "20px";
   arrow.style.transform = "translateY(-1px)";
-var clearBtn = document.createElement("button");
+var clearBtn = document.createElement("div");
+  clearBtn.setAttribute("role","button");
 clearBtn.type = "button";
 clearBtn.textContent = "×";
 clearBtn.style.width = "26px";
@@ -2299,6 +2300,7 @@ clearBtn.style.display = "none";
 clearBtn.style.padding = "0";
 clearBtn.style.lineHeight = "1";
 clearBtn.style.fontSize = "18px";
+
 
 clearBtn.onclick = function(e){
   e.preventDefault();
@@ -2380,6 +2382,16 @@ right.appendChild(arrow);
   box.appendChild(right);
 
   wrap.mtSetDone = setDone;
+  wrap.__mtOnClear = null;
+
+wrap.mtOnClear = function(fn){
+  wrap.__mtOnClear = (typeof fn === "function") ? fn : null;
+};
+
+wrap.mtSetClearVisible = function(v){
+  clearBtn.style.display = v ? "block" : "none";
+};
+
 
 
   return wrap;
