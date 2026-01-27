@@ -2287,7 +2287,7 @@ function mtCreateUploadBox(opts){
   arrow.style.transform = "translateY(-1px)";
 var clearBtn = document.createElement("div");
 clearBtn.setAttribute("role","button");
-clearBtn.innerHTML = '<span style="display:block;transform:translateY(3px);">×</span>';
+clearBtn.innerHTML = '<span style="display:block;transform:translateY(1px);">×</span>';
 clearBtn.style.width = "26px";
 clearBtn.style.height = "26px";
 clearBtn.style.borderRadius = "10px";
