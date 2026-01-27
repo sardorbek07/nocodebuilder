@@ -2408,15 +2408,9 @@ function buildImageSettings(item){
   const alignRow=buildAlignRow(item);
   settingsBody.appendChild(alignRow);
 
-var imgUp = mtMakeNiceUploadField({
-  label: "Rasm",
-  buttonText: "Rasm yuklash",
+var imgUp = mtCreateUploadBox({
+  title: "Rasm",
   onPick: function(file){
-    if(!file) return false;
-    if(file.size > 300 * 1024){
-      alert("Rasmingiz o'lchami 300KB dan katta");
-      return false;
-    }
     return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
       var assetId = mtNewAssetId();
 
@@ -2437,12 +2431,11 @@ var imgUp = mtMakeNiceUploadField({
       saveCurrentSiteState();
 
       return true;
-    }).catch(function(){
-      alert("Rasmni qayta ishlashda xatolik");
-      return false;
     });
   }
 });
+
+if(imgUp && imgUp.mtSetDone) imgUp.mtSetDone(!!item.assetId);
 settingsBody.appendChild(imgUp);
 
 
@@ -2836,6 +2829,7 @@ var shapeUp = mtMakeNiceUploadField({
   settingsBody.appendChild(fBg);
   settingsBody.appendChild(rowBorder);
   settingsBody.appendChild(fR);
+  settingsBody.appendChild(shapeUp);
   settingsBody.appendChild(fHref);
 
   const del=document.createElement("button");
