@@ -2299,7 +2299,7 @@ clearBtn.style.display = "none";
 clearBtn.style.alignItems = "center";
 clearBtn.style.justifyContent = "center";
 clearBtn.style.padding = "0";
-clearBtn.style.lineHeight = "1";
+clearBtn.style.lineHeight = "26px";
 clearBtn.style.fontSize = "18px";
 
 
@@ -2390,8 +2390,8 @@ wrap.mtOnClear = function(fn){
 };
 
 wrap.mtSetClearVisible = function(v){
-  clearBtn.style.display = v ? "block" : "none";
-};
+  clearBtn.style.display = v ? "inline-flex" : "none";
+};;
 
 
 
