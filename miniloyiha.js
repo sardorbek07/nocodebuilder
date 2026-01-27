@@ -1980,50 +1980,32 @@ function buildSectionSettings(block){
   fBgColor.appendChild(l1);
   fBgColor.appendChild(inColor);
 
-const fBgImage=document.createElement("div");
-fBgImage.className="field";
+const bgUp = mtCreateUploadBox({
+  title: "Fon rasm",
+  onPick: function(file){
+    return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+      const assetId = mtNewAssetId();
 
-const l2=document.createElement("label");
-l2.textContent="Fon rasm (Upload)";
+      window.MT_ASSETS[assetId] = {
+        blob: webpBlob,
+        mime: "image/webp",
+        size: webpBlob.size,
+        name: assetId + ".webp"
+      };
 
-const inUp=document.createElement("input");
-inUp.type="file";
-inUp.accept="image/*";
+      mtSetAssetPreviewUrl(assetId, webpBlob);
+      mtPreviewPutBlob(assetId, webpBlob);
 
-inUp.onchange=function(e){
-  const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-  e.target.value = "";
-  if(!file) return;
+      block.bgAssetId = assetId;
 
-  if(file.size > 300 * 1024){
-    alert("Rasmingiz o'lchami 300KB dan katta");
-    return;
+      renderPreview();
+      saveCurrentSiteState();
+
+      return true;
+    });
   }
-
-  mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
-    const assetId = mtNewAssetId();
-
-    window.MT_ASSETS[assetId] = {
-      blob: webpBlob,
-      mime: "image/webp",
-      size: webpBlob.size,
-      name: assetId + ".webp"
-    };
-
-    mtSetAssetPreviewUrl(assetId, webpBlob);
-    mtPreviewPutBlob(assetId, webpBlob);
-
-    block.bgAssetId = assetId;
-
-    renderPreview();
-    saveCurrentSiteState();
-  }).catch(function(){
-    alert("Rasmni qayta ishlashda xatolik");
-  });
-};
-
-fBgImage.appendChild(l2);
-fBgImage.appendChild(inUp);
+});
+if(bgUp && bgUp.mtSetDone) bgUp.mtSetDone(!!block.bgAssetId);
 
   const fHeight=document.createElement("div");
   fHeight.className="field";
@@ -2043,8 +2025,8 @@ fBgImage.appendChild(inUp);
   fHeight.appendChild(l3);
   fHeight.appendChild(inH);
 
-  settingsBody.appendChild(fBgColor);
-  settingsBody.appendChild(fBgImage);
+settingsBody.appendChild(fBgColor);
+settingsBody.appendChild(bgUp);
   settingsBody.appendChild(fHeight);
   selectedLabel.textContent="Blok sozlamalari";
 }
@@ -2213,6 +2195,156 @@ function buildTextSettings(item){
   del.appendChild(delIcon);
   del.onclick=function(){deleteItem(item.id)};
   settingsBody.appendChild(del);
+}
+function mtCreateUploadBox(opts){
+  opts = opts || {};
+  var title = String(opts.title || "Rasm yuklash");
+  var onPick = typeof opts.onPick === "function" ? opts.onPick : function(){ return Promise.resolve(); };
+
+  var wrap = document.createElement("div");
+  wrap.className = "mt-uploadbox";
+  wrap.style.display = "grid";
+  wrap.style.gridTemplateColumns = "1fr";
+  wrap.style.gap = "8px";
+
+  var label = document.createElement("label");
+  label.textContent = title;
+  label.style.fontSize = "12px";
+  label.style.opacity = ".85";
+
+  var box = document.createElement("button");
+  box.type = "button";
+  box.style.width = "100%";
+  box.style.height = "44px";
+  box.style.borderRadius = "12px";
+  box.style.border = "1px dashed rgba(255,255,255,.18)";
+  box.style.background = "rgba(255,255,255,.06)";
+  box.style.color = "#fff";
+  box.style.cursor = "pointer";
+  box.style.display = "flex";
+  box.style.alignItems = "center";
+  box.style.justifyContent = "space-between";
+  box.style.padding = "0 12px";
+  box.style.gap = "10px";
+
+  var left = document.createElement("div");
+  left.style.display = "flex";
+  left.style.alignItems = "center";
+  left.style.gap = "10px";
+  left.style.minWidth = "0";
+
+  var text = document.createElement("div");
+  text.textContent = "Rasm yuklash";
+  text.style.fontSize = "13px";
+  text.style.opacity = ".9";
+  text.style.whiteSpace = "nowrap";
+  text.style.overflow = "hidden";
+  text.style.textOverflow = "ellipsis";
+
+  var status = document.createElement("div");
+  status.textContent = "";
+  status.style.fontSize = "14px";
+  status.style.opacity = ".95";
+  status.style.display = "none";
+
+  left.appendChild(text);
+  left.appendChild(status);
+
+  var right = document.createElement("div");
+  right.style.width = "26px";
+  right.style.height = "26px";
+  right.style.borderRadius = "10px";
+  right.style.display = "flex";
+  right.style.alignItems = "center";
+  right.style.justifyContent = "center";
+  right.style.border = "1px solid rgba(255,255,255,.14)";
+  right.style.background = "rgba(255,255,255,.05)";
+  right.style.opacity = ".65";
+
+  var check = document.createElement("div");
+  check.textContent = "✓";
+  check.style.fontSize = "16px";
+  check.style.display = "none";
+
+  var arrow = document.createElement("div");
+  arrow.textContent = "›";
+  arrow.style.fontSize = "20px";
+  arrow.style.transform = "translateY(-1px)";
+
+  right.appendChild(check);
+  right.appendChild(arrow);
+
+  var input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.style.display = "none";
+
+  function setLoading(isLoading){
+    if(isLoading){
+      status.style.display = "block";
+      status.textContent = "Yuklanmoqda...";
+      check.style.display = "none";
+      arrow.style.display = "none";
+      right.style.opacity = "1";
+      box.disabled = true;
+      box.style.opacity = ".8";
+      return;
+    }
+    status.style.display = "none";
+    box.disabled = false;
+    box.style.opacity = "1";
+  }
+
+  function setDone(isDone){
+    if(isDone){
+      check.style.display = "block";
+      arrow.style.display = "none";
+      right.style.opacity = "1";
+      return;
+    }
+    check.style.display = "none";
+    arrow.style.display = "block";
+    right.style.opacity = ".65";
+  }
+
+  box.onclick = function(){
+    input.click();
+  };
+
+  input.onchange = function(e){
+    var file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    e.target.value = "";
+    if(!file) return;
+
+    if(file.size > 300 * 1024){
+      alert("Rasmingiz o'lchami 300KB dan katta");
+      return;
+    }
+
+    setLoading(true);
+
+    Promise.resolve()
+      .then(function(){ return onPick(file); })
+      .then(function(ok){
+        setLoading(false);
+        setDone(!!ok);
+      })
+      .catch(function(){
+        setLoading(false);
+        setDone(false);
+        alert("Rasmni qayta ishlashda xatolik");
+      });
+  };
+
+  wrap.appendChild(label);
+  wrap.appendChild(box);
+  wrap.appendChild(input);
+  box.appendChild(left);
+  box.appendChild(right);
+
+  wrap.mtSetDone = setDone;
+
+  return wrap;
 }
 
 function mtCompressToWebp(file, maxBytes){
