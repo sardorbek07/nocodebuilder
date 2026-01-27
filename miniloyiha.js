@@ -778,6 +778,7 @@ function mtOpenEditorForPage(siteId, pageId){
   mtHistoryReset();
   editorOverlay.style.display = "flex";
   updateDesktopVisibility();
+  if(window.mtSetZoomDefault) window.mtSetZoomDefault();
   setTimeout(function(){
   if(typeof mtCenter === "function"){
     mtCenter();
@@ -3746,14 +3747,9 @@ if(mobileModeBtn)mobileModeBtn.onclick=function(){setPreviewMode("mobile")};
 
 if(closeEditorBtn){
   closeEditorBtn.onclick=function(){
-    mtZoom = 1;
-    mtApplyZoom(1);
-    if(editorOverlay)editorOverlay.style.display="none";
+    if(window.mtSetZoomDefault) window.mtSetZoomDefault();
+    if(editorOverlay) editorOverlay.style.display = "none";
     if(currentSiteId) mtOpenPages(currentSiteId);
-    setTimeout(function(){
-  if(typeof mtCenter === "function") mtCenter();
-}, 0);
-
   };
 }
 
@@ -3847,6 +3843,11 @@ viewport.scrollTop  = (4000 * mtZoom) - (h / 2);
   mtClamp();
 }
   window.mtCenter = mtCenter;
+  window.mtSetZoomDefault = function(){
+  mtZoom = 1;
+  stage.style.transform = "scale(" + mtZoom + ")";
+  stage.style.transformOrigin = "0 0";
+};
 
   function mtApplyZoom(oldZoom){
     if(!stage || !viewport) return;
