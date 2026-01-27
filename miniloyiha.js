@@ -2301,7 +2301,6 @@ clearBtn.style.justifyContent = "center";
 clearBtn.style.padding = "0";
 clearBtn.style.lineHeight = "26px";
 clearBtn.style.fontSize = "18px";
-clearBtn.style.transform = "translateY(-2px)";
 
 
 
