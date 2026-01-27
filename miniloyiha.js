@@ -3740,6 +3740,8 @@ if(mobileModeBtn)mobileModeBtn.onclick=function(){setPreviewMode("mobile")};
 
 if(closeEditorBtn){
   closeEditorBtn.onclick=function(){
+    mtZoom = 1;
+    mtApplyZoom(1);
     if(editorOverlay)editorOverlay.style.display="none";
     if(currentSiteId) mtOpenPages(currentSiteId);
   };
@@ -3849,7 +3851,11 @@ function mtCenter(){
     mtClamp();
   }
 
-  setTimeout(mtCenter, 0);
+setTimeout(function(){
+  mtZoom = 1;
+  mtApplyZoom(1);
+  mtCenter();
+}, 0);
 
   previewShell.addEventListener("wheel", function(e){
     if(!viewport) return;
