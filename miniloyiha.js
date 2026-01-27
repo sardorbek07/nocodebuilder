@@ -43,6 +43,70 @@ window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
 const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;let currentPageId=null;
 window.MT_ASSETS = window.MT_ASSETS || {};
 window.MT_ASSET_URLS = window.MT_ASSET_URLS || {};
+function mtPreviewDbName(){
+  var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim() || "guest";
+  return "mt_preview_assets_v1__" + uid;
+}
+
+function mtPreviewDb(){
+  return new Promise(function(resolve, reject){
+    try{
+      var req = indexedDB.open(mtPreviewDbName(), 1);
+      req.onupgradeneeded = function(){
+        var db = req.result;
+        if(!db.objectStoreNames.contains("assets")){
+          db.createObjectStore("assets", { keyPath: "k" });
+        }
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error || new Error("db_open_fail")); };
+    }catch(e){ reject(e); }
+  });
+}
+
+function mtPreviewPutBlob(assetId, blob){
+  if(!assetId || !blob) return Promise.resolve();
+  var k = String(assetId);
+  return mtPreviewDb().then(function(db){
+    return new Promise(function(resolve, reject){
+      try{
+        var tx = db.transaction(["assets"], "readwrite");
+        var st = tx.objectStore("assets");
+        st.put({ k: k, b: blob, t: Date.now() });
+        tx.oncomplete = function(){ try{ db.close(); }catch(e){} resolve(); };
+        tx.onerror = function(){ try{ db.close(); }catch(e){} reject(tx.error || new Error("db_put_fail")); };
+      }catch(e){ try{ db.close(); }catch(err){} reject(e); }
+    });
+  }).catch(function(){});
+}
+
+function mtPreviewGetBlob(assetId){
+  var k = String(assetId || "");
+  if(!k) return Promise.resolve(null);
+  return mtPreviewDb().then(function(db){
+    return new Promise(function(resolve){
+      try{
+        var tx = db.transaction(["assets"], "readonly");
+        var st = tx.objectStore("assets");
+        var rq = st.get(k);
+        rq.onsuccess = function(){
+          var row = rq.result;
+          var blob = row && row.b ? row.b : null;
+          try{ db.close(); }catch(e){}
+          resolve(blob);
+        };
+        rq.onerror = function(){
+          try{ db.close(); }catch(e){}
+          resolve(null);
+        };
+      }catch(e){
+        try{ db.close(); }catch(err){}
+        resolve(null);
+      }
+    });
+  }).catch(function(){ return null; });
+}
+
 
 function mtNewAssetId(){
   return "img_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
@@ -197,7 +261,12 @@ let MT_SUPPRESS_CLOUD = false;
     const s = sites.find(x => x.id === currentSiteId);
     if (s && Array.isArray(s.pages)) {
     const p = s.pages.find(pp => pp.id === currentPageId);
-    if (p && p.builderState) loadStateFrom(p.builderState);
+    if(p && p.builderState){
+  loadStateFromSilent(p.builderState);
+  mtRestorePreviewAssetsFromDb(p.builderState).then(function(){
+    render();
+  });
+}
     }
   }
   }
@@ -591,6 +660,66 @@ function loadStateFrom(saved){
   state.previewMode="mobile";
   render();
 }
+function loadStateFromSilent(saved){
+  state.blocks = Array.isArray(saved && saved.blocks) ? saved.blocks : [];
+  state.currentBlockId = (saved && saved.currentBlockId) || (state.blocks[0] ? state.blocks[0].id : null);
+  state.selectedId = null;
+  state.counterBlock = (saved && saved.counterBlock) || state.blocks.length;
+  state.counterItem = (saved && saved.counterItem) || 0;
+  state.previewMode = "mobile";
+}
+
+function mtCollectAssetIdsFromBuilderState(saved){
+  var out = {};
+  var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
+  for(var b=0;b<blocks.length;b++){
+    var blk = blocks[b] || {};
+    if(blk.bgAssetId){
+      var a0 = String(blk.bgAssetId || "").trim();
+      if(a0) out[a0] = true;
+    }
+    var items = Array.isArray(blk.items) ? blk.items : [];
+    for(var i=0;i<items.length;i++){
+      var it = items[i] || {};
+      if((it.type === "image" || it.type === "shape") && it.assetId){
+        var a1 = String(it.assetId || "").trim();
+        if(a1) out[a1] = true;
+      }
+    }
+  }
+  return Object.keys(out);
+}
+
+function mtRestorePreviewAssetsFromDb(saved){
+  var ids = mtCollectAssetIdsFromBuilderState(saved);
+  if(!ids.length) return Promise.resolve();
+
+  var tasks = [];
+  for(var i=0;i<ids.length;i++){
+    (function(assetId){
+      if(window.MT_ASSET_URLS && window.MT_ASSET_URLS[assetId]) return;
+
+      tasks.push(
+        mtPreviewGetBlob(assetId).then(function(blob){
+          if(!blob) return;
+
+          window.MT_ASSETS[assetId] = window.MT_ASSETS[assetId] || {
+            blob: blob,
+            mime: blob.type || "image/webp",
+            size: blob.size || 0,
+            name: assetId + ".webp"
+          };
+          window.MT_ASSETS[assetId].blob = blob;
+
+          mtSetAssetPreviewUrl(assetId, blob);
+        })
+      );
+    })(ids[i]);
+  }
+
+  return Promise.all(tasks).then(function(){}).catch(function(){});
+}
+
 
 function saveCurrentSiteState(){
   if(!currentSiteId || !currentPageId) return;
@@ -636,8 +765,14 @@ function mtOpenEditorForPage(siteId, pageId){
 
   editorTitle.textContent = (site.name || "Sayt") + " • " + (page.name || "Sahifa");
 
-  if(page.builderState) loadStateFrom(page.builderState);
-  else initEmptyState();
+ if(page.builderState){
+    loadStateFromSilent(page.builderState);
+    mtRestorePreviewAssetsFromDb(page.builderState).then(function(){
+      render();
+    });
+  }else{
+    initEmptyState();
+  }
 
 
   mtHistoryReset();
@@ -1876,6 +2011,7 @@ inUp.onchange=function(e){
     };
 
     mtSetAssetPreviewUrl(assetId, webpBlob);
+    mtPreviewPutBlob(assetId, webpBlob);
 
     block.bgAssetId = assetId;
 
@@ -2169,6 +2305,7 @@ function buildImageSettings(item){
       };
 
       const previewUrl = mtSetAssetPreviewUrl(assetId, webpBlob);
+      mtPreviewPutBlob(assetId, webpBlob);
 
       item.assetId = assetId;
       item._previewUrl = previewUrl;
@@ -2551,6 +2688,8 @@ inUp.onchange=function(e){
     };
 
     mtSetAssetPreviewUrl(assetId, webpBlob);
+    mtPreviewPutBlob(assetId, webpBlob);
+
 
     item.assetId = assetId;
 
