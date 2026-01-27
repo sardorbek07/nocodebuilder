@@ -3809,12 +3809,39 @@ if(previewShell){
   const viewport = document.getElementById("mtCanvasViewport");
   let mtZoom = 1;
 
-  function mtApplyZoom(){
-    if(stage){
-      stage.style.transform = "translate(-50%,-50%) scale(" + mtZoom + ")";
-      stage.style.transformOrigin = "center center";
-    }
+  function mtClamp(){
+    if(!viewport) return;
+    const maxX = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    const maxY = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+    if(viewport.scrollLeft < 0) viewport.scrollLeft = 0;
+    if(viewport.scrollTop < 0) viewport.scrollTop = 0;
+    if(viewport.scrollLeft > maxX) viewport.scrollLeft = maxX;
+    if(viewport.scrollTop > maxY) viewport.scrollTop = maxY;
   }
+
+  function mtCenter(){
+    if(!viewport) return;
+    viewport.scrollLeft = 4000 - (viewport.clientWidth / 2);
+    viewport.scrollTop = 4000 - (viewport.clientHeight / 2);
+    mtClamp();
+  }
+
+  function mtApplyZoom(oldZoom){
+    if(!stage || !viewport) return;
+
+    const prev = oldZoom || mtZoom;
+    const cx = (viewport.scrollLeft + viewport.clientWidth / 2) / prev;
+    const cy = (viewport.scrollTop + viewport.clientHeight / 2) / prev;
+
+    stage.style.transform = "scale(" + mtZoom + ")";
+    stage.style.transformOrigin = "0 0";
+
+    viewport.scrollLeft = (cx * mtZoom) - (viewport.clientWidth / 2);
+    viewport.scrollTop  = (cy * mtZoom) - (viewport.clientHeight / 2);
+    mtClamp();
+  }
+
+  setTimeout(mtCenter, 0);
 
   previewShell.addEventListener("wheel", function(e){
     if(!viewport) return;
@@ -3823,6 +3850,7 @@ if(previewShell){
     if(e.ctrlKey){
       e.preventDefault();
 
+      const old = mtZoom;
       const dir = e.deltaY > 0 ? -1 : 1;
       const step = 0.1;
 
@@ -3830,21 +3858,24 @@ if(previewShell){
       if(mtZoom < 0.25) mtZoom = 0.25;
       if(mtZoom > 2.5) mtZoom = 2.5;
 
-      mtApplyZoom();
+      mtApplyZoom(old);
       return;
     }
 
-    // Shift + scroll = gorizontal yurish
+    // Shift + scroll = gorizontal
     if(e.shiftKey){
       e.preventDefault();
       viewport.scrollLeft += e.deltaY;
+      mtClamp();
       return;
     }
 
-    // Oddiy scroll = vertikal yurish
+    // Oddiy scroll = vertikal
     viewport.scrollTop += e.deltaY;
+    mtClamp();
   }, { passive:false });
 }
+
 
 
 if(createSiteBtn){
