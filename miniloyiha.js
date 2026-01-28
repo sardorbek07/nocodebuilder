@@ -4085,8 +4085,8 @@ window.addEventListener("resize", updateDesktopVisibility);
   if(u === "guest") return;
   if(!ensureDb()) return;
 
-  // MUHIM: load tugamasdan turib save qilmang
-  if(!window.mtCrmReady) return;
+  
+  
 
   // MUHIM: bo‘sh array bilan cloud’ni bosib yubormaymiz
   if(!Array.isArray(window.mtCrmLists) || window.mtCrmLists.length === 0) return;
