@@ -4173,8 +4173,15 @@ window.addEventListener("resize", updateDesktopVisibility);
   window.mtCrmLoad = mtCrmLoad;
   window.mtCrmSave = mtCrmSave;
   window.mtCrmRender = mtCrmRender;
-  window.mtCrmApplyRemote = function(lists){
-  window.mtCrmLists = Array.isArray(lists) ? lists : [];
+window.mtCrmApplyRemote = function(lists){
+  // MUHIM: remote undefined/null bo‘lsa, local’ni o‘chirib yubormaymiz
+  if(!Array.isArray(lists)){
+    mtCrmRender();
+    window.mtCrmReady = true;
+    return;
+  }
+
+  window.mtCrmLists = lists;
   mtCrmRender();
   window.mtCrmReady = true;
 };
