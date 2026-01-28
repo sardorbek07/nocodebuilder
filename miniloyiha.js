@@ -4095,6 +4095,7 @@ window.addEventListener("resize", updateDesktopVisibility);
   }
 
   mtCrmRender();
+   window.mtCrmReady = true;
 }
 
 
