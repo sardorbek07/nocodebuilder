@@ -4015,6 +4015,8 @@ window.addEventListener("resize", updateDesktopVisibility);
   var deleteBtn = document.getElementById("mtCrmDeleteBtn");
 
   window.mtCrmLists = window.mtCrmLists || [];
+  window.mtCrmReady = false;
+
   var activeId = "";
 
   function uid(){
@@ -4183,13 +4185,14 @@ window.addEventListener("resize", updateDesktopVisibility);
     };
   }
 
-  window.mtCrmReady = false;
+
   window.mtCrmLoad = mtCrmLoad;
   window.mtCrmSave = mtCrmSave;
   window.mtCrmRender = mtCrmRender;
   window.mtCrmApplyRemote = function(lists){
   window.mtCrmLists = Array.isArray(lists) ? lists : [];
   mtCrmRender();
+  window.mtCrmReady = true;
 };
 
   mtCrmRender();
