@@ -4174,18 +4174,26 @@ window.addEventListener("resize", updateDesktopVisibility);
   window.mtCrmSave = mtCrmSave;
   window.mtCrmRender = mtCrmRender;
 window.mtCrmApplyRemote = function(lists){
-  // MUHIM: remote undefined/null bo‘lsa, local’ni o‘chirib yubormaymiz
-  if(!Array.isArray(lists)){
+  // Agar field yo‘q bo‘lsa (undefined/null) — bu userda list yo‘q degani
+  if(lists == null){
+    window.mtCrmLists = [];
     mtCrmRender();
     window.mtCrmReady = true;
     return;
   }
 
-  window.mtCrmLists = lists;
+  // Agar array bo‘lsa — normal apply
+  if(Array.isArray(lists)){
+    window.mtCrmLists = lists;
+    mtCrmRender();
+    window.mtCrmReady = true;
+    return;
+  }
+
+  // Boshqa holat (masalan noto‘g‘ri format) — local’ni buzmaymiz
   mtCrmRender();
   window.mtCrmReady = true;
 };
-
   mtCrmRender();
 })();
 
