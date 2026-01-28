@@ -1530,6 +1530,7 @@ function applyAlign(item, align) {
   renderPreview();
   renderSettings();
   renderLayers();
+  saveCurrentSiteState();
 }
 
 
