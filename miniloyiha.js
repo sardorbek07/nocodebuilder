@@ -4032,9 +4032,7 @@ window.addEventListener("resize", updateDesktopVisibility);
     return !!window.mtDb;
   }
 
-  function crmRef(uid){
-    return window.doc(window.mtDb, "crmLists", uid);
-  }
+
 
   function mtCrmRender(){
     if(!grid || !empty) return;
@@ -4074,43 +4072,45 @@ window.addEventListener("resize", updateDesktopVisibility);
     }
   }
 
-  async function mtCrmLoad(){
-    var u = getUid();
-    if(u === "guest"){
-      window.mtCrmLists = [];
-      mtCrmRender();
-      return;
-    }
-    if(!ensureDb()) return;
-
-    try{
-      var snap = await window.getDoc(crmRef(u));
-      if(snap && snap.exists()){
-        var data = snap.data() || {};
-        var lists = Array.isArray(data.lists) ? data.lists : [];
-        window.mtCrmLists = lists;
-      }else{
-        window.mtCrmLists = [];
-      }
-    }catch(e){
-      window.mtCrmLists = [];
-    }
+ async function mtCrmLoad(){
+  var u = getUid();
+  if(u === "guest"){
+    window.mtCrmLists = [];
     mtCrmRender();
+    return;
+  }
+  if(!ensureDb()) return;
+
+  try{
+    var snap = await window.getDoc(window.doc(window.mtDb, "users", u));
+    if(snap && snap.exists()){
+      var data = snap.data() || {};
+      window.mtCrmLists = Array.isArray(data.crmLists) ? data.crmLists : [];
+    }else{
+      window.mtCrmLists = [];
+    }
+  }catch(e){
+    window.mtCrmLists = [];
   }
 
-  async function mtCrmSave(){
-    var u = getUid();
-    if(u === "guest") return;
-    if(!ensureDb()) return;
+  mtCrmRender();
+}
 
-    try{
-      await window.setDoc(
-        crmRef(u),
-        { updatedAt: now(), lists: window.mtCrmLists },
-        { merge: true }
-      );
-    }catch(e){}
-  }
+
+ async function mtCrmSave(){
+  var u = getUid();
+  if(u === "guest") return;
+  if(!ensureDb()) return;
+
+  try{
+    await window.setDoc(
+      window.doc(window.mtDb, "users", u),
+      { crmLists: Array.isArray(window.mtCrmLists) ? window.mtCrmLists : [] },
+      { merge: true }
+    );
+  }catch(e){}
+}
+
 
   function findById(id){
     id = String(id || "");
@@ -4184,6 +4184,10 @@ window.addEventListener("resize", updateDesktopVisibility);
   window.mtCrmLoad = mtCrmLoad;
   window.mtCrmSave = mtCrmSave;
   window.mtCrmRender = mtCrmRender;
+  window.mtCrmApplyRemote = function(lists){
+  window.mtCrmLists = Array.isArray(lists) ? lists : [];
+  mtCrmRender();
+};
 
   mtCrmRender();
 })();
