@@ -438,17 +438,14 @@ function mtSetSaveStatus(type){
 
 
 function getCanvasWidth() {
-  // Avval real blok kengligini olamiz
   if (screenInner) {
     const blockEl = screenInner.querySelector(".screen-block");
     if (blockEl) {
-      return blockEl.getBoundingClientRect().width;
+      return blockEl.offsetWidth || 320;
     }
   }
-  // Agar topa olmasak eski logikaga qaytamiz
   return 320;
 }
-
 
 function updateDesktopVisibility(){
   if(window.innerWidth<768){
@@ -1514,11 +1511,11 @@ function applyAlign(item, align) {
     const el = screenInner
       ? screenInner.querySelector('.preview-el[data-id="' + item.id + '"]')
       : null;
-    if (el) {
-      itemWidth = el.getBoundingClientRect().width;
-    } else {
-      itemWidth = 200;
-    }
+ if (el) {
+  itemWidth = el.offsetWidth || 200;
+} else {
+  itemWidth = 200;
+}
   }
 
   if (align === "left") {
