@@ -4077,6 +4077,7 @@ window.addEventListener("resize", updateDesktopVisibility);
   if(u === "guest"){
     window.mtCrmLists = [];
     mtCrmRender();
+    window.mtCrmReady = true;
     return;
   }
   if(!ensureDb()) return;
@@ -4181,6 +4182,7 @@ window.addEventListener("resize", updateDesktopVisibility);
     };
   }
 
+  window.mtCrmReady = false;
   window.mtCrmLoad = mtCrmLoad;
   window.mtCrmSave = mtCrmSave;
   window.mtCrmRender = mtCrmRender;
