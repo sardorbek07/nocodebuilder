@@ -4075,30 +4075,9 @@ window.addEventListener("resize", updateDesktopVisibility);
   }
 
  async function mtCrmLoad(){
-  var u = getUid();
-  if(u === "guest"){
-    window.mtCrmLists = [];
-    mtCrmRender();
-    window.mtCrmReady = true;
-    return;
-  }
-  if(!ensureDb()) return;
-
-  try{
-    var snap = await window.getDoc(window.doc(window.mtDb, "users", u));
-    if(snap && snap.exists()){
-      var data = snap.data() || {};
-      window.mtCrmLists = Array.isArray(data.crmLists) ? data.crmLists : [];
-    }else{
-      window.mtCrmLists = [];
-    }
-  }catch(e){
-    window.mtCrmLists = [];
-  }
-
   mtCrmRender();
-   window.mtCrmReady = true;
 }
+
 
 
  async function mtCrmSave(){
