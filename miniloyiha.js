@@ -4085,15 +4085,20 @@ window.addEventListener("resize", updateDesktopVisibility);
   if(u === "guest") return;
   if(!ensureDb()) return;
 
+  // MUHIM: load tugamasdan turib save qilmang
+  if(!window.mtCrmReady) return;
+
+  // MUHIM: bo‘sh array bilan cloud’ni bosib yubormaymiz
+  if(!Array.isArray(window.mtCrmLists) || window.mtCrmLists.length === 0) return;
+
   try{
     await window.setDoc(
       window.doc(window.mtDb, "users", u),
-      { crmLists: Array.isArray(window.mtCrmLists) ? window.mtCrmLists : [] },
+      { crmLists: window.mtCrmLists },
       { merge: true }
     );
   }catch(e){}
 }
-
 
   function findById(id){
     id = String(id || "");
