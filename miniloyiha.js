@@ -4007,7 +4007,9 @@ window.addEventListener("resize", updateDesktopVisibility);
   var empty = document.getElementById("mtCrmEmpty");
   var addBtn = document.getElementById("mtCrmCreateListBtn");
 
-  window.demoLists = window.demoLists || [];
+ window.mtCrmDemoLists = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
+window.demoLists = window.mtCrmDemoLists;
+
 
   function render(){
     if(!grid || !empty) return;
@@ -4068,6 +4070,9 @@ window.addEventListener("resize", updateDesktopVisibility);
   var deleteBtn = document.getElementById("mtCrmDeleteBtn");
 
   if(!popup || !input || !saveBtn || !deleteBtn) return;
+  window.mtCrmDemoLists = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
+  window.demoLists = window.mtCrmDemoLists;
+
 
   var activeId = "";
 
