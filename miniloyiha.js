@@ -4001,6 +4001,123 @@ if(mtClosePagesBtn){
 // INIT
 updateDesktopVisibility();
 window.addEventListener("resize", updateDesktopVisibility);
+
+(function(){
+  var grid = document.getElementById("mtCrmListsGrid");
+  var empty = document.getElementById("mtCrmEmpty");
+  var addBtn = document.getElementById("mtCrmCreateListBtn");
+
+  window.demoLists = window.demoLists || [];
+
+  function render(){
+    if(!grid || !empty) return;
+
+    grid.innerHTML = "";
+    empty.style.display = window.demoLists.length ? "none" : "block";
+
+    window.demoLists.forEach(function(item){
+      var card = document.createElement("div");
+      card.className = "mt-crm-list-card";
+      card.dataset.id = item.id;
+
+      var name = document.createElement("div");
+      name.className = "mt-crm-list-name";
+      name.textContent = item.name;
+
+      var meta = document.createElement("div");
+      meta.className = "mt-crm-list-meta";
+      meta.textContent = "Jami zayavkalar: " + item.count;
+
+      var gear = document.createElement("button");
+      gear.type = "button";
+      gear.className = "mt-crm-list-gear";
+      gear.innerHTML = '<img src="https://static.tildacdn.com/tild3533-3335-4134-b137-363961623363/iconoir_settings.svg" alt="">';
+
+      gear.onclick = function(e){
+        e.stopPropagation();
+        if(typeof window.mtOpenCrmListSettings === "function") window.mtOpenCrmListSettings(item);
+      };
+
+      card.appendChild(name);
+      card.appendChild(meta);
+      card.appendChild(gear);
+      grid.appendChild(card);
+    });
+  }
+
+  function uid(){
+    return "list_" + Math.random().toString(16).slice(2) + Date.now().toString(16);
+  }
+
+  if(addBtn){
+    addBtn.addEventListener("click", function(){
+      window.demoLists.unshift({ id: uid(), name: "New list", count: 0 });
+      render();
+    });
+  }
+
+  window.mtCrmRenderLists = render;
+  render();
+})();
+(function(){
+  var popup = document.getElementById("mtCrmListSettings");
+  var input = document.getElementById("mtCrmListNameInput");
+  var closeBtn = document.getElementById("mtCrmSettingsClose");
+  var cancelBtn = document.getElementById("mtCrmCancelBtn");
+  var saveBtn = document.getElementById("mtCrmSaveBtn");
+  var deleteBtn = document.getElementById("mtCrmDeleteBtn");
+
+  if(!popup || !input || !saveBtn || !deleteBtn) return;
+
+  var activeId = "";
+
+  function openSettings(list){
+    if(!list || !list.id) return;
+    activeId = String(list.id);
+    input.value = String(list.name || "");
+    popup.style.display = "flex";
+  }
+
+  function closeSettings(){
+    popup.style.display = "none";
+    activeId = "";
+  }
+
+  window.mtOpenCrmListSettings = openSettings;
+
+  if(closeBtn) closeBtn.onclick = closeSettings;
+  if(cancelBtn) cancelBtn.onclick = closeSettings;
+
+  saveBtn.onclick = function(){
+    if(!activeId) return;
+    var val = String(input.value || "").trim();
+    if(!val) return;
+
+    var arr = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
+    for(var i=0;i<arr.length;i++){
+      if(arr[i] && String(arr[i].id) === activeId){
+        arr[i].name = val;
+        break;
+      }
+    }
+
+    closeSettings();
+    if(typeof window.mtCrmRenderLists === "function") window.mtCrmRenderLists();
+  };
+
+  deleteBtn.onclick = function(){
+    if(!activeId) return;
+    if(!confirm("List va ichidagi barcha lidlar o‘chadi. Davom etamizmi?")) return;
+
+    var arr = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
+    window.mtCrmDemoLists = arr.filter(function(x){ return x && String(x.id) !== activeId; });
+
+    closeSettings();
+    if(typeof window.mtCrmRenderLists === "function") window.mtCrmRenderLists();
+  };
+})();
+
+
 function mtGetCurrentEmail(){
   var uid = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
   if(!uid) return "";
