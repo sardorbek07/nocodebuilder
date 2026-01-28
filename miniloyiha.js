@@ -4007,61 +4007,6 @@ window.addEventListener("resize", updateDesktopVisibility);
   var empty = document.getElementById("mtCrmEmpty");
   var addBtn = document.getElementById("mtCrmCreateListBtn");
 
- window.mtCrmDemoLists = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
-window.demoLists = window.mtCrmDemoLists;
-
-
-  function render(){
-    if(!grid || !empty) return;
-
-    grid.innerHTML = "";
-    empty.style.display = window.demoLists.length ? "none" : "block";
-
-    window.demoLists.forEach(function(item){
-      var card = document.createElement("div");
-      card.className = "mt-crm-list-card";
-      card.dataset.id = item.id;
-
-      var name = document.createElement("div");
-      name.className = "mt-crm-list-name";
-      name.textContent = item.name;
-
-      var meta = document.createElement("div");
-      meta.className = "mt-crm-list-meta";
-      meta.textContent = "Jami zayavkalar: " + item.count;
-
-      var gear = document.createElement("button");
-      gear.type = "button";
-      gear.className = "mt-crm-list-gear";
-      gear.innerHTML = '<img src="https://static.tildacdn.com/tild3533-3335-4134-b137-363961623363/iconoir_settings.svg" alt="">';
-
-      gear.onclick = function(e){
-        e.stopPropagation();
-        if(typeof window.mtOpenCrmListSettings === "function") window.mtOpenCrmListSettings(item);
-      };
-
-      card.appendChild(name);
-      card.appendChild(meta);
-      card.appendChild(gear);
-      grid.appendChild(card);
-    });
-  }
-
-  function uid(){
-    return "list_" + Math.random().toString(16).slice(2) + Date.now().toString(16);
-  }
-
-  if(addBtn){
-    addBtn.addEventListener("click", function(){
-      window.demoLists.unshift({ id: uid(), name: "New list", count: 0 });
-      render();
-    });
-  }
-
-  window.mtCrmRenderLists = render;
-  render();
-})();
-(function(){
   var popup = document.getElementById("mtCrmListSettings");
   var input = document.getElementById("mtCrmListNameInput");
   var closeBtn = document.getElementById("mtCrmSettingsClose");
@@ -4069,58 +4014,180 @@ window.demoLists = window.mtCrmDemoLists;
   var saveBtn = document.getElementById("mtCrmSaveBtn");
   var deleteBtn = document.getElementById("mtCrmDeleteBtn");
 
-  if(!popup || !input || !saveBtn || !deleteBtn) return;
-  window.mtCrmDemoLists = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
-  window.demoLists = window.mtCrmDemoLists;
-
-
+  window.mtCrmLists = window.mtCrmLists || [];
   var activeId = "";
 
-  function openSettings(list){
-    if(!list || !list.id) return;
-    activeId = String(list.id);
-    input.value = String(list.name || "");
-    popup.style.display = "flex";
+  function uid(){
+    return "list_" + Math.random().toString(16).slice(2) + Date.now().toString(16);
   }
 
-  function closeSettings(){
-    popup.style.display = "none";
+  function now(){ return Date.now(); }
+
+  function getUid(){
+    var u = (typeof window.MT_CURRENT_USER_ID === "string" ? window.MT_CURRENT_USER_ID : "").trim();
+    return u || "guest";
+  }
+
+  function ensureDb(){
+    return !!window.mtDb;
+  }
+
+  function crmRef(uid){
+    return window.doc(window.mtDb, "crmLists", uid);
+  }
+
+  function mtCrmRender(){
+    if(!grid || !empty) return;
+    grid.innerHTML = "";
+    empty.style.display = window.mtCrmLists.length ? "none" : "block";
+
+    for(var i=0;i<window.mtCrmLists.length;i++){
+      (function(item){
+        var card = document.createElement("div");
+        card.className = "mt-crm-list-card";
+        card.dataset.id = item.id;
+
+        var name = document.createElement("div");
+        name.className = "mt-crm-list-name";
+        name.textContent = item.name || "";
+
+        var meta = document.createElement("div");
+        meta.className = "mt-crm-list-meta";
+        meta.textContent = "Jami zayavkalar: " + (item.count || 0);
+
+        var gear = document.createElement("button");
+        gear.type = "button";
+        gear.className = "mt-crm-list-gear";
+        gear.innerHTML = '<img src="https://static.tildacdn.com/tild3533-3335-4134-b137-363961623363/iconoir_settings.svg" alt="">';
+
+        gear.onclick = function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          mtOpenSettings(item.id);
+        };
+
+        card.appendChild(name);
+        card.appendChild(meta);
+        card.appendChild(gear);
+        grid.appendChild(card);
+      })(window.mtCrmLists[i]);
+    }
+  }
+
+  async function mtCrmLoad(){
+    var u = getUid();
+    if(u === "guest"){
+      window.mtCrmLists = [];
+      mtCrmRender();
+      return;
+    }
+    if(!ensureDb()) return;
+
+    try{
+      var snap = await window.getDoc(crmRef(u));
+      if(snap && snap.exists()){
+        var data = snap.data() || {};
+        var lists = Array.isArray(data.lists) ? data.lists : [];
+        window.mtCrmLists = lists;
+      }else{
+        window.mtCrmLists = [];
+      }
+    }catch(e){
+      window.mtCrmLists = [];
+    }
+    mtCrmRender();
+  }
+
+  async function mtCrmSave(){
+    var u = getUid();
+    if(u === "guest") return;
+    if(!ensureDb()) return;
+
+    try{
+      await window.setDoc(
+        crmRef(u),
+        { updatedAt: now(), lists: window.mtCrmLists },
+        { merge: true }
+      );
+    }catch(e){}
+  }
+
+  function findById(id){
+    id = String(id || "");
+    for(var i=0;i<window.mtCrmLists.length;i++){
+      if(window.mtCrmLists[i] && String(window.mtCrmLists[i].id) === id) return window.mtCrmLists[i];
+    }
+    return null;
+  }
+
+  function mtOpenSettings(listId){
+    var it = findById(listId);
+    if(!it) return;
+    activeId = String(it.id);
+    if(input) input.value = String(it.name || "");
+    if(popup) popup.style.display = "flex";
+  }
+
+  function mtCloseSettings(){
+    if(popup) popup.style.display = "none";
     activeId = "";
   }
 
-  window.mtOpenCrmListSettings = openSettings;
+  if(closeBtn) closeBtn.onclick = mtCloseSettings;
+  if(cancelBtn) cancelBtn.onclick = mtCloseSettings;
 
-  if(closeBtn) closeBtn.onclick = closeSettings;
-  if(cancelBtn) cancelBtn.onclick = closeSettings;
+  if(addBtn){
+    addBtn.addEventListener("click", async function(){
+      var item = { id: uid(), name: "New list", count: 0, createdAt: now(), updatedAt: now() };
+      window.mtCrmLists.unshift(item);
+      mtCrmRender();
+      await mtCrmSave();
+    });
+  }
 
-  saveBtn.onclick = function(){
-    if(!activeId) return;
-    var val = String(input.value || "").trim();
-    if(!val) return;
+  if(saveBtn){
+    saveBtn.onclick = async function(){
+      if(!activeId) return;
+      var val = String(input && input.value ? input.value : "").trim();
+      if(!val) return;
 
-    var arr = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
-    for(var i=0;i<arr.length;i++){
-      if(arr[i] && String(arr[i].id) === activeId){
-        arr[i].name = val;
-        break;
+      var it = findById(activeId);
+      if(!it) return;
+
+      it.name = val;
+      it.updatedAt = now();
+
+      mtCloseSettings();
+      mtCrmRender();
+      await mtCrmSave();
+    };
+  }
+
+  if(deleteBtn){
+    deleteBtn.onclick = async function(){
+      if(!activeId) return;
+      if(!confirm("List va ichidagi barcha lidlar o‘chadi. Davom etamizmi?")) return;
+
+      for(var i=0;i<window.mtCrmLists.length;i++){
+        if(window.mtCrmLists[i] && String(window.mtCrmLists[i].id) === activeId){
+          window.mtCrmLists.splice(i, 1);
+          break;
+        }
       }
-    }
 
-    closeSettings();
-    if(typeof window.mtCrmRenderLists === "function") window.mtCrmRenderLists();
-  };
+      mtCloseSettings();
+      mtCrmRender();
+      await mtCrmSave();
+    };
+  }
 
-  deleteBtn.onclick = function(){
-    if(!activeId) return;
-    if(!confirm("List va ichidagi barcha lidlar o‘chadi. Davom etamizmi?")) return;
+  window.mtCrmLoad = mtCrmLoad;
+  window.mtCrmSave = mtCrmSave;
+  window.mtCrmRender = mtCrmRender;
 
-    var arr = Array.isArray(window.mtCrmDemoLists) ? window.mtCrmDemoLists : [];
-    window.mtCrmDemoLists = arr.filter(function(x){ return x && String(x.id) !== activeId; });
-
-    closeSettings();
-    if(typeof window.mtCrmRenderLists === "function") window.mtCrmRenderLists();
-  };
+  mtCrmRender();
 })();
+
 
 
 function mtGetCurrentEmail(){
