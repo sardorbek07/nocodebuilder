@@ -4100,22 +4100,29 @@ card.addEventListener("drop", function(e){
 editorWrap.className = "mt-f-editor";
 card.appendChild(editorWrap);
 
+var editorWrap = document.createElement("div");
+editorWrap.style.overflow = "hidden";
+editorWrap.style.transition = "max-height .7s ease, opacity .7s ease";
+editorWrap.style.maxHeight = "0px";
+editorWrap.style.opacity = "0";
+
+card.appendChild(editorWrap);
+
 if(isOpen){
   var active = getById(expandedId);
   if(active){
-    var ed = renderEditor(active);
-    ed.style.overflow = "hidden";
-    ed.style.maxHeight = "0px";
-    ed.style.opacity = "0";
-ed.style.transition = "max-height .99s ease, opacity .99s ease";
-
-    card.appendChild(ed);
+    editorWrap.appendChild(renderEditor(active));
 
     setTimeout(function(){
-      ed.style.maxHeight = "520px"; // kerak bo‘lsa 600px qilasan
-      ed.style.opacity = "1";
+      editorWrap.style.maxHeight = "520px";
+      editorWrap.style.opacity = "1";
     }, 0);
   }
+}else{
+  setTimeout(function(){
+    editorWrap.style.maxHeight = "0px";
+    editorWrap.style.opacity = "0";
+  }, 0);
 }
 
         listWrap.appendChild(card);
