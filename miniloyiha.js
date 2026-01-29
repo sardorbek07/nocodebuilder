@@ -3647,15 +3647,15 @@ window.mtOpenFormFieldsModal = function(){
 
   function labelType(t){
     t = String(t||"");
-    if(t === "name") return "name";
-    if(t === "phone") return "phone";
-    if(t === "email") return "email";
-    if(t === "text") return "text";
-    if(t === "textarea") return "textarea";
-    if(t === "date") return "date";
-    if(t === "time") return "time";
-    if(t === "dropdown") return "dropdown";
-    return t || "text";
+    if(t === "name") return "Ism";
+    if(t === "phone") return "Telefon";
+    if(t === "email") return "Email";
+    if(t === "text") return "Matn";
+    if(t === "textarea") return "Katta matn";
+    if(t === "date") return "Sana";
+    if(t === "time") return "Vaqt";
+    if(t === "dropdown") return "Tanlash inputi";
+    return t || "Matn";
   }
 
   function getById(id){
@@ -3875,7 +3875,10 @@ if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
         top.style.whiteSpace = "nowrap";
         top.style.overflow = "hidden";
         top.style.textOverflow = "ellipsis";
-        top.textContent = labelType(f.type) + (f.required ? " • required" : "");
+       top.textContent =
+  labelType(f.type) +
+  (f.title ? " • " + f.title : "") +
+  (f.required ? " • majburiy" : "");
 
         var sub = document.createElement("div");
         sub.style.fontSize = "12px";
