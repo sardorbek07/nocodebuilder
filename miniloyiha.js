@@ -1544,6 +1544,86 @@ function setupPreviewTimerElement(el,item){
   },1000);
   previewTimerIntervals.push(intervalId);
 }
+function mtDigits(s){ return String(s||"").replace(/\D+/g,""); }
+
+function mtSetErr(wrap, msg){
+  var e = wrap ? wrap.querySelector("[data-mt-err]") : null;
+  if(!e) return;
+  e.textContent = msg || "";
+  e.style.display = msg ? "block" : "none";
+}
+
+function mtPhoneMaskValue(raw){
+  var d = mtDigits(raw);
+  if(d.indexOf("998") === 0) d = d.slice(3);
+  d = d.slice(0, 9);
+  var a = d.slice(0,2);
+  var b = d.slice(2,5);
+  var c = d.slice(5,7);
+  var e = d.slice(7,9);
+  var out = "+998";
+  if(a) out += " " + a;
+  if(b) out += " " + b;
+  if(c) out += " " + c;
+  if(e) out += " " + e;
+  return { val: out, ok: d.length === 9, empty: d.length === 0 };
+}
+
+function mtLockPrefix(inp, pref){
+  pref = String(pref||"");
+  function fix(){
+    var v = String(inp.value||"");
+    if(v.indexOf(pref) !== 0) inp.value = pref + v.replace(new RegExp("^"+pref.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")),"").trim();
+    if(inp.selectionStart != null && inp.selectionStart < pref.length){
+      try{ inp.setSelectionRange(pref.length, pref.length); }catch(e){}
+    }
+  }
+  inp.addEventListener("focus", fix);
+  inp.addEventListener("click", fix);
+  inp.addEventListener("keydown", function(ev){
+    if(ev.key === "Backspace"){
+      if(inp.selectionStart != null && inp.selectionStart <= pref.length){
+        ev.preventDefault();
+        try{ inp.setSelectionRange(pref.length, pref.length); }catch(e){}
+      }
+    }
+  });
+}
+
+function mtEmailOk(v){
+  v = String(v||"").trim();
+  if(!v) return false;
+  if(v.indexOf("@") === -1) return false;
+  var at = v.indexOf("@");
+  if(at === 0 || at === v.length-1) return false;
+  if(v.indexOf(".", at) === -1) return false;
+  return true;
+}
+
+function mtDateMask(v){
+  var d = mtDigits(v).slice(0,6);
+  var a = d.slice(0,2);
+  var b = d.slice(2,4);
+  var c = d.slice(4,6);
+  var out = "";
+  if(a) out += a;
+  if(b) out += ":" + b;
+  if(c) out += ":" + c;
+  var ok = d.length === 6;
+  return { val: out, ok: ok, empty: d.length === 0 };
+}
+
+function mtTimeMask(v){
+  var d = mtDigits(v).slice(0,4);
+  var a = d.slice(0,2);
+  var b = d.slice(2,4);
+  var out = "";
+  if(a) out += a;
+  if(b) out += ":" + b;
+  var ok = d.length === 4;
+  return { val: out, ok: ok, empty: d.length === 0 };
+}
+
 
 function applyAlign(item, align) {
   const block = getCurrentBlock();
@@ -1783,6 +1863,115 @@ if(bgSrc){
       control.style.background="#fff";
       control.style.color="#111827";
       wrap.appendChild(control);
+      var err = document.createElement("div");
+err.setAttribute("data-mt-err","1");
+err.style.display = "none";
+err.style.marginTop = "6px";
+err.style.fontSize = "12px";
+err.style.color = "#ff3b3b";
+wrap.appendChild(err);
+
+function checkReq(){
+  if(f.required){
+    var v0 = String(control.value || "").trim();
+    if(!v0){
+      mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      return false;
+    }
+  }
+  mtSetErr(wrap, "");
+  return true;
+}
+
+if(t === "phone"){
+  var r0 = mtPhoneMaskValue(control.value || "");
+  control.value = r0.val;
+  mtLockPrefix(control, "+998 ");
+  control.addEventListener("input", function(){
+    var r1 = mtPhoneMaskValue(control.value || "");
+    control.value = r1.val;
+    if(f.required){
+      if(r1.empty) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      else if(!r1.ok) mtSetErr(wrap, "Telefon raqamni to'g'ri kiriting");
+      else mtSetErr(wrap, "");
+    }
+  });
+  control.addEventListener("blur", function(){
+    var r2 = mtPhoneMaskValue(control.value || "");
+    if(f.required){
+      if(r2.empty) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      else if(!r2.ok) mtSetErr(wrap, "Telefon raqamni to'g'ri kiriting");
+      else mtSetErr(wrap, "");
+    }
+  });
+}
+
+if(t === "email"){
+  control.addEventListener("input", function(){
+    var v1 = String(control.value || "").trim();
+    if(f.required && v1 && !mtEmailOk(v1)) mtSetErr(wrap, "Iltimos emailni to'g'ri kiriting");
+    else if(f.required && !v1) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+    else mtSetErr(wrap, "");
+  });
+  control.addEventListener("blur", function(){
+    var v2 = String(control.value || "").trim();
+    if(f.required && !v2) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+    else if(f.required && !mtEmailOk(v2)) mtSetErr(wrap, "Iltimos emailni to'g'ri kiriting");
+    else mtSetErr(wrap, "");
+  });
+}
+
+if(t === "date"){
+  if(!control.placeholder) control.placeholder = "DD:MM:YY";
+  control.addEventListener("input", function(){
+    var r3 = mtDateMask(control.value || "");
+    control.value = r3.val;
+    if(f.required){
+      if(r3.empty) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      else if(!r3.ok) mtSetErr(wrap, "Sanani to'g'ri kiriting");
+      else mtSetErr(wrap, "");
+    }
+  });
+  control.addEventListener("blur", function(){
+    var r4 = mtDateMask(control.value || "");
+    if(f.required){
+      if(r4.empty) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      else if(!r4.ok) mtSetErr(wrap, "Sanani to'g'ri kiriting");
+      else mtSetErr(wrap, "");
+    }
+  });
+}
+
+if(t === "time"){
+  if(!control.placeholder) control.placeholder = "00:00";
+  control.addEventListener("input", function(){
+    var r5 = mtTimeMask(control.value || "");
+    control.value = r5.val;
+    if(f.required){
+      if(r5.empty) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      else if(!r5.ok) mtSetErr(wrap, "Vaqtni to'g'ri kiriting");
+      else mtSetErr(wrap, "");
+    }
+  });
+  control.addEventListener("blur", function(){
+    var r6 = mtTimeMask(control.value || "");
+    if(f.required){
+      if(r6.empty) mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      else if(!r6.ok) mtSetErr(wrap, "Vaqtni to'g'ri kiriting");
+      else mtSetErr(wrap, "");
+    }
+  });
+}
+
+if(t === "dropdown"){
+  control.addEventListener("change", checkReq);
+  control.addEventListener("blur", checkReq);
+}
+
+if(t === "name" || t === "text" || t === "textarea"){
+  control.addEventListener("blur", checkReq);
+}
+
     }
 
     card.appendChild(wrap);
