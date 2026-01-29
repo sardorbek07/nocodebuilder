@@ -4102,7 +4102,7 @@ card.appendChild(editorWrap);
 
 var editorWrap = document.createElement("div");
 editorWrap.style.overflow = "hidden";
-editorWrap.style.transition = "max-height .7s ease, opacity .7s ease";
+editorWrap.style.transition = "max-height 1s ease, opacity 1s ease";
 editorWrap.style.maxHeight = "0px";
 editorWrap.style.opacity = "0";
 
