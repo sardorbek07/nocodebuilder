@@ -3699,6 +3699,16 @@ window.mtOpenFormFieldsModal = function(){
   modal.addEventListener("click", function(e){
     if(e.target === modal) cancel();
   }, { once:true });
+  (function(){
+  if(document.getElementById("mtFormFieldsScrollFix")) return;
+  var st = document.createElement("style");
+  st.id = "mtFormFieldsScrollFix";
+  st.textContent =
+    '#mtFormFieldsModal{align-items:center;justify-content:center;}' +
+    '#mtFormFieldsModal>*{max-height:90vh;}' +
+    '#mtFormFieldsBody{max-height:60vh;overflow:auto;overscroll-behavior:contain;padding-right:6px;}';
+  document.head.appendChild(st);
+})();
 
   modal.style.display = "flex";
   render();
