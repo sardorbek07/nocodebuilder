@@ -3723,10 +3723,23 @@ window.mtOpenFormFieldsModal = function(){
     });
     typeSel.value = String(target.type || "text");
     typeSel.onchange = function(){
-      target.type = String(typeSel.value || "text");
-      if(target.type !== "dropdown") target.options = Array.isArray(target.options) ? target.options : [];
-      render();
-    };
+  target.type = String(typeSel.value || "text");
+
+  if(target.type === "dropdown"){
+    if(!Array.isArray(target.options)) target.options = [];
+    if(typeof target.firstText !== "string") target.firstText = "Tanlang";
+    target.placeholder = "";
+  }else{
+    if(!Array.isArray(target.options)) target.options = [];
+    if(typeof target.firstText !== "string") target.firstText = "";
+    if(target.type === "phone" || target.type === "date" || target.type === "time"){
+      target.placeholder = "";
+    }
+  }
+
+  render();
+};
+
 
     var reqRow = document.createElement("div");
     reqRow.style.display = "flex";
@@ -3767,8 +3780,50 @@ window.mtOpenFormFieldsModal = function(){
 
     editor.appendChild(fieldWrap("Type", typeSel));
     editor.appendChild(reqRow);
-    editor.appendChild(fieldWrap("Title", titleIn));
-    editor.appendChild(fieldWrap("Placeholder", phIn));
+    var tp = String(target.type || "text");
+
+if(tp === "phone"){
+  editor.appendChild(fieldWrap("Title", titleIn));
+}
+
+if(tp === "dropdown"){
+  editor.appendChild(fieldWrap("Title", titleIn));
+
+  var firstIn = document.createElement("input");
+  firstIn.type = "text";
+  styleInput(firstIn);
+  firstIn.value = String(target.firstText || "Tanlang");
+  firstIn.oninput = function(e){
+    target.firstText = String(e.target.value || "");
+  };
+  editor.appendChild(fieldWrap("Birinchi text", firstIn));
+
+  var ta = document.createElement("textarea");
+  ta.rows = 5;
+  styleInput(ta);
+  ta.style.resize = "vertical";
+  var opts = Array.isArray(target.options) ? target.options : [];
+  ta.value = opts.map(function(x){ return String(x||""); }).join("\n");
+  ta.oninput = function(e){
+    var lines = String(e.target.value || "").split("\n").map(function(x){ return String(x||"").trim(); }).filter(Boolean);
+    target.options = lines;
+  };
+  editor.appendChild(fieldWrap("Options (har qator 1 ta)", ta));
+}
+
+if(tp === "date"){
+  editor.appendChild(fieldWrap("Title", titleIn));
+}
+
+if(tp === "time"){
+  editor.appendChild(fieldWrap("Title", titleIn));
+}
+
+if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
+  editor.appendChild(fieldWrap("Title", titleIn));
+  editor.appendChild(fieldWrap("Placeholder", phIn));
+}
+
 
     if(String(target.type) === "dropdown"){
       var ta = document.createElement("textarea");
