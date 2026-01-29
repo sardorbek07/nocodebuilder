@@ -1967,9 +1967,30 @@ if(t === "time"){
 }
 
 if(t === "dropdown"){
-  control.addEventListener("change", checkReq);
-  control.addEventListener("blur", checkReq);
+  var firstText = f.firstText || "Tanlang";
+
+  if(control.options && control.options.length){
+    control.options[0].value = "";
+    control.options[0].textContent = firstText;
+  }
+
+  control.addEventListener("change", function(){
+    if(f.required && !control.value){
+      mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+    }else{
+      mtSetErr(wrap, "");
+    }
+  });
+
+  control.addEventListener("blur", function(){
+    if(f.required && !control.value){
+      mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+    }else{
+      mtSetErr(wrap, "");
+    }
+  });
 }
+
 
 if(t === "name" || t === "text" || t === "textarea"){
   control.addEventListener("blur", checkReq);
