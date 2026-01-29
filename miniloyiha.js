@@ -3324,11 +3324,11 @@ function buildFormSettings(item){
   var btn = document.createElement("button");
   btn.className = "secondary";
   btn.textContent = "Inputlar";
-  btn.onclick = function(){
-    var m = document.getElementById("mtFormFieldsModal");
-    if(m) m.style.display = "flex";
-    else alert("Form fields modal hali qo‘shilmagan");
-  };
+ btn.onclick = function(){
+  if(typeof window.mtOpenFormFieldsModal === "function"){
+    window.mtOpenFormFieldsModal();
+  }
+};
   settingsBody.appendChild(btn);
 
   // 2) CRM list (hozircha faqat dropdown UI, data saqlanadi)
@@ -4054,6 +4054,115 @@ if(addFormBtn)addFormBtn.onclick=function(){
   };
 
 })();
+
+(function(){
+  function getSelectedFormItem(){
+    var b = getCurrentBlock();
+    if(!b) return null;
+    var it = b.items.find(function(x){ return x.id === state.selectedId; });
+    if(!it || it.type !== "form") return null;
+    if(!Array.isArray(it.fields)) it.fields = [];
+    return it;
+  }
+
+  function closeModal(){
+    var m = document.getElementById("mtFormFieldsModal");
+    if(m) m.style.display = "none";
+  }
+
+  function renderFields(){
+    var it = getSelectedFormItem();
+    var body = document.getElementById("mtFormFieldsBody");
+    if(!body) return;
+
+    body.innerHTML = "";
+
+    if(!it){
+      var t = document.createElement("div");
+      t.style.fontSize = "12px";
+      t.style.opacity = ".7";
+      t.textContent = "Forma tanlanmagan";
+      body.appendChild(t);
+      return;
+    }
+
+    if(!it.fields.length){
+      var e = document.createElement("div");
+      e.style.fontSize = "12px";
+      e.style.opacity = ".7";
+      e.textContent = "Hali input yo‘q";
+      body.appendChild(e);
+      return;
+    }
+
+    for(var i=0;i<it.fields.length;i++){
+      (function(f, idx){
+        var row = document.createElement("div");
+        row.style.display = "grid";
+        row.style.gridTemplateColumns = "1fr auto";
+        row.style.gap = "10px";
+        row.style.alignItems = "center";
+        row.style.padding = "10px 12px";
+        row.style.border = "1px solid rgba(255,255,255,.08)";
+        row.style.borderRadius = "14px";
+        row.style.background = "rgba(255,255,255,.03)";
+
+        var left = document.createElement("div");
+        left.style.display = "flex";
+        left.style.flexDirection = "column";
+        left.style.gap = "4px";
+
+        var a = document.createElement("div");
+        a.style.fontSize = "13px";
+        a.textContent = (f.type || "field") + (f.required ? " • required" : "");
+
+        var b = document.createElement("div");
+        b.style.fontSize = "12px";
+        b.style.opacity = ".65";
+        b.textContent = (f.title || "") + (f.title && f.placeholder ? " / " : "") + (f.placeholder || "");
+
+        left.appendChild(a);
+        left.appendChild(b);
+
+        var del = document.createElement("button");
+        del.type = "button";
+        del.className = "mt-header-link";
+        del.style.justifyContent = "center";
+        del.style.width = "44px";
+        del.textContent = "✕";
+        del.onclick = function(){
+          it.fields.splice(idx, 1);
+          renderPreview();
+          renderLayers();
+          saveCurrentSiteState();
+          renderFields();
+        };
+
+        row.appendChild(left);
+        row.appendChild(del);
+        body.appendChild(row);
+      })(it.fields[i] || {}, i);
+    }
+  }
+
+  var closeBtn = document.getElementById("mtFormFieldsClose");
+  if(closeBtn) closeBtn.onclick = closeModal;
+
+  var cancelBtn = document.getElementById("mtFormFieldsCancel");
+  if(cancelBtn) cancelBtn.onclick = closeModal;
+
+  var saveBtn = document.getElementById("mtFormFieldsSave");
+  if(saveBtn) saveBtn.onclick = function(){
+    closeModal();
+  };
+
+  window.mtOpenFormFieldsModal = function(){
+    var m = document.getElementById("mtFormFieldsModal");
+    if(m) m.style.display = "flex";
+    renderFields();
+  };
+})();
+
 
 setupPaletteDrag(addTextBtn,"text");
 setupPaletteDrag(addImageBtn,"image");
