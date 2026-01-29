@@ -3707,14 +3707,14 @@ window.mtOpenFormFieldsModal = function(){
     var typeSel = document.createElement("select");
     styleInput(typeSel);
     [
-      ["name","name"],
-      ["phone","phone"],
-      ["email","email"],
-      ["text","text"],
-      ["textarea","textarea"],
-      ["date","date"],
-      ["time","time"],
-      ["dropdown","dropdown"]
+      ["name","Ism"],
+      ["phone","Telefon"],
+      ["email","Email"],
+      ["text","Matn"],
+      ["textarea","Katta matn"],
+      ["date","Sana"],
+      ["time","Vaqt"],
+      ["dropdown","Tanlash inputi"]
     ].forEach(function(p){
       var o = document.createElement("option");
       o.value = p[0];
@@ -3757,7 +3757,7 @@ window.mtOpenFormFieldsModal = function(){
     var reqLbl = document.createElement("div");
     reqLbl.style.fontSize = "13px";
     reqLbl.style.color = "#fff";
-    reqLbl.textContent = "Required";
+    reqLbl.textContent = "Majburiy qilish";
 
     reqRow.appendChild(req);
     reqRow.appendChild(reqLbl);
