@@ -3825,19 +3825,7 @@ if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
 }
 
 
-    if(String(target.type) === "dropdown"){
-      var ta = document.createElement("textarea");
-      ta.rows = 5;
-      styleInput(ta);
-      ta.style.resize = "vertical";
-      var opts = Array.isArray(target.options) ? target.options : [];
-      ta.value = opts.map(function(x){ return String(x||""); }).join("\n");
-      ta.oninput = function(e){
-        var lines = String(e.target.value || "").split("\n").map(function(x){ return String(x||"").trim(); }).filter(Boolean);
-        target.options = lines;
-      };
-      editor.appendChild(fieldWrap("Options (har qator 1 ta)", ta));
-    }
+    
 
     return editor;
   }
