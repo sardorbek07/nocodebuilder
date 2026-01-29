@@ -3415,7 +3415,18 @@ window.mtOpenFormFieldsModal = function(){
 
   var original = Array.isArray(formItem.fields) ? JSON.parse(JSON.stringify(formItem.fields)) : [];
   var temp = JSON.parse(JSON.stringify(original));
-  var activeId = temp[0] ? temp[0].id : "";
+  var expandedId = temp[0] ? String(temp[0].id || "") : "";
+
+  (function(){
+    if(document.getElementById("mtFormFieldsScrollFix")) return;
+    var st = document.createElement("style");
+    st.id = "mtFormFieldsScrollFix";
+    st.textContent =
+      '#mtFormFieldsModal{align-items:center;justify-content:center;}' +
+      '#mtFormFieldsModal>*{max-height:90vh;}' +
+      '#mtFormFieldsBody{max-height:60vh;overflow:auto;overscroll-behavior:contain;padding-right:6px;}';
+    document.head.appendChild(st);
+  })();
 
   function fid(){
     return "fld_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
@@ -3435,10 +3446,132 @@ window.mtOpenFormFieldsModal = function(){
   }
 
   function getById(id){
+    id = String(id || "");
     for(var i=0;i<temp.length;i++){
-      if(temp[i] && String(temp[i].id) === String(id)) return temp[i];
+      if(temp[i] && String(temp[i].id) === id) return temp[i];
     }
     return null;
+  }
+
+  function styleInput(el){
+    el.style.width = "100%";
+    el.style.padding = "12px";
+    el.style.borderRadius = "12px";
+    el.style.border = "1px solid rgba(255,255,255,.10)";
+    el.style.background = "#0b1016";
+    el.style.color = "#fff";
+    el.style.outline = "none";
+    el.style.fontFamily = "monospace";
+    el.style.fontSize = "13px";
+    return el;
+  }
+
+  function fieldWrap(labelText, el){
+    var w = document.createElement("div");
+    w.style.display = "flex";
+    w.style.flexDirection = "column";
+    w.style.gap = "6px";
+
+    var l = document.createElement("div");
+    l.style.fontSize = "12px";
+    l.style.color = "rgba(255,255,255,.6)";
+    l.textContent = labelText;
+
+    w.appendChild(l);
+    w.appendChild(el);
+    return w;
+  }
+
+  function renderEditor(target){
+    var editor = document.createElement("div");
+    editor.style.marginTop = "12px";
+    editor.style.paddingTop = "12px";
+    editor.style.borderTop = "1px solid rgba(255,255,255,.08)";
+    editor.style.display = "flex";
+    editor.style.flexDirection = "column";
+    editor.style.gap = "10px";
+
+    var typeSel = document.createElement("select");
+    styleInput(typeSel);
+    [
+      ["name","name"],
+      ["phone","phone"],
+      ["email","email"],
+      ["text","text"],
+      ["textarea","textarea"],
+      ["date","date"],
+      ["time","time"],
+      ["dropdown","dropdown"]
+    ].forEach(function(p){
+      var o = document.createElement("option");
+      o.value = p[0];
+      o.textContent = p[1];
+      typeSel.appendChild(o);
+    });
+    typeSel.value = String(target.type || "text");
+    typeSel.onchange = function(){
+      target.type = String(typeSel.value || "text");
+      if(target.type !== "dropdown") target.options = Array.isArray(target.options) ? target.options : [];
+      render();
+    };
+
+    var reqRow = document.createElement("div");
+    reqRow.style.display = "flex";
+    reqRow.style.alignItems = "center";
+    reqRow.style.gap = "10px";
+
+    var req = document.createElement("input");
+    req.type = "checkbox";
+    req.checked = !!target.required;
+    req.onchange = function(){
+      target.required = !!req.checked;
+      render();
+    };
+
+    var reqLbl = document.createElement("div");
+    reqLbl.style.fontSize = "13px";
+    reqLbl.style.color = "#fff";
+    reqLbl.textContent = "Required";
+
+    reqRow.appendChild(req);
+    reqRow.appendChild(reqLbl);
+
+    var titleIn = document.createElement("input");
+    titleIn.type = "text";
+    styleInput(titleIn);
+    titleIn.value = String(target.title || "");
+    titleIn.oninput = function(e){
+      target.title = String(e.target.value || "");
+    };
+
+    var phIn = document.createElement("input");
+    phIn.type = "text";
+    styleInput(phIn);
+    phIn.value = String(target.placeholder || "");
+    phIn.oninput = function(e){
+      target.placeholder = String(e.target.value || "");
+    };
+
+    editor.appendChild(fieldWrap("Type", typeSel));
+    editor.appendChild(reqRow);
+    editor.appendChild(fieldWrap("Title", titleIn));
+    editor.appendChild(fieldWrap("Placeholder", phIn));
+
+    if(String(target.type) === "dropdown"){
+      var ta = document.createElement("textarea");
+      ta.rows = 5;
+      styleInput(ta);
+      ta.style.resize = "vertical";
+      var opts = Array.isArray(target.options) ? target.options : [];
+      ta.value = opts.map(function(x){ return String(x||""); }).join("\n");
+      ta.oninput = function(e){
+        var lines = String(e.target.value || "").split("\n").map(function(x){ return String(x||"").trim(); }).filter(Boolean);
+        target.options = lines;
+      };
+      editor.appendChild(fieldWrap("Options (har qator 1 ta)", ta));
+    }
+
+    return editor;
   }
 
   function render(){
@@ -3451,25 +3584,34 @@ window.mtOpenFormFieldsModal = function(){
 
     for(var i=0;i<temp.length;i++){
       (function(f){
-        var row = document.createElement("div");
-        row.style.display = "flex";
-        row.style.alignItems = "center";
-        row.style.justifyContent = "space-between";
-        row.style.gap = "12px";
-        row.style.padding = "14px 14px";
-        row.style.borderRadius = "16px";
-        row.style.border = "1px solid rgba(255,255,255,.08)";
-        row.style.background = "rgba(255,255,255,.03)";
-        row.style.cursor = "pointer";
-        row.style.userSelect = "none";
+        var fid0 = String(f && f.id ? f.id : "");
+        var isOpen = (fid0 && fid0 === String(expandedId || ""));
 
-        if(String(f.id) === String(activeId)){
-          row.style.borderColor = "rgba(255,233,200,.45)";
-          row.style.background = "rgba(255,233,200,.06)";
+        var card = document.createElement("div");
+        card.style.borderRadius = "16px";
+        card.style.border = "1px solid rgba(255,255,255,.08)";
+        card.style.background = "rgba(255,255,255,.03)";
+        card.style.padding = "14px 14px";
+        card.style.display = "flex";
+        card.style.flexDirection = "column";
+        card.style.gap = "0px";
+
+        if(isOpen){
+          card.style.borderColor = "rgba(255,233,200,.45)";
+          card.style.background = "rgba(255,233,200,.06)";
         }
+
+        var head = document.createElement("div");
+        head.style.display = "flex";
+        head.style.alignItems = "center";
+        head.style.justifyContent = "space-between";
+        head.style.gap = "12px";
+        head.style.cursor = "pointer";
+        head.style.userSelect = "none";
 
         var left = document.createElement("div");
         left.style.minWidth = "0";
+        left.style.flex = "1";
 
         var top = document.createElement("div");
         top.style.fontSize = "13px";
@@ -3491,6 +3633,18 @@ window.mtOpenFormFieldsModal = function(){
         left.appendChild(top);
         left.appendChild(sub);
 
+        var right = document.createElement("div");
+        right.style.display = "inline-flex";
+        right.style.alignItems = "center";
+        right.style.gap = "10px";
+
+        var che = document.createElement("div");
+        che.textContent = "▾";
+        che.style.opacity = ".75";
+        che.style.fontSize = "16px";
+        che.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+        che.style.transition = "transform .15s ease";
+
         var del = document.createElement("button");
         del.type = "button";
         del.className = "mt-header-link";
@@ -3505,21 +3659,36 @@ window.mtOpenFormFieldsModal = function(){
         del.onclick = function(e){
           e.preventDefault();
           e.stopPropagation();
-          temp = temp.filter(function(x){ return String(x.id) !== String(f.id); });
-          if(activeId === f.id){
-            activeId = temp[0] ? temp[0].id : "";
+          temp = temp.filter(function(x){ return String(x && x.id ? x.id : "") !== fid0; });
+          if(String(expandedId || "") === fid0){
+            expandedId = temp[0] ? String(temp[0].id || "") : "";
           }
           render();
         };
 
-        row.onclick = function(){
-          activeId = f.id;
+        head.onclick = function(){
+          if(!fid0) return;
+          if(String(expandedId || "") === fid0) expandedId = "";
+          else expandedId = fid0;
           render();
         };
 
-        row.appendChild(left);
-        row.appendChild(del);
-        listWrap.appendChild(row);
+        right.appendChild(che);
+        right.appendChild(del);
+
+        head.appendChild(left);
+        head.appendChild(right);
+
+        card.appendChild(head);
+
+        if(isOpen){
+          var active = getById(expandedId);
+          if(active){
+            card.appendChild(renderEditor(active));
+          }
+        }
+
+        listWrap.appendChild(card);
       })(temp[i]);
     }
 
@@ -3531,149 +3700,28 @@ window.mtOpenFormFieldsModal = function(){
     addBtn.style.marginTop = "10px";
     addBtn.textContent = "+ Input qo‘shish";
     addBtn.onclick = function(){
-      var n = {
-        id: fid(),
-        type: "text",
-        title: "",
-        placeholder: "New field",
-        required: false,
-        options: []
-      };
+      var n = { id: fid(), type: "text", title: "", placeholder: "New field", required: false, options: [] };
       temp.push(n);
-      activeId = n.id;
+      expandedId = String(n.id || "");
       render();
+      setTimeout(function(){
+        try{
+          var m = document.getElementById("mtFormFieldsBody");
+          if(!m) return;
+          m.scrollTop = m.scrollHeight;
+        }catch(e){}
+      }, 0);
     };
     body.appendChild(addBtn);
 
-    var active = getById(activeId);
-    if(!active){
+    if(!temp.length){
       var hint = document.createElement("div");
       hint.style.marginTop = "12px";
       hint.style.fontSize = "12px";
       hint.style.color = "rgba(255,255,255,.55)";
-      hint.textContent = "Input tanlang.";
+      hint.textContent = "Hali input yo‘q.";
       body.appendChild(hint);
-      return;
     }
-
-    var editor = document.createElement("div");
-    editor.style.marginTop = "14px";
-    editor.style.paddingTop = "14px";
-    editor.style.borderTop = "1px solid rgba(255,255,255,.08)";
-    editor.style.display = "flex";
-    editor.style.flexDirection = "column";
-    editor.style.gap = "10px";
-
-    function fieldWrap(labelText, el){
-      var w = document.createElement("div");
-      w.style.display = "flex";
-      w.style.flexDirection = "column";
-      w.style.gap = "6px";
-
-      var l = document.createElement("div");
-      l.style.fontSize = "12px";
-      l.style.color = "rgba(255,255,255,.6)";
-      l.textContent = labelText;
-
-      w.appendChild(l);
-      w.appendChild(el);
-      return w;
-    }
-
-    function styleInput(el){
-      el.style.width = "100%";
-      el.style.padding = "12px";
-      el.style.borderRadius = "12px";
-      el.style.border = "1px solid rgba(255,255,255,.10)";
-      el.style.background = "#0b1016";
-      el.style.color = "#fff";
-      el.style.outline = "none";
-      el.style.fontFamily = "monospace";
-      el.style.fontSize = "13px";
-      return el;
-    }
-
-    var typeSel = document.createElement("select");
-    styleInput(typeSel);
-    [
-      ["name","name"],
-      ["phone","phone"],
-      ["email","email"],
-      ["text","text"],
-      ["textarea","textarea"],
-      ["date","date"],
-      ["time","time"],
-      ["dropdown","dropdown"]
-    ].forEach(function(p){
-      var o = document.createElement("option");
-      o.value = p[0];
-      o.textContent = p[1];
-      typeSel.appendChild(o);
-    });
-    typeSel.value = String(active.type || "text");
-    typeSel.onchange = function(){
-      active.type = String(typeSel.value || "text");
-      if(active.type !== "dropdown") active.options = Array.isArray(active.options) ? active.options : [];
-      render();
-    };
-
-    var reqRow = document.createElement("div");
-    reqRow.style.display = "flex";
-    reqRow.style.alignItems = "center";
-    reqRow.style.gap = "10px";
-
-    var req = document.createElement("input");
-    req.type = "checkbox";
-    req.checked = !!active.required;
-    req.onchange = function(){
-      active.required = !!req.checked;
-      render();
-    };
-
-    var reqLbl = document.createElement("div");
-    reqLbl.style.fontSize = "13px";
-    reqLbl.style.color = "#fff";
-    reqLbl.textContent = "Required";
-
-    reqRow.appendChild(req);
-    reqRow.appendChild(reqLbl);
-
-    var titleIn = document.createElement("input");
-    titleIn.type = "text";
-    styleInput(titleIn);
-    titleIn.value = String(active.title || "");
-    titleIn.oninput = function(e){
-      active.title = String(e.target.value || "");
-    };
-
-    var phIn = document.createElement("input");
-    phIn.type = "text";
-    styleInput(phIn);
-    phIn.value = String(active.placeholder || "");
-    phIn.oninput = function(e){
-      active.placeholder = String(e.target.value || "");
-    };
-
-    editor.appendChild(fieldWrap("Type", typeSel));
-    editor.appendChild(reqRow);
-    editor.appendChild(fieldWrap("Title", titleIn));
-    editor.appendChild(fieldWrap("Placeholder", phIn));
-
-    if(String(active.type) === "dropdown"){
-      var ta = document.createElement("textarea");
-      ta.rows = 5;
-      styleInput(ta);
-      ta.style.resize = "vertical";
-      var opts = Array.isArray(active.options) ? active.options : [];
-      ta.value = opts.map(function(x){ return String(x||""); }).join("\n");
-      ta.oninput = function(e){
-        var lines = String(e.target.value || "").split("\n").map(function(x){ return String(x||"").trim(); }).filter(Boolean);
-        active.options = lines;
-      };
-      editor.appendChild(fieldWrap("Options (har qator 1 ta)", ta));
-    }
-
-    body.appendChild(editor);
   }
 
   function closeOnly(){
@@ -3699,16 +3747,6 @@ window.mtOpenFormFieldsModal = function(){
   modal.addEventListener("click", function(e){
     if(e.target === modal) cancel();
   }, { once:true });
-  (function(){
-  if(document.getElementById("mtFormFieldsScrollFix")) return;
-  var st = document.createElement("style");
-  st.id = "mtFormFieldsScrollFix";
-  st.textContent =
-    '#mtFormFieldsModal{align-items:center;justify-content:center;}' +
-    '#mtFormFieldsModal>*{max-height:90vh;}' +
-    '#mtFormFieldsBody{max-height:60vh;overflow:auto;overscroll-behavior:contain;padding-right:6px;}';
-  document.head.appendChild(st);
-})();
 
   modal.style.display = "flex";
   render();
