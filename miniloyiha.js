@@ -3629,6 +3629,27 @@ window.mtOpenFormFieldsModal = function(){
   var original = Array.isArray(formItem.fields) ? JSON.parse(JSON.stringify(formItem.fields)) : [];
   var temp = JSON.parse(JSON.stringify(original));
   var expandedId = temp[0] ? String(temp[0].id || "") : "";
+  var mtDragId = "";
+var mtDragLockUntil = 0;
+
+function mtMoveField(dragId, overId){
+  dragId = String(dragId||"");
+  overId = String(overId||"");
+  if(!dragId || !overId || dragId === overId) return;
+
+  var from = -1, to = -1;
+  for(var i=0;i<temp.length;i++){
+    var id = String(temp[i] && temp[i].id ? temp[i].id : "");
+    if(id === dragId) from = i;
+    if(id === overId) to = i;
+  }
+  if(from === -1 || to === -1) return;
+
+  var item = temp.splice(from, 1)[0];
+  if(from < to) to -= 1;
+  temp.splice(to, 0, item);
+}
+
 
   (function(){
     if(document.getElementById("mtFormFieldsScrollFix")) return;
@@ -3864,6 +3885,47 @@ if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
         head.style.gap = "12px";
         head.style.cursor = "pointer";
         head.style.userSelect = "none";
+        head.draggable = true;
+head.dataset.fid = fid0;
+
+head.addEventListener("dragstart", function(e){
+  if(!fid0) return;
+  mtDragId = fid0;
+  mtDragLockUntil = Date.now() + 250;
+  try{ e.dataTransfer.setData("text/plain", fid0); }catch(err){}
+  e.dataTransfer.effectAllowed = "move";
+  card.style.opacity = ".7";
+});
+
+head.addEventListener("dragend", function(){
+  card.style.opacity = "1";
+});
+
+head.addEventListener("dragover", function(e){
+  if(!mtDragId) return;
+  if(!fid0 || fid0 === mtDragId) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  card.style.outline = "1px dashed rgba(255,233,200,.55)";
+  card.style.outlineOffset = "2px";
+});
+
+head.addEventListener("dragleave", function(){
+  card.style.outline = "";
+  card.style.outlineOffset = "";
+});
+
+head.addEventListener("drop", function(e){
+  if(!mtDragId) return;
+  if(!fid0 || fid0 === mtDragId) return;
+  e.preventDefault();
+  card.style.outline = "";
+  card.style.outlineOffset = "";
+  mtMoveField(mtDragId, fid0);
+  mtDragId = "";
+  render();
+});
+
 
         var left = document.createElement("div");
         left.style.minWidth = "0";
@@ -3925,12 +3987,15 @@ if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
           render();
         };
 
-        head.onclick = function(){
-          if(!fid0) return;
-          if(String(expandedId || "") === fid0) expandedId = "";
-          else expandedId = fid0;
-          render();
-        };
+     head.onclick = function(){
+  if(!fid0) return;
+  if(Date.now() < mtDragLockUntil) return;
+
+  if(String(expandedId || "") === fid0) expandedId = "";
+  else expandedId = fid0;
+  render();
+};
+
 
         right.appendChild(che);
         right.appendChild(del);
