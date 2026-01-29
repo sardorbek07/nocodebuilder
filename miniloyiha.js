@@ -3630,7 +3630,7 @@ window.mtOpenFormFieldsModal = function(){
   var temp = JSON.parse(JSON.stringify(original));
   var expandedId = temp[0] ? String(temp[0].id || "") : "";
   var mtDragId = "";
-  function mtMoveField(fromId, toId){
+function mtMoveField(fromId, toId){
   fromId = String(fromId||"");
   toId = String(toId||"");
   if(!fromId || !toId || fromId === toId) return;
@@ -3643,8 +3643,14 @@ window.mtOpenFormFieldsModal = function(){
   if(a === -1 || b === -1) return;
 
   var moved = temp.splice(a, 1)[0];
+
+  // MUHIM: tepadan pastga ko‘chirganda indeks 1 ta siljiydi
+  if(a < b) b = b - 1;
+
+  // Drop qilingan card'ning USTIGA qo‘yib beradi
   temp.splice(b, 0, moved);
 }
+
 var mtDragLockUntil = 0;
 
 function mtMoveField(dragId, overId){
@@ -4101,7 +4107,7 @@ if(isOpen){
     ed.style.overflow = "hidden";
     ed.style.maxHeight = "0px";
     ed.style.opacity = "0";
-    ed.style.transition = "max-height .35s ease, opacity .35s ease"; // sekinroq
+ed.style.transition = "max-height .99s ease, opacity .99s ease";
 
     card.appendChild(ed);
 
