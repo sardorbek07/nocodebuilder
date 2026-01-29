@@ -4040,6 +4040,21 @@ right.appendChild(h);
   else expandedId = fid0;
   render();
 };
+        card.addEventListener("dragover", function(e){
+  e.preventDefault();
+  try{ e.dataTransfer.dropEffect = "move"; }catch(err){}
+});
+
+card.addEventListener("drop", function(e){
+  e.preventDefault();
+  var from = mtDragId || "";
+  var to = fid0 || "";
+  if(!from || !to) return;
+  mtMoveField(from, to);
+  mtDragId = "";
+  render();
+});
+
 
 
         right.appendChild(che);
@@ -4082,13 +4097,20 @@ card.appendChild(editorWrap);
 if(isOpen){
   var active = getById(expandedId);
   if(active){
-    editorWrap.appendChild(renderEditor(active));
+    var ed = renderEditor(active);
+    ed.style.overflow = "hidden";
+    ed.style.maxHeight = "0px";
+    ed.style.opacity = "0";
+    ed.style.transition = "max-height .35s ease, opacity .35s ease"; // sekinroq
+
+    card.appendChild(ed);
+
     setTimeout(function(){
-      editorWrap.classList.add("is-open");
+      ed.style.maxHeight = "520px"; // kerak bo‘lsa 600px qilasan
+      ed.style.opacity = "1";
     }, 0);
   }
 }
-
 
         listWrap.appendChild(card);
       })(temp[i]);
