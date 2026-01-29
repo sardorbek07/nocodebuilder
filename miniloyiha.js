@@ -344,6 +344,7 @@ const addButtonBtn=document.getElementById("mtAddButtonBtn");
 const addShapeBtn=document.getElementById("mtAddShapeBtn");
 const addVideoBtn=document.getElementById("mtAddVideoBtn");
 const addTimerBtn = document.getElementById("mtAddTimerBtn");
+const addFormBtn = document.getElementById("mtAddFormBtn");
 const previewShell=document.getElementById("mtPreviewShell");
 const editorOverlay=document.getElementById("mtEditorOverlay");
 const closeEditorBtn=document.getElementById("mtCloseEditorBtn");
@@ -1349,6 +1350,51 @@ function addItemAt(type,left,top){
   state.selectedId=item.id;
   render();
 }
+window.mtAddStandardForm = function(){
+  var block = getCurrentBlock();
+  if(!block) return;
+
+  var id = "mt_el_" + (++state.counterItem);
+  var formKey = "f_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+  function fid(){
+    return "fld_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  var item = {
+    id: id,
+    type: "form",
+    left: 20,
+    top: 20,
+    width: 280,
+    height: 220,
+
+    formKey: formKey,
+    formType: "block",
+    popupTriggerBtnId: "",
+    crmListId: "",
+
+    fields: [
+      { id: fid(), type: "name", title: "", placeholder: "Name", required: true, options: [] },
+      { id: fid(), type: "phone", title: "", placeholder: "Phone", required: true, options: [] }
+    ],
+
+    submitText: "Yuborish",
+    successText: "Rahmat, ma'lumotlaringiz yuborildi",
+    errorText: "Xatolik",
+
+    style: {
+      bgColor: "#ffffff",
+      borderColor: "rgba(17,24,39,.12)",
+      radius: 16,
+      padding: 12
+    }
+  };
+
+  block.items.push(item);
+  state.selectedId = item.id;
+  render();
+};
 
 function selectItem(id){
   state.selectedId=id;
@@ -1658,6 +1704,106 @@ if(bgSrc){
     el.style.left=(item.left||0)+"px";
     el.style.top=(item.top||0)+"px";
     el.dataset.id=item.id;
+    if(item.type==="form"){
+  el.style.width=(item.width||280)+"px";
+  el.style.height=(item.height||220)+"px";
+
+  var card=document.createElement("form");
+  card.setAttribute("data-mt-form", String(item.formKey||""));
+  card.style.width="100%";
+  card.style.height="100%";
+  card.style.background=(item.style && item.style.bgColor) ? item.style.bgColor : "#fff";
+  card.style.border="1px solid "+((item.style && item.style.borderColor) ? item.style.borderColor : "rgba(17,24,39,.12)");
+  card.style.borderRadius=((item.style && item.style.radius)!=null ? item.style.radius : 16)+"px";
+  card.style.padding=((item.style && item.style.padding)!=null ? item.style.padding : 12)+"px";
+  card.style.display="flex";
+  card.style.flexDirection="column";
+  card.style.gap="10px";
+
+  var fields=Array.isArray(item.fields)?item.fields:[];
+  for(var fi=0;fi<fields.length;fi++){
+    var f=fields[fi]||{};
+    var t=String(f.type||"").trim();
+
+    var wrap=document.createElement("div");
+    wrap.style.display="flex";
+    wrap.style.flexDirection="column";
+    wrap.style.gap="6px";
+
+    var title=String(f.title||"").trim();
+    if(title){
+      var lab=document.createElement("div");
+      lab.textContent=title;
+      lab.style.fontSize="12px";
+      lab.style.color="rgba(17,24,39,.7)";
+      wrap.appendChild(lab);
+    }
+
+    var ph=String(f.placeholder||"").trim();
+
+    var control=null;
+
+    if(t==="textarea"){
+      control=document.createElement("textarea");
+      control.rows=3;
+    }else if(t==="dropdown"){
+      control=document.createElement("select");
+      var opts=Array.isArray(f.options)?f.options:[];
+      if(ph){
+        var o0=document.createElement("option");
+        o0.value="";
+        o0.textContent=ph;
+        control.appendChild(o0);
+      }
+      for(var oi=0;oi<opts.length;oi++){
+        var o=document.createElement("option");
+        o.value=String(opts[oi]||"");
+        o.textContent=String(opts[oi]||"");
+        control.appendChild(o);
+      }
+    }else{
+      control=document.createElement("input");
+      if(t==="email") control.type="email";
+      else if(t==="phone") control.type="tel";
+      else if(t==="date") control.type="date";
+      else if(t==="time") control.type="time";
+      else control.type="text";
+    }
+
+    if(control){
+      if(ph && t!=="dropdown") control.placeholder=ph;
+      if(f.required) control.required=true;
+
+      control.style.width="100%";
+      control.style.border="1px solid rgba(17,24,39,.12)";
+      control.style.borderRadius="12px";
+      control.style.padding="10px 12px";
+      control.style.fontSize="14px";
+      control.style.outline="none";
+      control.style.background="#fff";
+      control.style.color="#111827";
+      wrap.appendChild(control);
+    }
+
+    card.appendChild(wrap);
+  }
+
+  var submit=document.createElement("button");
+  submit.type="button";
+  submit.textContent=String(item.submitText||"Yuborish");
+  submit.style.width="100%";
+  submit.style.height="44px";
+  submit.style.border="0";
+  submit.style.borderRadius="999px";
+  submit.style.background="#111827";
+  submit.style.color="#fff";
+  submit.style.fontSize="14px";
+  submit.style.cursor="pointer";
+  card.appendChild(submit);
+
+  el.appendChild(card);
+}
+
 
     if(item.type==="text"){
       const span=document.createElement("span");
@@ -1801,7 +1947,7 @@ if(item.type === "timer"){
     setupPreviewTimerElement(span, item);
 }
 
-if(["image","shape","video","button","timer"].includes(item.type)){
+if(["image","shape","video","button","timer","form"].includes(item.type)){
     const rh = document.createElement("div");
     rh.className = "resize-handle";
     rh.dataset.id = item.id;
@@ -2167,6 +2313,7 @@ function renderSettings(){
   else if(item.type==="shape")typeLabel="Shape";
   else if(item.type==="video")typeLabel="Video";
   else if(item.type==="timer")typeLabel="Taymer";
+  else if(item.type==="form")typeLabel="Forma";
   selectedLabel.textContent=typeLabel+" • "+item.id;
   if(item.type==="text")buildTextSettings(item);
   if(item.type==="image")buildImageSettings(item);
@@ -2174,6 +2321,7 @@ function renderSettings(){
   if(item.type==="shape")buildShapeSettings(item);
   if(item.type==="video")buildVideoSettings(item);
   if(item.type==="timer")buildTimerSettings(item);
+  if(item.type==="form")buildFormSettings(item);
 }
 
 function buildTextSettings(item){
@@ -3169,6 +3317,89 @@ function buildTimerSettings(item){
   del.onclick=function(){deleteItem(item.id)};
   settingsBody.appendChild(del);
 }
+function buildFormSettings(item){
+  settingsBody.innerHTML="";
+
+  // 1) Inputlar tugmasi (modalni keyin qilamiz)
+  var btn = document.createElement("button");
+  btn.className = "secondary";
+  btn.textContent = "Inputlar";
+  btn.onclick = function(){
+    var m = document.getElementById("mtFormFieldsModal");
+    if(m) m.style.display = "flex";
+    else alert("Form fields modal hali qo‘shilmagan");
+  };
+  settingsBody.appendChild(btn);
+
+  // 2) CRM list (hozircha faqat dropdown UI, data saqlanadi)
+  var fCrm = document.createElement("div");
+  fCrm.className = "field";
+  var lCrm = document.createElement("label");
+  lCrm.textContent = "CRM list";
+  var s = document.createElement("select");
+  s.style.width = "100%";
+  s.style.borderRadius = "5px";
+  s.style.border = "1px solid #1f2937";
+  s.style.background = "transparent";
+  s.style.color = "#ffffff";
+  s.style.padding = "4px 6px";
+  s.style.fontSize = "11px";
+
+  var o0 = document.createElement("option");
+  o0.value = "";
+  o0.textContent = "— Tanlang —";
+  s.appendChild(o0);
+
+  var lists = Array.isArray(window.mtCrmLists) ? window.mtCrmLists : [];
+  for(var i=0;i<lists.length;i++){
+    var it = lists[i] || {};
+    var o = document.createElement("option");
+    o.value = String(it.id || "");
+    o.textContent = String(it.name || "");
+    s.appendChild(o);
+  }
+
+  s.value = String(item.crmListId || "");
+  s.onchange = function(){
+    item.crmListId = String(s.value || "");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+
+  fCrm.appendChild(lCrm);
+  fCrm.appendChild(s);
+  settingsBody.appendChild(fCrm);
+
+  // 3) Submit matni (oddiy)
+  var fText = document.createElement("div");
+  fText.className = "field";
+  var l1 = document.createElement("label");
+  l1.textContent = "Submit matni";
+  var in1 = document.createElement("input");
+  in1.type = "text";
+  in1.value = item.submitText || "Yuborish";
+  in1.oninput = function(e){
+    item.submitText = String(e.target.value || "");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+  fText.appendChild(l1);
+  fText.appendChild(in1);
+  settingsBody.appendChild(fText);
+
+  // Delete
+  var del=document.createElement("button");
+  del.className="settings-delete-btn";
+  var delIcon=document.createElement("div");
+  delIcon.className="settings-delete-icon";
+  del.appendChild(delIcon);
+  del.onclick=function(){ deleteItem(item.id); };
+  settingsBody.appendChild(del);
+}
+
+
 
 function highlightPreview(){
   const els=screenInner.querySelectorAll(".preview-el");
@@ -3798,6 +4029,31 @@ if(addButtonBtn)addButtonBtn.onclick=function(){addItem("button")};
 if(addShapeBtn)addShapeBtn.onclick=function(){addItem("shape")};
 if(addVideoBtn)addVideoBtn.onclick=function(){addItem("video")};
 if(addTimerBtn)addTimerBtn.onclick=function(){addItem("timer")};
+if(addFormBtn)addFormBtn.onclick=function(){
+  var m = document.getElementById("mtFormTypeModal");
+  if(m) m.style.display = "flex";
+};
+
+(function(){
+  var m = document.getElementById("mtFormTypeModal");
+  var x = document.getElementById("mtFormTypeClose");
+  if(x && m) x.onclick = function(){ m.style.display = "none"; };
+
+  if(m){
+    m.addEventListener("click", function(e){
+      if(e.target === m) m.style.display = "none";
+    });
+  }
+
+  var std = document.getElementById("mtPickStandardFormBtn");
+  if(std && m) std.onclick = function(){
+    m.style.display = "none";
+    if(typeof window.mtAddStandardForm === "function") {
+      window.mtAddStandardForm();
+    }
+  };
+
+})();
 
 setupPaletteDrag(addTextBtn,"text");
 setupPaletteDrag(addImageBtn,"image");
