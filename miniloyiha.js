@@ -4462,11 +4462,7 @@ if(addFormBtn)addFormBtn.onclick=function(){
     closeModal();
   };
 
-  window.mtOpenFormFieldsModal = function(){
-    var m = document.getElementById("mtFormFieldsModal");
-    if(m) m.style.display = "flex";
-    renderFields();
-  };
+
 })();
 
 
