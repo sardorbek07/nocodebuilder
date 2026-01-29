@@ -3635,21 +3635,25 @@ function mtMoveField(fromId, toId){
   toId = String(toId||"");
   if(!fromId || !toId || fromId === toId) return;
 
-  var a = -1, b = -1;
+  var from = -1, to = -1;
   for(var i=0;i<temp.length;i++){
-    if(String(temp[i].id) === fromId) a = i;
-    if(String(temp[i].id) === toId) b = i;
+    if(String(temp[i].id) === fromId) from = i;
+    if(String(temp[i].id) === toId) to = i;
   }
-  if(a === -1 || b === -1) return;
+  if(from === -1 || to === -1) return;
 
-  var moved = temp.splice(a, 1)[0];
+  var item = temp[from];
 
-  // MUHIM: tepadan pastga ko‘chirganda indeks 1 ta siljiydi
-  if(a < b) b = b - 1;
+  // eski joyidan olib tashlaymiz
+  temp.splice(from, 1);
 
-  // Drop qilingan card'ning USTIGA qo‘yib beradi
-  temp.splice(b, 0, moved);
+  // AGAR tepadan pastga tortilsa → index 1 ta kamayadi
+  if(from < to) to--;
+
+  // yangi joyiga qo'yamiz
+  temp.splice(to, 0, item);
 }
+
 
 var mtDragLockUntil = 0;
 
