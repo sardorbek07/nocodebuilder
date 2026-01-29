@@ -1886,7 +1886,9 @@ function checkReq(){
 if(t === "phone"){
   var r0 = mtPhoneMaskValue(control.value || "");
   control.value = r0.val;
-  mtLockPrefix(control, "+998 ");
+
+  mtLockPrefix(control, "+998");
+
   control.addEventListener("input", function(){
     var r1 = mtPhoneMaskValue(control.value || "");
     control.value = r1.val;
@@ -1896,6 +1898,7 @@ if(t === "phone"){
       else mtSetErr(wrap, "");
     }
   });
+
   control.addEventListener("blur", function(){
     var r2 = mtPhoneMaskValue(control.value || "");
     if(f.required){
