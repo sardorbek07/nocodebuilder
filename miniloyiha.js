@@ -1384,11 +1384,30 @@ window.mtAddStandardForm = function(){
     errorText: "Xatolik",
 
     style: {
-      bgColor: "#ffffff",
-      borderColor: "rgba(17,24,39,.12)",
-      radius: 16,
-      padding: 12
-    }
+  bgColor: "#ffffff",
+  borderColor: "rgba(17,24,39,.12)",
+  radius: 16,
+  padding: 12,
+
+  inputHeight: 44,
+  inputFontSize: 16,
+  inputColor: "#111111",
+  inputBg: "#ffffff",
+  inputBorderSize: 1,
+  inputBorderColor: "rgba(17,24,39,.12)",
+  inputRadius: 12,
+  inputGap: 12,
+
+  titleFontSize: 14,
+  titleColor: "#111111",
+
+  submitHeight: 46,
+  submitBg: "#111111",
+  submitColor: "#ffffff",
+  submitBorderSize: 0,
+  submitBorderColor: "transparent",
+  submitRadius: 14
+}
   };
 
   block.items.push(item);
@@ -1857,11 +1876,15 @@ if(bgSrc){
       control.style.width="100%";
       control.style.border="1px solid rgba(17,24,39,.12)";
       control.style.borderRadius="12px";
-      control.style.padding="10px 12px";
-      control.style.fontSize="14px";
+  
+     control.style.padding="10px 12px";
+control.style.height = (((item.style && item.style.inputHeight)!=null ? item.style.inputHeight : 44)) + "px";
+control.style.fontSize = (((item.style && item.style.inputFontSize)!=null ? item.style.inputFontSize : 16)) + "px";
+control.style.color = ((item.style && item.style.inputColor) ? item.style.inputColor : "#111111");
+
       control.style.outline="none";
       control.style.background="#fff";
-      control.style.color="#111827";
+      
       wrap.appendChild(control);
       var err = document.createElement("div");
 err.setAttribute("data-mt-err","1");
@@ -3601,6 +3624,79 @@ function buildFormSettings(item){
   fText.appendChild(l1);
   fText.appendChild(in1);
   settingsBody.appendChild(fText);
+    var fIH = document.createElement("div");
+  fIH.className = "field";
+
+  var lIH = document.createElement("label");
+  lIH.textContent = "Input balandligi (px)";
+
+  var inIH = document.createElement("input");
+  inIH.type = "number";
+  inIH.value = (item.style && item.style.inputHeight != null) ? item.style.inputHeight : 44;
+
+  inIH.oninput = function(e){
+    if(!item.style) item.style = {};
+    var n = parseInt(e.target.value, 10);
+    if(!isNaN(n)){
+      item.style.inputHeight = n;
+      renderPreview();
+      renderLayers();
+      saveCurrentSiteState();
+    }
+  };
+
+  fIH.appendChild(lIH);
+  fIH.appendChild(inIH);
+  settingsBody.appendChild(fIH);
+    var fFS = document.createElement("div");
+  fFS.className = "field";
+
+  var lFS = document.createElement("label");
+  lFS.textContent = "Input font-size (px)";
+
+  var inFS = document.createElement("input");
+  inFS.type = "number";
+  inFS.value = (item.style && item.style.inputFontSize != null) ? item.style.inputFontSize : 16;
+
+  inFS.oninput = function(e){
+    if(!item.style) item.style = {};
+    var n = parseInt(e.target.value, 10);
+    if(!isNaN(n)){
+      item.style.inputFontSize = n;
+      renderPreview();
+      renderLayers();
+      saveCurrentSiteState();
+    }
+  };
+
+  fFS.appendChild(lFS);
+  fFS.appendChild(inFS);
+  settingsBody.appendChild(fFS);
+
+    var fIC = document.createElement("div");
+  fIC.className = "field";
+
+  var lIC = document.createElement("label");
+  lIC.textContent = "Input matn rangi";
+
+  var inIC = document.createElement("input");
+  inIC.type = "color";
+  inIC.value = (item.style && item.style.inputColor) ? item.style.inputColor : "#111111";
+
+  inIC.oninput = function(e){
+    if(!item.style) item.style = {};
+    item.style.inputColor = String(e.target.value || "#111111");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+
+  fIC.appendChild(lIC);
+  fIC.appendChild(inIC);
+  settingsBody.appendChild(fIC);
+
+
+
 
   // Delete
   var del=document.createElement("button");
