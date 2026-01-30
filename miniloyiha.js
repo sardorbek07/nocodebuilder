@@ -3698,15 +3698,19 @@ function mtAcc(title){
 
   var head = document.createElement("div");
   head.setAttribute("role","button");
-  head.style.width = "100%";
-  head.style.display = "flex";
-  head.style.alignItems = "center";
-  head.style.justifyContent = "space-between";
-  head.style.padding = "12px 12px";
-  head.style.background = "transparent";
-  head.style.color = "#fff";
-  head.style.cursor = "pointer";
-  head.style.userSelect = "none";
+ head.style.setProperty("display","flex","important");
+head.style.setProperty("align-items","center","important");
+head.style.setProperty("justify-content","space-between","important");
+head.style.setProperty("width","100%","important");
+head.style.setProperty("padding","12px 12px","important");
+head.style.setProperty("min-height","44px","important");
+head.style.setProperty("box-sizing","border-box","important");
+head.style.setProperty("background","transparent","important");
+head.style.setProperty("color","#fff","important");
+head.style.setProperty("cursor","pointer","important");
+head.style.setProperty("user-select","none","important");
+head.style.setProperty("line-height","1.2","important");
+head.style.setProperty("overflow","visible","important");
 
   var t = document.createElement("div");
   t.textContent = title;
