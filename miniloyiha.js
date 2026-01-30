@@ -3833,8 +3833,8 @@ var lIBC = document.createElement("label");
 lIBC.textContent = "Input border rangi";
 
 var inIBC = document.createElement("input");
-inIBC.type = "text";
-inIBC.value = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "rgba(17,24,39,.12)";
+inIBC.type = "color";
+inIBC.value = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "#111827";
 
 inIBC.oninput = function(e){
   if(!item.style) item.style = {};
