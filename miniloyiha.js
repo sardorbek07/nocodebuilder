@@ -3690,59 +3690,39 @@ function buildTimerSettings(item){
   settingsBody.appendChild(del);
 }
 function mtAcc(title){
-  var box = document.createElement("div");
-  box.className = "mt-acc";
-box.setAttribute("data-mt-acc","1");
-  box.style.setProperty("border","1px solid rgba(255,255,255,.10)","important");
-  box.style.setProperty("border-radius","14px","important");
-  box.style.setProperty("overflow","hidden","important");
-  box.style.setProperty("background","rgba(255,255,255,.03)","important");
+  var host = document.createElement("div");
+  host.setAttribute("data-mt-acc","1");
 
- var head = document.createElement("button");
-head.type = "button";
-head.className = "mt-acc-head";
-  head.style.setProperty("display","flex","important");
-  head.style.setProperty("align-items","center","important");
-  head.style.setProperty("justify-content","space-between","important");
-  head.style.setProperty("gap","10px","important");
-  head.style.setProperty("width","100%","important");
-  head.style.setProperty("padding","12px 12px","important");
-  head.style.setProperty("min-height","44px","important");
-  head.style.setProperty("box-sizing","border-box","important");
-  head.style.setProperty("background","transparent","important");
-  head.style.setProperty("cursor","pointer","important");
-  head.style.setProperty("user-select","none","important");
-  head.style.setProperty("overflow","hidden","important");
+  var root = host.attachShadow({ mode: "open" });
+
+  var style = document.createElement("style");
+  style.textContent =
+    ":host{display:block}" +
+    ".box{border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.03)}" +
+    ".head{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px 12px;min-height:44px;box-sizing:border-box;background:transparent;cursor:pointer;user-select:none;overflow:hidden}" +
+    ".title{flex:1;min-width:0;color:#fff;opacity:1;font-size:13px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
+    ".arrow{flex:0 0 auto;color:#fff;opacity:.8;font-size:14px;line-height:1;transition:transform .15s ease}" +
+    ".body{display:none;padding:12px 12px;border-top:1px solid rgba(255,255,255,.08)}";
+
+  var box = document.createElement("div");
+  box.className = "box";
+
+  var head = document.createElement("div");
+  head.className = "head";
 
   var t = document.createElement("div");
-  t.className = "mt-acc-title";
+  t.className = "title";
   t.textContent = String(title || "");
-  t.style.setProperty("flex","1","important");
-  t.style.setProperty("min-width","0","important");
-  t.style.setProperty("color","#ffffff","important");
-  t.style.setProperty("opacity","1","important");
-  t.style.setProperty("font-size","13px","important");
-  t.style.setProperty("line-height","1.2","important");
-  t.style.setProperty("white-space","nowrap","important");
-  t.style.setProperty("overflow","hidden","important");
-  t.style.setProperty("text-overflow","ellipsis","important");
 
   var arrow = document.createElement("div");
+  arrow.className = "arrow";
   arrow.textContent = "▾";
-  arrow.style.setProperty("flex","0 0 auto","important");
-  arrow.style.setProperty("color","#ffffff","important");
-  arrow.style.setProperty("opacity",".8","important");
-  arrow.style.setProperty("font-size","14px","important");
-  arrow.style.setProperty("line-height","1","important");
-  arrow.style.setProperty("transition","transform .15s ease","important");
+
+  var body = document.createElement("div");
+  body.className = "body";
 
   head.appendChild(t);
   head.appendChild(arrow);
-
-  var body = document.createElement("div");
-  body.style.setProperty("display","none","important");
-  body.style.setProperty("padding","12px 12px","important");
-  body.style.setProperty("border-top","1px solid rgba(255,255,255,.08)","important");
 
   head.onclick = function(){
     var open = body.style.display !== "none";
@@ -3753,8 +3733,12 @@ head.className = "mt-acc-head";
   box.appendChild(head);
   box.appendChild(body);
 
-  return { wrap: box, body: body };
+  root.appendChild(style);
+  root.appendChild(box);
+
+  return { wrap: host, body: body };
 }
+
 
 
 function buildFormSettings(item){
