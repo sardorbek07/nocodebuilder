@@ -1806,6 +1806,11 @@ if(bgSrc){
     if(item.type==="form"){
   el.style.width=(item.width||280)+"px";
   el.style.height=(item.height||220)+"px";
+        el.style.background = "transparent";
+  el.style.border = "none";
+  el.style.padding = "0";
+  el.style.boxShadow = "none";
+
 
   var card=document.createElement("form");
   card.setAttribute("data-mt-form", String(item.formKey||""));
