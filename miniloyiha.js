@@ -2045,8 +2045,9 @@ submit.style.color = ((item.style && item.style.submitColor) ? item.style.submit
       submit.style.fontSize =
   (((item.style && item.style.submitFontSize)!=null ? item.style.submitFontSize : 14)) + "px";
 
+  submit.style.fontSize =
+  (((item.style && item.style.submitFontSize)!=null ? item.style.submitFontSize : 14)) + "px";
 
-  submit.style.fontSize="14px";
   submit.style.cursor="pointer";
   card.appendChild(submit);
       submit.onclick = function(e){
