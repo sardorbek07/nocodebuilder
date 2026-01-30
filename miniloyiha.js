@@ -3696,14 +3696,7 @@ function buildFormSettings(item){
   settingsBody.appendChild(alignRow);
 
  
-      var accForm = mtAcc("Forma stillari");
-settingsBody.appendChild(accForm.wrap);
-
-var accSubmit = mtAcc("Yuborish tugmasi stillari");
-settingsBody.appendChild(accSubmit.wrap);
-
-var accSuccess = mtAcc("Muvaffaqiyat");
-settingsBody.appendChild(accSuccess.wrap);
+   
 
 
 
@@ -3757,6 +3750,15 @@ settingsBody.appendChild(accSuccess.wrap);
   fCrm.appendChild(lCrm);
   fCrm.appendChild(s);
   settingsBody.appendChild(fCrm);
+  var accForm = mtAcc("Forma stillari");
+settingsBody.appendChild(accForm.wrap);
+
+var accSubmit = mtAcc("Yuborish tugmasi stillari");
+settingsBody.appendChild(accSubmit.wrap);
+
+var accSuccess = mtAcc("Muvaffaqiyat");
+settingsBody.appendChild(accSuccess.wrap);
+
 
  
 
