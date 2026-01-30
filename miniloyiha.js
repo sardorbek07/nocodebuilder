@@ -2727,8 +2727,8 @@ function mtCreateUploadBox(opts){
 
   var label = document.createElement("label");
   label.textContent = title;
-  label.style.fontSize = (((item.style && item.style.titleFontSize)!=null ? item.style.titleFontSize : 14)) + "px";
-label.style.color = ((item.style && item.style.titleColor) ? item.style.titleColor : "#111111");
+label.style.fontSize = "12px";
+label.style.color = "rgba(255,255,255,.85)";
 
   label.style.opacity = ".85";
 
