@@ -1911,31 +1911,7 @@ if(f.required){
 
       
       wrap.appendChild(control);
-      if(f.required){
-  validators.push(function(){
-    var tt = String(t || "").trim();
-    var v = "";
-
-    if(tt === "dropdown"){
-      v = String(control.value || "");
-      if(!v){
-        mtSetErr(wrap, "Iltimos maydonni to'ldiring");
-        return false;
-      }
-      mtSetErr(wrap, "");
-      return true;
-    }
-
-    v = String(control.value || "").trim();
-    if(!v){
-      mtSetErr(wrap, "Iltimos maydonni to'ldiring");
-      return false;
-    }
-    mtSetErr(wrap, "");
-    return true;
-  });
-}
-
+    
       wrap.style.marginBottom = (((item.style && item.style.inputGap)!=null ? item.style.inputGap : 12)) + "px";
 
       var err = document.createElement("div");
@@ -1946,17 +1922,61 @@ err.style.fontSize = "12px";
 err.style.color = "#ff3b3b";
 wrap.appendChild(err);
 
-function checkReq(){
-  if(f.required){
-    var v0 = String(control.value || "").trim();
-    if(!v0){
-      mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      (function(c,w,tt,req){
+  if(!req) return;
+
+  validators.push(function(){
+    var type = String(tt || "").trim();
+
+    if(type === "dropdown"){
+      var v1 = String(c.value || "");
+      if(!v1){
+        mtSetErr(w, "Iltimos maydonni to'ldiring");
+        return false;
+      }
+      mtSetErr(w, "");
+      return true;
+    }
+
+    if(type === "phone"){
+      var r = mtPhoneMaskValue(c.value || "");
+      if(r.empty){
+        mtSetErr(w, "Iltimos maydonni to'ldiring");
+        return false;
+      }
+      if(!r.ok){
+        mtSetErr(w, "Telefon raqamni to'g'ri kiriting");
+        return false;
+      }
+      mtSetErr(w, "");
+      return true;
+    }
+
+    if(type === "email"){
+      var em = String(c.value || "").trim();
+      if(!em){
+        mtSetErr(w, "Iltimos maydonni to'ldiring");
+        return false;
+      }
+      if(!mtEmailOk(em)){
+        mtSetErr(w, "Iltimos emailni to'g'ri kiriting");
+        return false;
+      }
+      mtSetErr(w, "");
+      return true;
+    }
+
+    var v2 = String(c.value || "").trim();
+    if(!v2){
+      mtSetErr(w, "Iltimos maydonni to'ldiring");
       return false;
     }
-  }
-  mtSetErr(wrap, "");
-  return true;
-}
+    mtSetErr(w, "");
+    return true;
+  });
+})(control, wrap, t, !!f.required);
+
+
 
 if(t === "phone"){
   var r0 = mtPhoneMaskValue(control.value || "");
@@ -2067,9 +2087,6 @@ if(t === "dropdown"){
 }
 
 
-if(t === "name" || t === "text" || t === "textarea"){
-  control.addEventListener("blur", checkReq);
-}
 
     }
 
