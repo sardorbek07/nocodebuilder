@@ -3478,7 +3478,7 @@ if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
   fHref.appendChild(inHref);
 
   settingsBody.appendChild(rowWH);
-  settingsBody.appendChild(fBg);
+ accForm.body.appendChild(fBg);
   settingsBody.appendChild(rowBorder);
   settingsBody.appendChild(fR);
   if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
@@ -3913,7 +3913,7 @@ settingsBody.appendChild(accSuccess.wrap);
 
   fFS.appendChild(lFS);
   fFS.appendChild(inFS);
-  settingsBody.appendChild(fFS);
+  accForm.body.appendChild(fFS);
 
   var fTFS = document.createElement("div");
 fTFS.className = "field";
@@ -3940,7 +3940,7 @@ inTFS.oninput = function(e){
 
 fTFS.appendChild(lTFS);
 fTFS.appendChild(inTFS);
-settingsBody.appendChild(fTFS);
+accForm.body.appendChild(fTFS);
 
 
     var fIC = document.createElement("div");
@@ -3971,7 +3971,7 @@ inBg.oninput = function(e){
 
 fBg.appendChild(lBg);
 fBg.appendChild(inBg);
-settingsBody.appendChild(fBg);
+accForm.body.appendChild(fBg);
 
 
   inIC.oninput = function(e){
@@ -3984,7 +3984,7 @@ settingsBody.appendChild(fBg);
 
   fIC.appendChild(lIC);
   fIC.appendChild(inIC);
-  settingsBody.appendChild(fIC);
+ accForm.body.appendChild(fIC);
   var fIBS = document.createElement("div");
 fIBS.className = "field";
 
@@ -4008,7 +4008,7 @@ inIBS.oninput = function(e){
 
 fIBS.appendChild(lIBS);
 fIBS.appendChild(inIBS);
-settingsBody.appendChild(fIBS);
+accForm.body.appendChild(fIBS);
 
   var fIBC = document.createElement("div");
 fIBC.className = "field";
@@ -4030,7 +4030,7 @@ inIBC.oninput = function(e){
 
 fIBC.appendChild(lIBC);
 fIBC.appendChild(inIBC);
-settingsBody.appendChild(fIBC);
+accForm.body.appendChild(fIBC);
 
   var fIR = document.createElement("div");
 fIR.className = "field";
@@ -4055,7 +4055,7 @@ inIR.oninput = function(e){
 
 fIR.appendChild(lIR);
 fIR.appendChild(inIR);
-settingsBody.appendChild(fIR);
+accForm.body.appendChild(fIR);
 
   var fIG = document.createElement("div");
 fIG.className = "field";
@@ -4080,7 +4080,7 @@ inIG.oninput = function(e){
 
 fIG.appendChild(lIG);
 fIG.appendChild(inIG);
-settingsBody.appendChild(fIG);
+accForm.body.appendChild(fIG);
 
 
   var fSH = document.createElement("div");
@@ -4106,7 +4106,7 @@ inSH.oninput = function(e){
 
 fSH.appendChild(lSH);
 fSH.appendChild(inSH);
-settingsBody.appendChild(fSH);
+accSubmit.body.appendChild(fSH);
 
 
   var fSR = document.createElement("div");
@@ -4132,7 +4132,7 @@ inSR.oninput = function(e){
 
 fSR.appendChild(lSR);
 fSR.appendChild(inSR);
-settingsBody.appendChild(fSR);
+accSubmit.body.appendChild(fSR);
 
   var fSBG = document.createElement("div");
 fSBG.className = "field";
@@ -4154,7 +4154,7 @@ inSBG.oninput = function(e){
 
 fSBG.appendChild(lSBG);
 fSBG.appendChild(inSBG);
-settingsBody.appendChild(fSBG);
+accSubmit.body.appendChild(fSBG);
 var fSC = document.createElement("div");
 fSC.className = "field";
 
@@ -4175,7 +4175,7 @@ inSC.oninput = function(e){
 
 fSC.appendChild(lSC);
 fSC.appendChild(inSC);
-settingsBody.appendChild(fSC);
+accSubmit.body.appendChild(fSC);
 
 
 var fSFS = document.createElement("div");
@@ -4201,7 +4201,7 @@ inSFS.oninput = function(e){
 
 fSFS.appendChild(lSFS);
 fSFS.appendChild(inSFS);
-settingsBody.appendChild(fSFS);
+accSubmit.body.appendChild(fSFS);
 
 
 
