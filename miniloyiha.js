@@ -1825,6 +1825,8 @@ if(bgSrc){
   card.style.gap="10px";
 
   var fields=Array.isArray(item.fields)?item.fields:[];
+  var validators = [];
+
   for(var fi=0;fi<fields.length;fi++){
     var f=fields[fi]||{};
     var t=String(f.type||"").trim();
