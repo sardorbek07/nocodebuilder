@@ -1911,6 +1911,31 @@ if(f.required){
 
       
       wrap.appendChild(control);
+      if(f.required){
+  validators.push(function(){
+    var tt = String(t || "").trim();
+    var v = "";
+
+    if(tt === "dropdown"){
+      v = String(control.value || "");
+      if(!v){
+        mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+        return false;
+      }
+      mtSetErr(wrap, "");
+      return true;
+    }
+
+    v = String(control.value || "").trim();
+    if(!v){
+      mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      return false;
+    }
+    mtSetErr(wrap, "");
+    return true;
+  });
+}
+
       wrap.style.marginBottom = (((item.style && item.style.inputGap)!=null ? item.style.inputGap : 12)) + "px";
 
       var err = document.createElement("div");
@@ -2072,8 +2097,8 @@ submit.style.color = ((item.style && item.style.submitColor) ? item.style.submit
   card.appendChild(submit);
       submit.onclick = function(e){
   e.preventDefault();
-        function runValidators(){
-  hasError = false;
+   function runValidators(){
+  var hasError = false;
   for(var i=0;i<validators.length;i++){
     try{
       var ok = validators[i]();
