@@ -1874,8 +1874,12 @@ if(bgSrc){
       if(f.required) control.required=true;
 
       control.style.width="100%";
-      control.style.border="1px solid rgba(17,24,39,.12)";
-      control.style.borderRadius="12px";
+     var bs = (item.style && item.style.inputBorderSize != null) ? item.style.inputBorderSize : 1;
+var bc = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "rgba(17,24,39,.12)";
+control.style.border = bs + "px solid " + bc;
+
+      control.style.borderRadius = (((item.style && item.style.inputRadius)!=null ? item.style.inputRadius : 12)) + "px";
+
   
      control.style.padding="10px 12px";
 control.style.height = (((item.style && item.style.inputHeight)!=null ? item.style.inputHeight : 44)) + "px";
@@ -1883,9 +1887,12 @@ control.style.fontSize = (((item.style && item.style.inputFontSize)!=null ? item
 control.style.color = ((item.style && item.style.inputColor) ? item.style.inputColor : "#111111");
 
       control.style.outline="none";
-      control.style.background="#fff";
+ control.style.background = ((item.style && item.style.inputBg) ? item.style.inputBg : "#ffffff");
+
       
       wrap.appendChild(control);
+      wrap.style.marginBottom = (((item.style && item.style.inputGap)!=null ? item.style.inputGap : 12)) + "px";
+
       var err = document.createElement("div");
 err.setAttribute("data-mt-err","1");
 err.style.display = "none";
@@ -2036,6 +2043,47 @@ if(t === "name" || t === "text" || t === "textarea"){
   submit.style.fontSize="14px";
   submit.style.cursor="pointer";
   card.appendChild(submit);
+      submit.onclick = function(e){
+  e.preventDefault();
+
+  var text = (item && item.successText && item.successText.trim())
+    ? item.successText.trim()
+    : "Rahmat, ma’lumotlaringiz yuborildi";
+
+  var link = (item && item.successLink && item.successLink.trim())
+    ? item.successLink.trim()
+    : "";
+
+  var popup = document.createElement("div");
+  popup.style.position = "fixed";
+  popup.style.left = "50%";
+  popup.style.top = "20px";
+  popup.style.transform = "translateX(-50%)";
+  popup.style.background = "#111";
+  popup.style.color = "#fff";
+  popup.style.padding = "12px 16px";
+  popup.style.borderRadius = "12px";
+  popup.style.fontSize = "14px";
+  popup.style.zIndex = "999999";
+  popup.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
+  popup.textContent = text;
+
+  if(link){
+    popup.style.cursor = "pointer";
+    popup.onclick = function(){
+      window.open(link, "_blank");
+    };
+  }
+
+  document.body.appendChild(popup);
+
+  setTimeout(function(){
+    if(popup && popup.parentNode){
+      popup.parentNode.removeChild(popup);
+    }
+  }, 3000);
+};
+
 
   el.appendChild(card);
 }
@@ -2679,7 +2727,9 @@ function mtCreateUploadBox(opts){
 
   var label = document.createElement("label");
   label.textContent = title;
-  label.style.fontSize = "12px";
+  label.style.fontSize = (((item.style && item.style.titleFontSize)!=null ? item.style.titleFontSize : 14)) + "px";
+label.style.color = ((item.style && item.style.titleColor) ? item.style.titleColor : "#111111");
+
   label.style.opacity = ".85";
 
   var box = document.createElement("button");
@@ -3624,6 +3674,40 @@ function buildFormSettings(item){
   fText.appendChild(l1);
   fText.appendChild(in1);
   settingsBody.appendChild(fText);
+    var fSx = document.createElement("div");
+  fSx.className = "field";
+  var lSx = document.createElement("label");
+  lSx.textContent = "Success matn";
+  var inSx = document.createElement("textarea");
+  inSx.rows = 3;
+  inSx.value = item.successText || "";
+  inSx.oninput = function(e){
+    item.successText = String(e.target.value || "");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+  fSx.appendChild(lSx);
+  fSx.appendChild(inSx);
+  settingsBody.appendChild(fSx);
+
+  var fSl = document.createElement("div");
+  fSl.className = "field";
+  var lSl = document.createElement("label");
+  lSl.textContent = "Success link";
+  var inSl = document.createElement("input");
+  inSl.type = "text";
+  inSl.value = item.successLink || "";
+  inSl.oninput = function(e){
+    item.successLink = String(e.target.value || "");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+  fSl.appendChild(lSl);
+  fSl.appendChild(inSl);
+  settingsBody.appendChild(fSl);
+
     var fIH = document.createElement("div");
   fIH.className = "field";
 
