@@ -3674,39 +3674,7 @@ function buildFormSettings(item){
   fText.appendChild(l1);
   fText.appendChild(in1);
   settingsBody.appendChild(fText);
-    var fSx = document.createElement("div");
-  fSx.className = "field";
-  var lSx = document.createElement("label");
-  lSx.textContent = "Success matn";
-  var inSx = document.createElement("textarea");
-  inSx.rows = 3;
-  inSx.value = item.successText || "";
-  inSx.oninput = function(e){
-    item.successText = String(e.target.value || "");
-    renderPreview();
-    renderLayers();
-    saveCurrentSiteState();
-  };
-  fSx.appendChild(lSx);
-  fSx.appendChild(inSx);
-  settingsBody.appendChild(fSx);
-
-  var fSl = document.createElement("div");
-  fSl.className = "field";
-  var lSl = document.createElement("label");
-  lSl.textContent = "Success link";
-  var inSl = document.createElement("input");
-  inSl.type = "text";
-  inSl.value = item.successLink || "";
-  inSl.oninput = function(e){
-    item.successLink = String(e.target.value || "");
-    renderPreview();
-    renderLayers();
-    saveCurrentSiteState();
-  };
-  fSl.appendChild(lSl);
-  fSl.appendChild(inSl);
-  settingsBody.appendChild(fSl);
+ 
 
     var fIH = document.createElement("div");
   fIH.className = "field";
