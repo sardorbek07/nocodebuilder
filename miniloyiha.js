@@ -1842,8 +1842,9 @@ if(bgSrc){
     if(title){
       var lab=document.createElement("div");
       lab.textContent=title;
-      lab.style.fontSize="12px";
-      lab.style.color="rgba(17,24,39,.7)";
+      lab.style.fontSize = (((item.style && item.style.titleFontSize)!=null ? item.style.titleFontSize : 14)) + "px";
+lab.style.color = ((item.style && item.style.titleColor) ? item.style.titleColor : "rgba(17,24,39,.7)");
+
       wrap.appendChild(lab);
     }
 
@@ -3846,6 +3847,34 @@ function buildFormSettings(item){
   fFS.appendChild(lFS);
   fFS.appendChild(inFS);
   settingsBody.appendChild(fFS);
+
+  var fTFS = document.createElement("div");
+fTFS.className = "field";
+
+var lTFS = document.createElement("label");
+lTFS.textContent = "Title font-size (px)";
+
+var inTFS = document.createElement("input");
+inTFS.type = "number";
+inTFS.value = (item.style && item.style.titleFontSize != null)
+  ? item.style.titleFontSize
+  : 14;
+
+inTFS.oninput = function(e){
+  item.style = item.style || {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    item.style.titleFontSize = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fTFS.appendChild(lTFS);
+fTFS.appendChild(inTFS);
+settingsBody.appendChild(fTFS);
+
 
     var fIC = document.createElement("div");
   fIC.className = "field";
