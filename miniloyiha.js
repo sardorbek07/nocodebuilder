@@ -3953,6 +3953,50 @@ fSR.appendChild(lSR);
 fSR.appendChild(inSR);
 settingsBody.appendChild(fSR);
 
+  var fSBG = document.createElement("div");
+fSBG.className = "field";
+
+var lSBG = document.createElement("label");
+lSBG.textContent = "Submit background";
+
+var inSBG = document.createElement("input");
+inSBG.type = "color";
+inSBG.value = (item.style && item.style.submitBg) ? item.style.submitBg : "#111111";
+
+inSBG.oninput = function(e){
+  if(!item.style) item.style = {};
+  item.style.submitBg = e.target.value;
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+};
+
+fSBG.appendChild(lSBG);
+fSBG.appendChild(inSBG);
+settingsBody.appendChild(fSBG);
+var fSC = document.createElement("div");
+fSC.className = "field";
+
+var lSC = document.createElement("label");
+lSC.textContent = "Submit matn rangi";
+
+var inSC = document.createElement("input");
+inSC.type = "color";
+inSC.value = (item.style && item.style.submitColor) ? item.style.submitColor : "#ffffff";
+
+inSC.oninput = function(e){
+  if(!item.style) item.style = {};
+  item.style.submitColor = e.target.value;
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+};
+
+fSC.appendChild(lSC);
+fSC.appendChild(inSC);
+settingsBody.appendChild(fSC);
+
+
 
 
 
