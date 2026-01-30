@@ -1816,10 +1816,10 @@ if(bgSrc){
   card.setAttribute("data-mt-form", String(item.formKey||""));
   card.style.width="100%";
   card.style.height="100%";
-  card.style.background=(item.style && item.style.bgColor) ? item.style.bgColor : "#fff";
-  card.style.border="1px solid "+((item.style && item.style.borderColor) ? item.style.borderColor : "rgba(17,24,39,.12)");
+ card.style.background = "transparent";
+  card.style.border = "none";
   card.style.borderRadius=((item.style && item.style.radius)!=null ? item.style.radius : 16)+"px";
-  card.style.padding=((item.style && item.style.padding)!=null ? item.style.padding : 12)+"px";
+  card.style.padding = "0";
   card.style.display="flex";
   card.style.flexDirection="column";
   card.style.gap="10px";
