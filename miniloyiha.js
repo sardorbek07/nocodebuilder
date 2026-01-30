@@ -3617,6 +3617,9 @@ function buildTimerSettings(item){
 }
 function buildFormSettings(item){
   settingsBody.innerHTML="";
+    const alignRow = buildAlignRow(item);
+  settingsBody.appendChild(alignRow);
+
 
   // 1) Inputlar tugmasi (modalni keyin qilamiz)
   var btn = document.createElement("button");
