@@ -3691,12 +3691,15 @@ function buildTimerSettings(item){
 }
 function mtAcc(title){
   var box = document.createElement("div");
+  box.className = "mt-acc";
+box.setAttribute("data-mt-acc","1");
   box.style.setProperty("border","1px solid rgba(255,255,255,.10)","important");
   box.style.setProperty("border-radius","14px","important");
   box.style.setProperty("overflow","hidden","important");
   box.style.setProperty("background","rgba(255,255,255,.03)","important");
 
   var head = document.createElement("div");
+  head.className = "mt-acc-head";
   head.setAttribute("role","button");
   head.style.setProperty("display","flex","important");
   head.style.setProperty("align-items","center","important");
@@ -3712,6 +3715,7 @@ function mtAcc(title){
   head.style.setProperty("overflow","hidden","important");
 
   var t = document.createElement("div");
+  t.className = "mt-acc-title";
   t.textContent = String(title || "");
   t.style.setProperty("flex","1","important");
   t.style.setProperty("min-width","0","important");
@@ -4510,7 +4514,7 @@ if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
           card.style.background = "rgba(255,233,200,.06)";
         }
 
-        var head = document.createElement("div");
+        var head = document.createElement("button");
         head.style.display = "flex";
         head.style.alignItems = "center";
         head.style.justifyContent = "space-between";
