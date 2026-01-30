@@ -2035,9 +2035,11 @@ if(t === "name" || t === "text" || t === "textarea"){
   submit.type="button";
   submit.textContent=String(item.submitText||"Yuborish");
   submit.style.width="100%";
-  submit.style.height="44px";
+  submit.style.height = (((item.style && item.style.submitHeight)!=null ? item.style.submitHeight : 46)) + "px";
+submit.style.borderRadius = (((item.style && item.style.submitRadius)!=null ? item.style.submitRadius : 14)) + "px";
+
   submit.style.border="0";
-  submit.style.borderRadius="999px";
+ 
   submit.style.background="#111827";
   submit.style.color="#fff";
   submit.style.fontSize="14px";
