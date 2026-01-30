@@ -3711,10 +3711,16 @@ head.style.setProperty("cursor","pointer","important");
 head.style.setProperty("user-select","none","important");
 head.style.setProperty("line-height","1.2","important");
 head.style.setProperty("overflow","visible","important");
+  head.style.setProperty("font-size","13px","important");
 
   var t = document.createElement("div");
   t.textContent = title;
-  t.style.fontSize = "13px";
+  t.style.setProperty("font-size","13px","important");
+t.style.setProperty("line-height","1.2","important");
+t.style.setProperty("white-space","nowrap","important");
+
+arrow.style.setProperty("font-size","14px","important");
+arrow.style.setProperty("line-height","1","important");
 
   var arrow = document.createElement("div");
   arrow.textContent = "▾";
