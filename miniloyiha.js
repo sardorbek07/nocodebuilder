@@ -3689,62 +3689,13 @@ function buildTimerSettings(item){
   del.onclick=function(){deleteItem(item.id)};
   settingsBody.appendChild(del);
 }
+function mtAcc(title){ var box = document.createElement("div"); box.style.border = "1px solid rgba(255,255,255,.10)"; box.style.borderRadius = "14px"; box.style.overflow = "hidden"; box.style.background = "rgba(255,255,255,.03)"; var head = document.createElement("button"); head.type = "button"; head.className = "mt-btn secondary"; head.style.width = "100%"; head.style.display = "flex"; head.style.alignItems = "center"; head.style.justifyContent = "space-between"; head.style.padding = "12px 12px"; head.style.borderRadius = "0"; head.style.border = "0"; head.style.background = "transparent"; head.style.color = "#fff"; head.style.cursor = "pointer"; var t = document.createElement("div"); t.textContent = title; t.style.fontSize = "13px"; var arrow = document.createElement("div"); arrow.textContent = "▾"; arrow.style.opacity = ".8"; arrow.style.transition = "transform .15s ease"; head.appendChild(t); head.appendChild(arrow); var body = document.createElement("div"); body.style.display = "none"; body.style.padding = "12px 12px"; body.style.borderTop = "1px solid rgba(255,255,255,.08)"; head.onclick = function(){ var open = body.style.display !== "none"; body.style.display = open ? "none" : "block"; arrow.style.transform = open ? "rotate(0deg)" : "rotate(180deg)"; }; box.appendChild(head); box.appendChild(body); return { wrap: box, body: body }; }
 function buildFormSettings(item){
   settingsBody.innerHTML="";
     const alignRow = buildAlignRow(item);
   settingsBody.appendChild(alignRow);
 
-  function mtAcc(title){
-  var box = document.createElement("div");
-  box.style.border = "1px solid rgba(255,255,255,.10)";
-  box.style.borderRadius = "14px";
-  box.style.overflow = "hidden";
-  box.style.background = "rgba(255,255,255,.03)";
-
-  var head = document.createElement("button");
-  head.type = "button";
-  head.className = "mt-btn secondary";
-  head.style.width = "100%";
-  head.style.display = "flex";
-  head.style.alignItems = "center";
-  head.style.justifyContent = "space-between";
-  head.style.padding = "12px 12px";
-  head.style.borderRadius = "0";
-  head.style.border = "0";
-  head.style.background = "transparent";
-  head.style.color = "#fff";
-  head.style.cursor = "pointer";
-
-  var t = document.createElement("div");
-  t.textContent = title;
-  t.style.fontSize = "13px";
-
-  var arrow = document.createElement("div");
-  arrow.textContent = "▾";
-  arrow.style.opacity = ".8";
-  arrow.style.transition = "transform .15s ease";
-
-  head.appendChild(t);
-  head.appendChild(arrow);
-
-  var body = document.createElement("div");
-  body.style.display = "none";
-  body.style.padding = "12px 12px";
-  body.style.borderTop = "1px solid rgba(255,255,255,.08)";
-
-  head.onclick = function(){
-    var open = body.style.display !== "none";
-    body.style.display = open ? "none" : "block";
-    arrow.style.transform = open ? "rotate(0deg)" : "rotate(180deg)";
-  };
-
-  box.appendChild(head);
-  box.appendChild(body);
-
-  return { wrap: box, body: body };
-
-
-}
+ 
       var accForm = mtAcc("Forma stillari");
 settingsBody.appendChild(accForm.wrap);
 
