@@ -3742,6 +3742,15 @@ function buildFormSettings(item){
   box.appendChild(body);
 
   return { wrap: box, body: body };
+    var accForm = mtAcc("Forma stillari");
+settingsBody.appendChild(accForm.wrap);
+
+var accSubmit = mtAcc("Yuborish tugmasi stillari");
+settingsBody.appendChild(accSubmit.wrap);
+
+var accSuccess = mtAcc("Muvaffaqiyat");
+settingsBody.appendChild(accSuccess.wrap);
+
 }
 
 
@@ -3797,14 +3806,7 @@ function buildFormSettings(item){
   fCrm.appendChild(s);
   settingsBody.appendChild(fCrm);
 
-  var accForm = mtAcc("Forma stillari");
-settingsBody.appendChild(accForm.wrap);
-
-var accSubmit = mtAcc("Yuborish tugmasi stillari");
-settingsBody.appendChild(accSubmit.wrap);
-
-var accSuccess = mtAcc("Muvaffaqiyat");
-settingsBody.appendChild(accSuccess.wrap);
+ 
 
   // 3) Submit matni (oddiy)
   var fText = document.createElement("div");
