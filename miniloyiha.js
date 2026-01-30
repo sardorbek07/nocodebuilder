@@ -2042,6 +2042,9 @@ submit.style.borderRadius = (((item.style && item.style.submitRadius)!=null ? it
  
  submit.style.background = ((item.style && item.style.submitBg) ? item.style.submitBg : "#111111");
 submit.style.color = ((item.style && item.style.submitColor) ? item.style.submitColor : "#ffffff");
+      submit.style.fontSize =
+  (((item.style && item.style.submitFontSize)!=null ? item.style.submitFontSize : 14)) + "px";
+
 
   submit.style.fontSize="14px";
   submit.style.cursor="pointer";
@@ -3997,6 +4000,30 @@ fSC.appendChild(inSC);
 settingsBody.appendChild(fSC);
 
 
+var fSFS = document.createElement("div");
+fSFS.className = "field";
+
+var lSFS = document.createElement("label");
+lSFS.textContent = "Submit font-size (px)";
+
+var inSFS = document.createElement("input");
+inSFS.type = "number";
+inSFS.value = (item.style && item.style.submitFontSize != null) ? item.style.submitFontSize : 14;
+
+inSFS.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    item.style.submitFontSize = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fSFS.appendChild(lSFS);
+fSFS.appendChild(inSFS);
+settingsBody.appendChild(fSFS);
 
 
 
