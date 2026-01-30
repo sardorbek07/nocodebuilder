@@ -1826,6 +1826,8 @@ if(bgSrc){
 
   var fields=Array.isArray(item.fields)?item.fields:[];
   var validators = [];
+  var hasError = false;
+
 
   for(var fi=0;fi<fields.length;fi++){
     var f=fields[fi]||{};
@@ -1895,6 +1897,17 @@ control.style.color = ((item.style && item.style.inputColor) ? item.style.inputC
 
       control.style.outline="none";
  control.style.background = ((item.style && item.style.inputBg) ? item.style.inputBg : "#ffffff");
+if(f.required){
+  validators.push(function(){
+    var v0 = String(control.value || "").trim();
+    if(!v0){
+      mtSetErr(wrap, "Iltimos maydonni to'ldiring");
+      return false;
+    }
+    mtSetErr(wrap, "");
+    return true;
+  });
+}
 
       
       wrap.appendChild(control);
@@ -2059,6 +2072,22 @@ submit.style.color = ((item.style && item.style.submitColor) ? item.style.submit
   card.appendChild(submit);
       submit.onclick = function(e){
   e.preventDefault();
+        function runValidators(){
+  hasError = false;
+  for(var i=0;i<validators.length;i++){
+    try{
+      var ok = validators[i]();
+      if(!ok) hasError = true;
+    }catch(err){
+      hasError = true;
+    }
+  }
+  return !hasError;
+}
+if(!runValidators()){
+  return;
+}
+
 
   var text = (item && item.successText && item.successText.trim())
     ? item.successText.trim()
