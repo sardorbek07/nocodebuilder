@@ -3822,7 +3822,7 @@ settingsBody.appendChild(accSuccess.wrap);
   };
   fText.appendChild(l1);
   fText.appendChild(in1);
-  settingsBody.appendChild(fText);
+  accSubmit.body.appendChild(fText);
     var fSx = document.createElement("div");
   fSx.className = "field";
   var lSx = document.createElement("label");
@@ -3838,7 +3838,7 @@ settingsBody.appendChild(accSuccess.wrap);
   };
   fSx.appendChild(lSx);
   fSx.appendChild(inSx);
-  settingsBody.appendChild(fSx);
+  accSuccess.body.appendChild(fSx);
 
   var fSl = document.createElement("div");
   fSl.className = "field";
@@ -3855,7 +3855,7 @@ settingsBody.appendChild(accSuccess.wrap);
   };
   fSl.appendChild(lSl);
   fSl.appendChild(inSl);
-  settingsBody.appendChild(fSl);
+  accSuccess.body.appendChild(fSl);
 
  
 
