@@ -3882,7 +3882,7 @@ settingsBody.appendChild(accSuccess.wrap);
 
   fIH.appendChild(lIH);
   fIH.appendChild(inIH);
-  settingsBody.appendChild(fIH);
+  accForm.body.appendChild(fIH);
     var fFS = document.createElement("div");
   fFS.className = "field";
 
