@@ -3691,55 +3691,54 @@ function buildTimerSettings(item){
 }
 function mtAcc(title){
   var box = document.createElement("div");
-  box.style.border = "1px solid rgba(255,255,255,.10)";
-  box.style.borderRadius = "14px";
-  box.style.overflow = "hidden";
-  box.style.background = "rgba(255,255,255,.03)";
+  box.style.setProperty("border","1px solid rgba(255,255,255,.10)","important");
+  box.style.setProperty("border-radius","14px","important");
+  box.style.setProperty("overflow","hidden","important");
+  box.style.setProperty("background","rgba(255,255,255,.03)","important");
 
   var head = document.createElement("div");
   head.setAttribute("role","button");
- head.style.setProperty("display","flex","important");
-head.style.setProperty("align-items","center","important");
-head.style.setProperty("justify-content","space-between","important");
-head.style.setProperty("width","100%","important");
-head.style.setProperty("padding","12px 12px","important");
-head.style.setProperty("min-height","44px","important");
-head.style.setProperty("box-sizing","border-box","important");
-head.style.setProperty("background","transparent","important");
-head.style.setProperty("color","#fff","important");
-head.style.setProperty("cursor","pointer","important");
-head.style.setProperty("user-select","none","important");
-head.style.setProperty("line-height","1.2","important");
-head.style.setProperty("overflow","visible","important");
-  head.style.setProperty("font-size","13px","important");
+  head.style.setProperty("display","flex","important");
+  head.style.setProperty("align-items","center","important");
+  head.style.setProperty("justify-content","space-between","important");
+  head.style.setProperty("gap","10px","important");
+  head.style.setProperty("width","100%","important");
+  head.style.setProperty("padding","12px 12px","important");
+  head.style.setProperty("min-height","44px","important");
+  head.style.setProperty("box-sizing","border-box","important");
+  head.style.setProperty("background","transparent","important");
+  head.style.setProperty("cursor","pointer","important");
+  head.style.setProperty("user-select","none","important");
+  head.style.setProperty("overflow","hidden","important");
 
   var t = document.createElement("div");
-  t.textContent = title;
+  t.textContent = String(title || "");
+  t.style.setProperty("flex","1","important");
+  t.style.setProperty("min-width","0","important");
   t.style.setProperty("color","#ffffff","important");
-t.style.setProperty("opacity","1","important");
+  t.style.setProperty("opacity","1","important");
   t.style.setProperty("font-size","13px","important");
-t.style.setProperty("line-height","1.2","important");
-t.style.setProperty("white-space","nowrap","important");
-
-
+  t.style.setProperty("line-height","1.2","important");
+  t.style.setProperty("white-space","nowrap","important");
+  t.style.setProperty("overflow","hidden","important");
+  t.style.setProperty("text-overflow","ellipsis","important");
 
   var arrow = document.createElement("div");
   arrow.textContent = "▾";
+  arrow.style.setProperty("flex","0 0 auto","important");
   arrow.style.setProperty("color","#ffffff","important");
-arrow.style.setProperty("opacity",".8","important");
-  arrow.style.opacity = ".8";
-  arrow.style.transition = "transform .15s ease";
+  arrow.style.setProperty("opacity",".8","important");
   arrow.style.setProperty("font-size","14px","important");
-arrow.style.setProperty("line-height","1","important");
-
+  arrow.style.setProperty("line-height","1","important");
+  arrow.style.setProperty("transition","transform .15s ease","important");
 
   head.appendChild(t);
   head.appendChild(arrow);
 
   var body = document.createElement("div");
-  body.style.display = "none";
-  body.style.padding = "12px 12px";
-  body.style.borderTop = "1px solid rgba(255,255,255,.08)";
+  body.style.setProperty("display","none","important");
+  body.style.setProperty("padding","12px 12px","important");
+  body.style.setProperty("border-top","1px solid rgba(255,255,255,.08)","important");
 
   head.onclick = function(){
     var open = body.style.display !== "none";
@@ -3752,6 +3751,7 @@ arrow.style.setProperty("line-height","1","important");
 
   return { wrap: box, body: body };
 }
+
 
 function buildFormSettings(item){
   settingsBody.innerHTML="";
