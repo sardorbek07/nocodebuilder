@@ -3698,9 +3698,9 @@ box.setAttribute("data-mt-acc","1");
   box.style.setProperty("overflow","hidden","important");
   box.style.setProperty("background","rgba(255,255,255,.03)","important");
 
-  var head = document.createElement("div");
-  head.className = "mt-acc-head";
-  head.setAttribute("role","button");
+ var head = document.createElement("button");
+head.type = "button";
+head.className = "mt-acc-head";
   head.style.setProperty("display","flex","important");
   head.style.setProperty("align-items","center","important");
   head.style.setProperty("justify-content","space-between","important");
