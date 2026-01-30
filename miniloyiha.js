@@ -3801,6 +3801,156 @@ settingsBody.appendChild(fBg);
   fIC.appendChild(lIC);
   fIC.appendChild(inIC);
   settingsBody.appendChild(fIC);
+  var fIBS = document.createElement("div");
+fIBS.className = "field";
+
+var lIBS = document.createElement("label");
+lIBS.textContent = "Input border size (px)";
+
+var inIBS = document.createElement("input");
+inIBS.type = "number";
+inIBS.value = (item.style && item.style.inputBorderSize != null) ? item.style.inputBorderSize : 1;
+
+inIBS.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    item.style.inputBorderSize = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fIBS.appendChild(lIBS);
+fIBS.appendChild(inIBS);
+settingsBody.appendChild(fIBS);
+
+  var fIBC = document.createElement("div");
+fIBC.className = "field";
+
+var lIBC = document.createElement("label");
+lIBC.textContent = "Input border rangi";
+
+var inIBC = document.createElement("input");
+inIBC.type = "text";
+inIBC.value = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "rgba(17,24,39,.12)";
+
+inIBC.oninput = function(e){
+  if(!item.style) item.style = {};
+  item.style.inputBorderColor = String(e.target.value || "");
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+};
+
+fIBC.appendChild(lIBC);
+fIBC.appendChild(inIBC);
+settingsBody.appendChild(fIBC);
+
+  var fIR = document.createElement("div");
+fIR.className = "field";
+
+var lIR = document.createElement("label");
+lIR.textContent = "Input radius (px)";
+
+var inIR = document.createElement("input");
+inIR.type = "number";
+inIR.value = (item.style && item.style.inputRadius != null) ? item.style.inputRadius : 12;
+
+inIR.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    item.style.inputRadius = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fIR.appendChild(lIR);
+fIR.appendChild(inIR);
+settingsBody.appendChild(fIR);
+
+  var fIG = document.createElement("div");
+fIG.className = "field";
+
+var lIG = document.createElement("label");
+lIG.textContent = "Inputlar orasidagi masofa (px)";
+
+var inIG = document.createElement("input");
+inIG.type = "number";
+inIG.value = (item.style && item.style.inputGap != null) ? item.style.inputGap : 12;
+
+inIG.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    item.style.inputGap = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fIG.appendChild(lIG);
+fIG.appendChild(inIG);
+settingsBody.appendChild(fIG);
+
+
+  var fSH = document.createElement("div");
+fSH.className = "field";
+
+var lSH = document.createElement("label");
+lSH.textContent = "Submit balandligi (px)";
+
+var inSH = document.createElement("input");
+inSH.type = "number";
+inSH.value = (item.style && item.style.submitHeight != null) ? item.style.submitHeight : 46;
+
+inSH.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    item.style.submitHeight = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fSH.appendChild(lSH);
+fSH.appendChild(inSH);
+settingsBody.appendChild(fSH);
+
+
+  var fSR = document.createElement("div");
+fSR.className = "field";
+
+var lSR = document.createElement("label");
+lSR.textContent = "Submit radius (px)";
+
+var inSR = document.createElement("input");
+inSR.type = "number";
+inSR.value = (item.style && item.style.submitRadius != null) ? item.style.submitRadius : 14;
+
+inSR.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    item.style.submitRadius = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fSR.appendChild(lSR);
+fSR.appendChild(inSR);
+settingsBody.appendChild(fSR);
+
+
 
 
 
