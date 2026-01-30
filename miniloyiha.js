@@ -3768,6 +3768,27 @@ function buildFormSettings(item){
   var inIC = document.createElement("input");
   inIC.type = "color";
   inIC.value = (item.style && item.style.inputColor) ? item.style.inputColor : "#111111";
+  var fBg = document.createElement("div");
+fBg.className = "field";
+
+var lBg = document.createElement("label");
+lBg.textContent = "Input background";
+
+var inBg = document.createElement("input");
+inBg.type = "color";
+inBg.value = item.style && item.style.inputBg ? item.style.inputBg : "#ffffff";
+inBg.oninput = function(e){
+  item.style = item.style || {};
+  item.style.inputBg = e.target.value;
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+};
+
+fBg.appendChild(lBg);
+fBg.appendChild(inBg);
+settingsBody.appendChild(fBg);
+
 
   inIC.oninput = function(e){
     if(!item.style) item.style = {};
