@@ -2040,8 +2040,9 @@ submit.style.borderRadius = (((item.style && item.style.submitRadius)!=null ? it
 
   submit.style.border="0";
  
-  submit.style.background="#111827";
-  submit.style.color="#fff";
+ submit.style.background = ((item.style && item.style.submitBg) ? item.style.submitBg : "#111111");
+submit.style.color = ((item.style && item.style.submitColor) ? item.style.submitColor : "#ffffff");
+
   submit.style.fontSize="14px";
   submit.style.cursor="pointer";
   card.appendChild(submit);
