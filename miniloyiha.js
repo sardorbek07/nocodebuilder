@@ -3719,13 +3719,15 @@ head.style.setProperty("overflow","visible","important");
 t.style.setProperty("line-height","1.2","important");
 t.style.setProperty("white-space","nowrap","important");
 
-arrow.style.setProperty("font-size","14px","important");
-arrow.style.setProperty("line-height","1","important");
+
 
   var arrow = document.createElement("div");
   arrow.textContent = "▾";
   arrow.style.opacity = ".8";
   arrow.style.transition = "transform .15s ease";
+  arrow.style.setProperty("font-size","14px","important");
+arrow.style.setProperty("line-height","1","important");
+
 
   head.appendChild(t);
   head.appendChild(arrow);
