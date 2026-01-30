@@ -3715,6 +3715,8 @@ head.style.setProperty("overflow","visible","important");
 
   var t = document.createElement("div");
   t.textContent = title;
+  t.style.setProperty("color","#ffffff","important");
+t.style.setProperty("opacity","1","important");
   t.style.setProperty("font-size","13px","important");
 t.style.setProperty("line-height","1.2","important");
 t.style.setProperty("white-space","nowrap","important");
@@ -3723,6 +3725,8 @@ t.style.setProperty("white-space","nowrap","important");
 
   var arrow = document.createElement("div");
   arrow.textContent = "▾";
+  arrow.style.setProperty("color","#ffffff","important");
+arrow.style.setProperty("opacity",".8","important");
   arrow.style.opacity = ".8";
   arrow.style.transition = "transform .15s ease";
   arrow.style.setProperty("font-size","14px","important");
