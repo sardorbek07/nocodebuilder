@@ -4692,15 +4692,16 @@ head.dataset.fid = fid0;
         top.style.textOverflow = "ellipsis";
         top.textContent = labelType(f.type);
 
-        var sub = document.createElement("div");
-        sub.style.fontSize = "12px";
-        sub.style.color = "rgba(255,255,255,.55)";
-        sub.style.marginTop = "4px";
-        sub.style.whiteSpace = "nowrap";
-        sub.style.overflow = "hidden";
-        sub.style.textOverflow = "ellipsis";
-        sub.textContent = String(f.placeholder || f.title || "");
-
+     var sub = document.createElement("div");
+sub.style.fontSize = "12px";
+sub.style.color = "rgba(255,255,255,.55)";
+sub.style.marginTop = "4px";
+sub.style.whiteSpace = "nowrap";
+sub.style.overflow = "hidden";
+sub.style.textOverflow = "ellipsis";
+sub.textContent = "";
+sub.style.display = "none";
+        
         left.appendChild(top);
         left.appendChild(sub);
 
