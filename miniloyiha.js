@@ -4690,10 +4690,7 @@ head.dataset.fid = fid0;
         top.style.whiteSpace = "nowrap";
         top.style.overflow = "hidden";
         top.style.textOverflow = "ellipsis";
-       top.textContent =
-  labelType(f.type) +
-  (f.title ? " • " + f.title : "") +
-  (f.required ? " • majburiy" : "");
+        top.textContent = labelType(f.type);
 
         var sub = document.createElement("div");
         sub.style.fontSize = "12px";
