@@ -2358,6 +2358,16 @@ if(["image","shape","button"].includes(item.type)){
     el.appendChild(h);
   });
 }
+    if(item.type === "text"){
+  ["right","left"].forEach(function(dir){
+    var h = document.createElement("div");
+    h.className = "resize-handle resize-" + dir;
+    h.dataset.id = item.id;
+    h.dataset.dir = dir;
+    h.addEventListener("mousedown", startResize);
+    el.appendChild(h);
+  });
+}
     el.addEventListener("mousedown",startDragElement);
   el.addEventListener("click", function (e) {
   e.stopPropagation();
