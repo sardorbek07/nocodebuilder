@@ -3943,6 +3943,8 @@ settingsBody.appendChild(accSuccess.wrap);
   };
   fSl.appendChild(lSl);
   fSl.appendChild(inSl);
+  fSl.style.gridTemplateColumns = "1fr";
+fSl.style.gap = "6px";
   mtTuneSettingRow(fSl, lSl, inSl);
   accSuccess.body.appendChild(fSl);
 
