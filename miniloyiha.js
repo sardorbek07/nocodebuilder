@@ -2317,7 +2317,7 @@ if(item.type === "timer"){
     setupPreviewTimerElement(span, item);
 }
 
-if(["image","shape","video","button","timer","form"].includes(item.type)){
+if(["image","shape"].includes(item.type)){
     const rh = document.createElement("div");
     rh.className = "resize-handle";
     rh.dataset.id = item.id;
