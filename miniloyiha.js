@@ -5453,7 +5453,7 @@ return "";
     })
     .join("\n");
 
- var scriptPart =
+var scriptPart =
 '<script>\n' +
 'document.addEventListener("DOMContentLoaded", function () {\n' +
 '  var page = document.querySelector(".mt-page");\n' +
@@ -5462,9 +5462,7 @@ return "";
 '    function mtAutoscale() {\n' +
 '      var screenWidth = window.innerWidth || document.documentElement.clientWidth;\n' +
 '      var zoom = 1;\n' +
-'      if (screenWidth <= 480) {\n' +
-'        zoom = screenWidth / baseWidth;\n' +
-'      }\n' +
+'      if (screenWidth <= 480) zoom = screenWidth / baseWidth;\n' +
 '      page.style.transformOrigin = "top center";\n' +
 '      page.style.transform = "scale(" + zoom + ")";\n' +
 '      document.body.style.height = (page.offsetHeight * zoom) + "px";\n' +
@@ -5479,35 +5477,23 @@ return "";
 '    var minutes = parseInt(el.getAttribute("data-mt-minutes")) || 0;\n' +
 '    var seconds = parseInt(el.getAttribute("data-mt-seconds")) || 0;\n' +
 '    var total = hours * 3600 + minutes * 60 + seconds;\n' +
-
 '    function formatTime(t) {\n' +
 '      var h = Math.floor(t / 3600);\n' +
 '      var m = Math.floor((t % 3600) / 60);\n' +
 '      var s = t % 60;\n' +
-'      if (h > 0) {\n' +
-'        return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");\n' +
-'      }\n' +
+'      if (h > 0) return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");\n' +
 '      return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");\n' +
 '    }\n' +
-
-'    if (!total) {\n' +
-'      el.textContent = "00:00";\n' +
-'      return;\n' +
-'    }\n' +
-
+'    if (!total) { el.textContent = "00:00"; return; }\n' +
 '    var remaining = total;\n' +
 '    el.textContent = formatTime(remaining);\n' +
-
 '    var interval = setInterval(function () {\n' +
 '      remaining--;\n' +
-'      if (remaining <= 0) {\n' +
-'        clearInterval(interval);\n' +
-'        el.textContent = "00:00";\n' +
-'      } else {\n' +
-'        el.textContent = formatTime(remaining);\n' +
-'      }\n' +
+'      if (remaining <= 0) { clearInterval(interval); el.textContent = "00:00"; }\n' +
+'      else { el.textContent = formatTime(remaining); }\n' +
 '    }, 1000);\n' +
 '  });\n' +
+
 '  function mtShowPopup(text, link){\n' +
 '    var p=document.createElement("div");\n' +
 '    p.style.position="fixed";\n' +
@@ -5521,28 +5507,108 @@ return "";
 '    p.style.fontSize="14px";\n' +
 '    p.style.zIndex="999999";\n' +
 '    p.style.boxShadow="0 10px 30px rgba(0,0,0,.25)";\n' +
-'    p.textContent=text||"Rahmat, ma’lumotlaringiz yuborildi";\n' +
-'    if(link){\n' +
-'      p.style.cursor="pointer";\n' +
-'      p.onclick=function(){window.open(link,"_blank");};\n' +
-'    }\n' +
+'    p.textContent=text||"Rahmat, ma\\u2019lumotlaringiz yuborildi";\n' +
+'    if(link){ p.style.cursor="pointer"; p.onclick=function(){window.open(link,"_blank");}; }\n' +
 '    document.body.appendChild(p);\n' +
-'    setTimeout(function(){if(p&&p.parentNode)p.parentNode.removeChild(p);},3000);\n' +
+'    setTimeout(function(){ if(p&&p.parentNode) p.parentNode.removeChild(p); },3000);\n' +
 '  }\n' +
-'\n' +
-'  document.addEventListener("submit", function(e){\n' +
-'    var f=e.target;\n' +
-'    if(!f||!f.getAttribute)return;\n' +
-'    if(!f.getAttribute("data-mt-form"))return;\n' +
-'    e.preventDefault();\n' +
-'    if(f.checkValidity && !f.checkValidity()){\n' +
-'      if(f.reportValidity) f.reportValidity();\n' +
-'      return;\n' +
+
+'  function mtDigits(s){ return String(s||"").replace(/\\D+/g,""); }\n' +
+'  function mtSetErr(wrap,msg){\n' +
+'    var e = wrap ? wrap.querySelector("[data-mt-err]") : null;\n' +
+'    if(!e) return;\n' +
+'    e.textContent = msg || "";\n' +
+'    e.style.display = msg ? "block" : "none";\n' +
+'  }\n' +
+'  function mtPhoneMaskValue(raw){\n' +
+'    var d = mtDigits(raw);\n' +
+'    if(d.indexOf("998")===0) d = d.slice(3);\n' +
+'    d = d.slice(0,9);\n' +
+'    var a=d.slice(0,2), b=d.slice(2,5), c=d.slice(5,7), e=d.slice(7,9);\n' +
+'    var out="+998";\n' +
+'    if(a) out+=" "+a;\n' +
+'    if(b) out+=" "+b;\n' +
+'    if(c) out+=" "+c;\n' +
+'    if(e) out+=" "+e;\n' +
+'    return { val: out, ok: d.length===9, empty: d.length===0 };\n' +
+'  }\n' +
+'  function mtLockPrefix(inp,pref){\n' +
+'    pref = String(pref||"");\n' +
+'    function esc(s){ return String(s).replace(/[.*+?^${}()|[\\[\\]\\\\]]/g,"\\\\$&"); }\n' +
+'    function fix(){\n' +
+'      var v = String(inp.value||"");\n' +
+'      if(v.indexOf(pref)!==0) inp.value = pref + v.replace(new RegExp("^"+esc(pref)),"").trim();\n' +
+'      if(inp.selectionStart!=null && inp.selectionStart<pref.length){\n' +
+'        try{ inp.setSelectionRange(pref.length,pref.length); }catch(e){}\n' +
+'      }\n' +
 '    }\n' +
-'    var text=f.getAttribute("data-mt-success")||"Rahmat, ma’lumotlaringiz yuborildi";\n' +
-'    var link=f.getAttribute("data-mt-success-link")||"";\n' +
+'    inp.addEventListener("focus", fix);\n' +
+'    inp.addEventListener("click", fix);\n' +
+'    inp.addEventListener("keydown", function(ev){\n' +
+'      if(ev.key==="Backspace"){\n' +
+'        if(inp.selectionStart!=null && inp.selectionStart<=pref.length){\n' +
+'          ev.preventDefault();\n' +
+'          try{ inp.setSelectionRange(pref.length,pref.length); }catch(e){}\n' +
+'        }\n' +
+'      }\n' +
+'    });\n' +
+'  }\n' +
+
+'  function mtBindMasks(root){\n' +
+'    var inputs = root.querySelectorAll("input[data-mt-mask]");\n' +
+'    inputs.forEach(function(inp){\n' +
+'      var m = inp.getAttribute("data-mt-mask");\n' +
+'      if(m==="phone"){\n' +
+'        var r0 = mtPhoneMaskValue(inp.value||"");\n' +
+'        inp.value = r0.val;\n' +
+'        mtLockPrefix(inp, "+998");\n' +
+'        inp.addEventListener("input", function(){\n' +
+'          var r = mtPhoneMaskValue(inp.value||"");\n' +
+'          inp.value = r.val;\n' +
+'        });\n' +
+'      }\n' +
+'    });\n' +
+'  }\n' +
+
+'  function mtValidateForm(f){\n' +
+'    var ok = true;\n' +
+'    var fields = f.querySelectorAll("[data-mt-field]");\n' +
+'    fields.forEach(function(w){\n' +
+'      var c = w.querySelector("input,textarea,select");\n' +
+'      if(!c) return;\n' +
+'      var req = !!c.required;\n' +
+'      if(!req){ mtSetErr(w,""); return; }\n' +
+'      var t = String(c.getAttribute("data-mt-type") || "");\n' +
+'      if(t==="dropdown"){\n' +
+'        if(!String(c.value||"")){ mtSetErr(w,"Iltimos maydonni to\\u2019ldiring"); ok=false; return; }\n' +
+'        mtSetErr(w,""); return;\n' +
+'      }\n' +
+'      if(t==="phone"){\n' +
+'        var r = mtPhoneMaskValue(c.value||"");\n' +
+'        if(r.empty){ mtSetErr(w,"Iltimos maydonni to\\u2019ldiring"); ok=false; return; }\n' +
+'        if(!r.ok){ mtSetErr(w,"Telefon raqamni to\\u2019g\\u2019ri kiriting"); ok=false; return; }\n' +
+'        mtSetErr(w,""); return;\n' +
+'      }\n' +
+'      var v = String(c.value||"").trim();\n' +
+'      if(!v){ mtSetErr(w,"Iltimos maydonni to\\u2019ldiring"); ok=false; return; }\n' +
+'      mtSetErr(w,"");\n' +
+'    });\n' +
+'    return ok;\n' +
+'  }\n' +
+
+'  mtBindMasks(document);\n' +
+
+'  document.addEventListener("submit", function(e){\n' +
+'    var f = e.target;\n' +
+'    if(!f || !f.getAttribute) return;\n' +
+'    if(!f.getAttribute("data-mt-form")) return;\n' +
+'    e.preventDefault();\n' +
+'    if(!mtValidateForm(f)) return;\n' +
+'    var text = f.getAttribute("data-mt-success") || "Rahmat, ma\\u2019lumotlaringiz yuborildi";\n' +
+'    var link = f.getAttribute("data-mt-success-link") || "";\n' +
 '    mtShowPopup(text, link);\n' +
 '  }, true);\n' +
+
 '});\n' +
 '</scr' + 'ipt>';
 
