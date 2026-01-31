@@ -4207,7 +4207,7 @@ accForm.body.appendChild(fIR);
 fIG.className = "field";
 
 var lIG = document.createElement("label");
-lIG.textContent = "Inputlar orasidagi masofa (px)";
+lIG.textContent = "Oraliq masofa";
 
 var inIG = document.createElement("input");
 inIG.type = "number";
