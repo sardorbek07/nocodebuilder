@@ -5508,6 +5508,41 @@ return "";
 '      }\n' +
 '    }, 1000);\n' +
 '  });\n' +
+'  function mtShowPopup(text, link){\n' +
+'    var p=document.createElement("div");\n' +
+'    p.style.position="fixed";\n' +
+'    p.style.left="50%";\n' +
+'    p.style.top="20px";\n' +
+'    p.style.transform="translateX(-50%)";\n' +
+'    p.style.background="#111";\n' +
+'    p.style.color="#fff";\n' +
+'    p.style.padding="12px 16px";\n' +
+'    p.style.borderRadius="12px";\n' +
+'    p.style.fontSize="14px";\n' +
+'    p.style.zIndex="999999";\n' +
+'    p.style.boxShadow="0 10px 30px rgba(0,0,0,.25)";\n' +
+'    p.textContent=text||"Rahmat, ma’lumotlaringiz yuborildi";\n' +
+'    if(link){\n' +
+'      p.style.cursor="pointer";\n' +
+'      p.onclick=function(){window.open(link,"_blank");};\n' +
+'    }\n' +
+'    document.body.appendChild(p);\n' +
+'    setTimeout(function(){if(p&&p.parentNode)p.parentNode.removeChild(p);},3000);\n' +
+'  }\n' +
+'\n' +
+'  document.addEventListener("submit", function(e){\n' +
+'    var f=e.target;\n' +
+'    if(!f||!f.getAttribute)return;\n' +
+'    if(!f.getAttribute("data-mt-form"))return;\n' +
+'    e.preventDefault();\n' +
+'    if(f.checkValidity && !f.checkValidity()){\n' +
+'      if(f.reportValidity) f.reportValidity();\n' +
+'      return;\n' +
+'    }\n' +
+'    var text=f.getAttribute("data-mt-success")||"Rahmat, ma’lumotlaringiz yuborildi";\n' +
+'    var link=f.getAttribute("data-mt-success-link")||"";\n' +
+'    mtShowPopup(text, link);\n' +
+'  }, true);\n' +
 '});\n' +
 '</scr' + 'ipt>';
 
