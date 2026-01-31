@@ -1682,45 +1682,76 @@ function applyAlign(item, align) {
 
 
 function startResize(e){
+  e.preventDefault();
   e.stopPropagation();
-  const id=e.currentTarget.dataset.id;
-  const block=getCurrentBlock();
-  const item=block?block.items.find(i=>i.id===id):null;
-  if(!item)return;
-  const parent=e.currentTarget.parentElement;
-  let baseWidth=item.width;
-  let baseHeight=item.height;
-  if(!baseWidth||!baseHeight){
-    baseWidth=parent.offsetWidth;
-    baseHeight=parent.offsetHeight;
-  }
-  resizeState={
-    id,
-    startX:e.clientX,
-    startY:e.clientY,
-    startWidth:baseWidth,
-    startHeight:baseHeight
+
+  const id = e.currentTarget.dataset.id;
+  const dir = e.currentTarget.dataset.dir || "right";
+
+  const block = getCurrentBlock();
+  const item = block ? block.items.find(i => i.id === id) : null;
+  if(!item) return;
+
+  const parent = e.currentTarget.parentElement;
+
+  let baseWidth = item.width;
+  let baseHeight = item.height;
+  if(!baseWidth) baseWidth = parent.offsetWidth;
+  if(!baseHeight) baseHeight = parent.offsetHeight;
+
+  resizeState = {
+    id: id,
+    dir: dir,
+    startX: e.clientX,
+    startY: e.clientY,
+    startWidth: baseWidth,
+    startHeight: baseHeight,
+    startLeft: (typeof item.left === "number" ? item.left : 0),
+    startTop: (typeof item.top === "number" ? item.top : 0)
   };
-  document.addEventListener("mousemove",onResizeMove);
-  document.addEventListener("mouseup",stopResize);
+
+  document.addEventListener("mousemove", onResizeMove);
+  document.addEventListener("mouseup", stopResize);
 }
 
 function onResizeMove(e){
-  if(!resizeState)return;
-  const block=getCurrentBlock();
-  const item=block?block.items.find(i=>i.id===resizeState.id):null;
-  if(!item)return;
-  const dx=e.clientX-resizeState.startX;
-  const dy=e.clientY-resizeState.startY;
-  let w=resizeState.startWidth+dx;
-  let h=resizeState.startHeight+dy;
-  if(w<20)w=20;
-  if(h<20)h=20;
-  item.width=Math.round(w);
-  item.height=Math.round(h);
+  if(!resizeState) return;
+
+  const block = getCurrentBlock();
+  const item = block ? block.items.find(i => i.id === resizeState.id) : null;
+  if(!item) return;
+
+  const dx = e.clientX - resizeState.startX;
+  const dy = e.clientY - resizeState.startY;
+  const dir = resizeState.dir;
+
+  const minW = 20;
+  const minH = 20;
+
+  if(dir === "right"){
+    item.width = Math.max(minW, Math.round(resizeState.startWidth + dx));
+  }
+
+  if(dir === "left"){
+    const newW = Math.max(minW, Math.round(resizeState.startWidth - dx));
+    item.width = newW;
+    item.left = Math.round(resizeState.startLeft + dx);
+  }
+
+  if(dir === "bottom"){
+    item.height = Math.max(minH, Math.round(resizeState.startHeight + dy));
+  }
+
+  if(dir === "top"){
+    const newH = Math.max(minH, Math.round(resizeState.startHeight - dy));
+    item.height = newH;
+    item.top = Math.round(resizeState.startTop + dy);
+  }
+
   renderPreview();
   renderSettings();
 }
+
 
 function stopResize(){
   if(!resizeState)return;
@@ -2318,13 +2349,15 @@ if(item.type === "timer"){
 }
 
 if(["image","shape","button"].includes(item.type)){
-    const rh = document.createElement("div");
-    rh.className = "resize-handle";
-    rh.dataset.id = item.id;
-    rh.addEventListener("mousedown", startResize);
-    el.appendChild(rh);
+  ["right","left","top","bottom"].forEach(function(dir){
+    var h = document.createElement("div");
+    h.className = "resize-handle resize-" + dir;
+    h.dataset.id = item.id;
+    h.dataset.dir = dir;
+    h.addEventListener("mousedown", startResize);
+    el.appendChild(h);
+  });
 }
-
     el.addEventListener("mousedown",startDragElement);
   el.addEventListener("click", function (e) {
   e.stopPropagation();
