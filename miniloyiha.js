@@ -4020,6 +4020,7 @@ inTFS.oninput = function(e){
 
 fTFS.appendChild(lTFS);
 fTFS.appendChild(inTFS);
+  mtTuneSettingRow(fTFS, lTFS, inTFS);
 accForm.body.appendChild(fTFS);
 
 
@@ -4065,6 +4066,7 @@ accForm.body.appendChild(fBg);
 
   fIC.appendChild(lIC);
   fIC.appendChild(inIC);
+  mtTuneSettingRow(fIC, lIC, inIC);
  accForm.body.appendChild(fIC);
   var fIBS = document.createElement("div");
 fIBS.className = "field";
@@ -4089,6 +4091,7 @@ inIBS.oninput = function(e){
 
 fIBS.appendChild(lIBS);
 fIBS.appendChild(inIBS);
+  mtTuneSettingRow(fIBS, lIBS, inIBS);
 accForm.body.appendChild(fIBS);
 
   var fIBC = document.createElement("div");
@@ -4111,6 +4114,7 @@ inIBC.oninput = function(e){
 
 fIBC.appendChild(lIBC);
 fIBC.appendChild(inIBC);
+  mtTuneSettingRow(fIBC, lIBC, inIBC);
 accForm.body.appendChild(fIBC);
 
   var fIR = document.createElement("div");
@@ -4136,6 +4140,7 @@ inIR.oninput = function(e){
 
 fIR.appendChild(lIR);
 fIR.appendChild(inIR);
+  mtTuneSettingRow(fIR, lIR, inIR);
 accForm.body.appendChild(fIR);
 
   var fIG = document.createElement("div");
@@ -4161,6 +4166,7 @@ inIG.oninput = function(e){
 
 fIG.appendChild(lIG);
 fIG.appendChild(inIG);
+  mtTuneSettingRow(fIG, lIG, inIG);
 accForm.body.appendChild(fIG);
 
 
@@ -4214,6 +4220,7 @@ inSR.oninput = function(e){
 
 fSR.appendChild(lSR);
 fSR.appendChild(inSR);
+  mtTuneSettingRow(fSR, lSR, inSR);
 accSubmit.body.appendChild(fSR);
 
   var fSBG = document.createElement("div");
@@ -4236,6 +4243,7 @@ inSBG.oninput = function(e){
 
 fSBG.appendChild(lSBG);
 fSBG.appendChild(inSBG);
+  mtTuneSettingRow(fSBG, lSBG, inSBG);
 accSubmit.body.appendChild(fSBG);
 var fSC = document.createElement("div");
 fSC.className = "field";
@@ -4284,6 +4292,7 @@ inSFS.oninput = function(e){
 
 fSFS.appendChild(lSFS);
 fSFS.appendChild(inSFS);
+  mtTuneSettingRow(fSFS, lSFS, inSFS);
 accSubmit.body.appendChild(fSFS);
 
 
