@@ -3790,26 +3790,28 @@ function mtTuneSettingRow(w, l, c){
     c.style.background = "transparent";
   }
 
-  if(type === "number"){
-    c.step = "1";
-    c.inputMode = "numeric";
-    c.addEventListener("keydown", function(e){
-      if(e.key === "ArrowUp"){
-        e.preventDefault();
-        var v = parseInt(String(c.value || "0"), 10);
-        if(isNaN(v)) v = 0;
-        c.value = String(v + 1);
-        c.dispatchEvent(new Event("input"));
-      }
-      if(e.key === "ArrowDown"){
-        e.preventDefault();
-        var v2 = parseInt(String(c.value || "0"), 10);
-        if(isNaN(v2)) v2 = 0;
-        c.value = String(v2 - 1);
-        c.dispatchEvent(new Event("input"));
-      }
-    });
-  }
+ if(type === "number"){
+  c.step = "1";
+  c.inputMode = "numeric";
+
+  c.addEventListener("keydown", function(e){
+    if(e.key === "ArrowUp" || e.key === "ArrowDown"){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+      var v = parseInt(String(c.value || "0"), 10);
+      if(isNaN(v)) v = 0;
+
+      if(e.key === "ArrowUp") v = v + 1;
+      else v = v - 1;
+
+      c.value = String(v);
+      c.dispatchEvent(new Event("input"));
+    }
+  }, true);
+}
+
 }
 
 
