@@ -3874,6 +3874,7 @@ function buildFormSettings(item){
 
   fCrm.appendChild(lCrm);
   fCrm.appendChild(s);
+  mtTuneSettingRow(fCrm, lCrm, s);
   settingsBody.appendChild(fCrm);
   var accForm = mtAcc("Forma stillari");
 settingsBody.appendChild(accForm.wrap);
@@ -3903,6 +3904,7 @@ settingsBody.appendChild(accSuccess.wrap);
   };
   fText.appendChild(l1);
   fText.appendChild(in1);
+  mtTuneSettingRow(fText, l1, in1);
   accSubmit.body.appendChild(fText);
     var fSx = document.createElement("div");
   fSx.className = "field";
@@ -3919,6 +3921,7 @@ settingsBody.appendChild(accSuccess.wrap);
   };
   fSx.appendChild(lSx);
   fSx.appendChild(inSx);
+  mtTuneSettingRow(fSx, lSx, inSx);
   accSuccess.body.appendChild(fSx);
 
   var fSl = document.createElement("div");
@@ -3936,6 +3939,7 @@ settingsBody.appendChild(accSuccess.wrap);
   };
   fSl.appendChild(lSl);
   fSl.appendChild(inSl);
+  mtTuneSettingRow(fSl, lSl, inSl);
   accSuccess.body.appendChild(fSl);
 
  
