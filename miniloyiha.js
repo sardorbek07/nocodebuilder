@@ -3942,11 +3942,15 @@ settingsBody.appendChild(accSuccess.wrap);
     saveCurrentSiteState();
   };
   fSl.appendChild(lSl);
-  fSl.appendChild(inSl);
-  fSl.style.gridTemplateColumns = "1fr";
+fSl.appendChild(inSl);
+
+mtTuneSettingRow(fSl, lSl, inSl);
+
+fSl.style.gridTemplateColumns = "1fr";
 fSl.style.gap = "6px";
-  mtTuneSettingRow(fSl, lSl, inSl);
-  accSuccess.body.appendChild(fSl);
+fSl.style.alignItems = "stretch";
+
+accSuccess.body.appendChild(fSl);
 
  
 
