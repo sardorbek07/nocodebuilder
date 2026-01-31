@@ -3746,6 +3746,7 @@ function mtTuneSettingRow(w, l, c){
   w.style.gridTemplateColumns = "1fr 92px";
   w.style.alignItems = "center";
   w.style.gap = "10px";
+  w.style.marginBottom = "10px";
   w.style.margin = "0";
   w.style.padding = "0";
 
