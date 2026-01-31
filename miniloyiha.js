@@ -4657,6 +4657,19 @@ if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
         head.style.gap = "12px";
         head.style.cursor = "pointer";
         head.style.userSelect = "none";
+        head.type = "button";
+head.style.width = "100%";
+head.style.border = "0";
+head.style.padding = "0";
+head.style.margin = "0";
+head.style.background = "transparent";
+head.style.color = "inherit";
+head.style.textAlign = "left";
+head.style.font = "inherit";
+head.style.lineHeight = "inherit";
+head.style.boxShadow = "none";
+head.style.outline = "none";
+head.style.appearance = "none";
       
 head.dataset.fid = fid0;
 
