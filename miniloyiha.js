@@ -1847,6 +1847,7 @@ if(bgSrc){
   card.setAttribute("data-mt-form", String(item.formKey||""));
   card.style.width="100%";
   card.style.height="100%";
+  card.style.pointerEvents = "none";
  card.style.background = "transparent";
   card.style.border = "none";
   card.style.borderRadius=((item.style && item.style.radius)!=null ? item.style.radius : 16)+"px";
