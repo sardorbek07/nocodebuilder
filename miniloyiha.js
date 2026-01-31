@@ -5076,7 +5076,7 @@ function mtExportFormHtml(item){
     "padding:0;display:flex;flex-direction:column;gap:10px;";
 
   var out = "";
-  out += '<form data-mt-form="1" data-mt-success="' + escapeAttr(item.successText || "Rahmat, ma’lumotlaringiz yuborildi") + '" data-mt-success-link="' + escapeAttr(item.successLink || "") + '" style="' + formStyle + '">';
+  out += '<form data-mt-form="' + escapeAttr(item.formKey || "1") + '" data-mt-success="' + escapeAttr(item.successText || "Rahmat, ma’lumotlaringiz yuborildi") + '" data-mt-success-link="' + escapeAttr(item.successLink || "") + '" style="' + formStyle + '">';
 
   for(var i=0;i<fields.length;i++){
     var f = fields[i] || {};
@@ -5085,7 +5085,8 @@ function mtExportFormHtml(item){
     var ph = String(f.placeholder || "").trim();
     var req = !!f.required;
 
-    out += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:' + ((st.inputGap!=null?st.inputGap:12)) + 'px;">';
+ out += '<div data-mt-field="1" style="display:flex;flex-direction:column;gap:6px;margin-bottom:' + ((st.inputGap!=null?st.inputGap:12)) + 'px;">';
+
 
     if(title){
       out += '<div style="font-size:' + ((st.titleFontSize!=null?st.titleFontSize:14)) + 'px;color:' + escapeAttr(st.titleColor || "rgba(17,24,39,.7)") + ';">' + escapeHtml(title) + '</div>';
@@ -5103,11 +5104,11 @@ function mtExportFormHtml(item){
       "background:" + escapeAttr(st.inputBg || "#ffffff") + ";";
 
     if(t === "textarea"){
-      out += '<textarea ' + (req?'required':'') + ' placeholder="' + escapeAttr(ph) + '" rows="3" style="' + baseStyle + 'height:auto;min-height:90px;resize:vertical;"></textarea>';
+   out += '<textarea data-mt-type="textarea" ' + (req?'required':'') + ' placeholder="' + escapeAttr(ph) + '" rows="3" style="' + baseStyle + 'height:auto;min-height:90px;resize:vertical;"></textarea>';
     }else if(t === "dropdown"){
       var opts = Array.isArray(f.options) ? f.options : [];
       var firstText = String(f.firstText || "Tanlang");
-      out += '<select ' + (req?'required':'') + ' style="' + baseStyle + '">';
+ out += '<select data-mt-type="dropdown" ' + (req?'required':'') + ' style="' + baseStyle + '">';
       out += '<option value="">' + escapeHtml(firstText) + '</option>';
       for(var k=0;k<opts.length;k++){
         var ov = String(opts[k] || "");
@@ -5120,9 +5121,15 @@ function mtExportFormHtml(item){
       else if(t === "phone") itype = "tel";
       else if(t === "date") itype = "date";
       else if(t === "time") itype = "time";
-      out += '<input ' + (req?'required':'') + ' type="' + escapeAttr(itype) + '" placeholder="' + escapeAttr(ph) + '" style="' + baseStyle + '">';
-    }
+     var extra = "";
+if(t === "phone") extra = ' data-mt-type="phone" data-mt-mask="phone"';
+else if(t) extra = ' data-mt-type="' + escapeAttr(t) + '"';
+else extra = ' data-mt-type="text"';
 
+out += '<input' + extra + ' ' + (req?'required':'') + ' type="' + escapeAttr(itype) + '" placeholder="' + escapeAttr(ph) + '" style="' + baseStyle + '">';
+
+    }
+  out += '<div data-mt-err="1" style="display:none;margin-top:6px;font-size:12px;color:#ff3b3b;"></div>';
     out += "</div>";
   }
 
