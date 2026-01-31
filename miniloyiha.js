@@ -3772,9 +3772,11 @@ function mtTuneSettingRow(w, l, c){
   c.style.fontSize = "12px";
 
   if(tag === "textarea"){
-    c.style.height = "72px";
-    c.style.padding = "10px";
-    c.style.resize = "vertical";
+    w.style.gridTemplateColumns = "1fr";
+  w.style.gap = "6px";
+  c.style.height = "86px";
+  c.style.padding = "10px";
+  c.style.resize = "vertical";
   }
 
   if(tag === "select"){
