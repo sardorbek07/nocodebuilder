@@ -5056,6 +5056,90 @@ function buildExportHtml() {
     } catch (e) {}
     return clean;
   }
+  function escapeAttr(str){
+  return String(str || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function mtExportFormHtml(item){
+  var st = item && item.style ? item.style : {};
+  var fields = Array.isArray(item.fields) ? item.fields : [];
+
+  var formStyle =
+    "width:100%;height:100%;" +
+    "background:transparent;border:0;" +
+    "border-radius:" + ((st.radius!=null?st.radius:16)) + "px;" +
+    "padding:0;display:flex;flex-direction:column;gap:10px;";
+
+  var out = "";
+  out += '<form data-mt-form="1" data-mt-success="' + escapeAttr(item.successText || "Rahmat, ma’lumotlaringiz yuborildi") + '" data-mt-success-link="' + escapeAttr(item.successLink || "") + '" style="' + formStyle + '">';
+
+  for(var i=0;i<fields.length;i++){
+    var f = fields[i] || {};
+    var t = String(f.type || "").trim();
+    var title = String(f.title || "").trim();
+    var ph = String(f.placeholder || "").trim();
+    var req = !!f.required;
+
+    out += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:' + ((st.inputGap!=null?st.inputGap:12)) + 'px;">';
+
+    if(title){
+      out += '<div style="font-size:' + ((st.titleFontSize!=null?st.titleFontSize:14)) + 'px;color:' + escapeAttr(st.titleColor || "rgba(17,24,39,.7)") + ';">' + escapeHtml(title) + '</div>';
+    }
+
+    var baseStyle =
+      "width:100%;" +
+      "border:" + ((st.inputBorderSize!=null?st.inputBorderSize:1)) + "px solid " + escapeAttr(st.inputBorderColor || "rgba(17,24,39,.12)") + ";" +
+      "border-radius:" + ((st.inputRadius!=null?st.inputRadius:12)) + "px;" +
+      "padding:10px 12px;" +
+      "height:" + ((st.inputHeight!=null?st.inputHeight:44)) + "px;" +
+      "font-size:" + ((st.inputFontSize!=null?st.inputFontSize:16)) + "px;" +
+      "color:" + escapeAttr(st.inputColor || "#111111") + ";" +
+      "outline:none;" +
+      "background:" + escapeAttr(st.inputBg || "#ffffff") + ";";
+
+    if(t === "textarea"){
+      out += '<textarea ' + (req?'required':'') + ' placeholder="' + escapeAttr(ph) + '" rows="3" style="' + baseStyle + 'height:auto;min-height:90px;resize:vertical;"></textarea>';
+    }else if(t === "dropdown"){
+      var opts = Array.isArray(f.options) ? f.options : [];
+      var firstText = String(f.firstText || "Tanlang");
+      out += '<select ' + (req?'required':'') + ' style="' + baseStyle + '">';
+      out += '<option value="">' + escapeHtml(firstText) + '</option>';
+      for(var k=0;k<opts.length;k++){
+        var ov = String(opts[k] || "");
+        out += '<option value="' + escapeAttr(ov) + '">' + escapeHtml(ov) + '</option>';
+      }
+      out += '</select>';
+    }else{
+      var itype = "text";
+      if(t === "email") itype = "email";
+      else if(t === "phone") itype = "tel";
+      else if(t === "date") itype = "date";
+      else if(t === "time") itype = "time";
+      out += '<input ' + (req?'required':'') + ' type="' + escapeAttr(itype) + '" placeholder="' + escapeAttr(ph) + '" style="' + baseStyle + '">';
+    }
+
+    out += "</div>";
+  }
+
+  var btnStyle =
+    "width:100%;" +
+    "height:" + ((st.submitHeight!=null?st.submitHeight:46)) + "px;" +
+    "border-radius:" + ((st.submitRadius!=null?st.submitRadius:14)) + "px;" +
+    "border:0;" +
+    "background:" + escapeAttr(st.submitBg || "#111111") + ";" +
+    "color:" + escapeAttr(st.submitColor || "#ffffff") + ";" +
+    "font-size:" + ((st.submitFontSize!=null?st.submitFontSize:14)) + "px;" +
+    "cursor:pointer;";
+
+  out += '<button type="submit" style="' + btnStyle + '">' + escapeHtml(item.submitText || "Yuborish") + "</button>";
+  out += "</form>";
+  return out;
+}
 
   var blocks = state.blocks || [];
   var hasTimer = false;
@@ -5322,6 +5406,22 @@ if (item.type === "timer") {
       ' data-mt-seconds="' + seconds + '"' +
       ' style="' + styleT + '">' +
       '00:00</div>'
+  );
+}
+if(item.type === "form"){
+  var wf = item.width ? "width:" + item.width + "px;" : "width:280px;";
+  var hf = item.height ? "height:" + item.height + "px;" : "height:220px;";
+
+  return (
+    '<div style="' +
+    "position:absolute;" +
+    "left:" + left + "px;" +
+    "top:" + top + "px;" +
+    wf +
+    hf +
+    '">' +
+    mtExportFormHtml(item) +
+    "</div>"
   );
 }
 
