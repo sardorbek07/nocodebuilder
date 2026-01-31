@@ -3967,6 +3967,7 @@ settingsBody.appendChild(accSuccess.wrap);
 
   fIH.appendChild(lIH);
   fIH.appendChild(inIH);
+  mtTuneSettingRow(fIH, lIH, inIH);
   accForm.body.appendChild(fIH);
     var fFS = document.createElement("div");
   fFS.className = "field";
@@ -3991,6 +3992,7 @@ settingsBody.appendChild(accSuccess.wrap);
 
   fFS.appendChild(lFS);
   fFS.appendChild(inFS);
+  mtTuneSettingRow(fFS, lFS, inFS);
   accForm.body.appendChild(fFS);
 
   var fTFS = document.createElement("div");
@@ -4049,6 +4051,7 @@ inBg.oninput = function(e){
 
 fBg.appendChild(lBg);
 fBg.appendChild(inBg);
+  mtTuneSettingRow(fBg, lBg, inBg);
 accForm.body.appendChild(fBg);
 
 
@@ -4184,6 +4187,7 @@ inSH.oninput = function(e){
 
 fSH.appendChild(lSH);
 fSH.appendChild(inSH);
+  mtTuneSettingRow(fSH, lSH, inSH);
 accSubmit.body.appendChild(fSH);
 
 
@@ -4253,6 +4257,7 @@ inSC.oninput = function(e){
 
 fSC.appendChild(lSC);
 fSC.appendChild(inSC);
+  mtTuneSettingRow(fSC, lSC, inSC);
 accSubmit.body.appendChild(fSC);
 
 
