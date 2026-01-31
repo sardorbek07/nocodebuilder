@@ -3720,13 +3720,16 @@ function mtAcc(title){
 
   var body = document.createElement("div");
   body.className = "body";
+  body.style.flexDirection = "column";
+body.style.gap = "10px";
+
 
   head.appendChild(t);
   head.appendChild(arrow);
 
   head.onclick = function(){
     var open = body.style.display !== "none";
-    body.style.display = open ? "none" : "block";
+   body.style.display = open ? "none" : "flex";
     arrow.style.transform = open ? "rotate(0deg)" : "rotate(180deg)";
   };
 
@@ -3747,7 +3750,6 @@ function mtTuneSettingRow(w, l, c){
   w.style.alignItems = "center";
   w.style.gap = "10px";
   w.style.marginBottom = "10px";
-  w.style.margin = "0";
   w.style.padding = "0";
 
   l.style.margin = "0";
