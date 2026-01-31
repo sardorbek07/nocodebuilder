@@ -3739,6 +3739,80 @@ function mtAcc(title){
   return { wrap: host, body: body };
 }
 
+function mtTuneSettingRow(w, l, c){
+  if(!w || !l || !c) return;
+
+  w.style.display = "grid";
+  w.style.gridTemplateColumns = "1fr 92px";
+  w.style.alignItems = "center";
+  w.style.gap = "10px";
+  w.style.margin = "0";
+  w.style.padding = "0";
+
+  l.style.margin = "0";
+  l.style.fontSize = "12px";
+  l.style.lineHeight = "1.2";
+  l.style.color = "rgba(255,255,255,.75)";
+  l.style.whiteSpace = "nowrap";
+  l.style.overflow = "hidden";
+  l.style.textOverflow = "ellipsis";
+
+  var tag = (c.tagName || "").toLowerCase();
+  var type = String(c.type || "").toLowerCase();
+
+  c.style.boxSizing = "border-box";
+  c.style.width = "100%";
+  c.style.height = "32px";
+  c.style.borderRadius = "10px";
+  c.style.border = "1px solid rgba(255,255,255,.12)";
+  c.style.background = "rgba(255,255,255,.06)";
+  c.style.color = "#fff";
+  c.style.outline = "none";
+  c.style.padding = "0 10px";
+  c.style.fontSize = "12px";
+
+  if(tag === "textarea"){
+    c.style.height = "72px";
+    c.style.padding = "10px";
+    c.style.resize = "vertical";
+  }
+
+  if(tag === "select"){
+    c.style.height = "32px";
+    c.style.padding = "0 8px";
+  }
+
+  if(type === "color"){
+    c.style.width = "92px";
+    c.style.padding = "0";
+    c.style.borderRadius = "10px";
+    c.style.height = "32px";
+    c.style.background = "transparent";
+  }
+
+  if(type === "number"){
+    c.step = "1";
+    c.inputMode = "numeric";
+    c.addEventListener("keydown", function(e){
+      if(e.key === "ArrowUp"){
+        e.preventDefault();
+        var v = parseInt(String(c.value || "0"), 10);
+        if(isNaN(v)) v = 0;
+        c.value = String(v + 1);
+        c.dispatchEvent(new Event("input"));
+      }
+      if(e.key === "ArrowDown"){
+        e.preventDefault();
+        var v2 = parseInt(String(c.value || "0"), 10);
+        if(isNaN(v2)) v2 = 0;
+        c.value = String(v2 - 1);
+        c.dispatchEvent(new Event("input"));
+      }
+    });
+  }
+}
+
+
 
 
 function buildFormSettings(item){
