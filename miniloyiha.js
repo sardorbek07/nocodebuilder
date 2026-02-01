@@ -3145,21 +3145,31 @@ var hWrap = mtNum("Bo‘y (px)", item.height || 160, function(e){
 });
 settingsBody.appendChild(hWrap);
 
-var rowBorder = document.createElement("div");
-rowBorder.style.display = "flex";
-rowBorder.style.gap = "6px";
+// var rowBorder = document.createElement("div");
+// rowBorder.style.display = "flex";
+// rowBorder.style.gap = "6px";
 
-var bwWrap = mtNum("Border size (px)", item.borderWidth || 0, function(e){
+// var bwWrap = mtNum("Border size (px)", item.borderWidth || 0, function(e){
+//   updateItemField(item, "borderWidth", e.target.value);
+// });
+
+// var bcWrap = mtColor("Border rangi", item.borderColor || "#111827", function(e){
+//   updateItemField(item, "borderColor", e.target.value);
+// });
+
+// rowBorder.appendChild(bwWrap);
+// rowBorder.appendChild(bcWrap);
+// settingsBody.appendChild(rowBorder);
+  var bwWrap = mtNum("Border size (px)", item.borderWidth || 0, function(e){
   updateItemField(item, "borderWidth", e.target.value);
 });
+settingsBody.appendChild(bwWrap);
 
 var bcWrap = mtColor("Border rangi", item.borderColor || "#111827", function(e){
   updateItemField(item, "borderColor", e.target.value);
 });
+settingsBody.appendChild(bcWrap);
 
-rowBorder.appendChild(bwWrap);
-rowBorder.appendChild(bcWrap);
-settingsBody.appendChild(rowBorder);
 
 settingsBody.appendChild(mtNum("Radius (px)", item.radius || 0, function(e){
   updateItemField(item, "radius", e.target.value);
