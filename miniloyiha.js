@@ -4084,12 +4084,14 @@ function mtColor(labelText, value, onInput){
 
   var picker = document.createElement("input");
   picker.type = "color";
+  picker.style.width = "32px";
+picker.style.minWidth = "32px";
 
   var code = document.createElement("input");
   code.type = "text";
   code.placeholder = "#RRGGBB";
-  code.style.flex = "1";
-  code.style.minWidth = "0";
+  code.style.width = "100px";
+code.style.minWidth = "100px";
 
   function normHex(v){
     v = String(v || "").trim();
