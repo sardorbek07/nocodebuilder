@@ -2791,6 +2791,8 @@ rowWH.style.gap = "6px";
 var wWrap = mtNum("En (px)", item.width || 260, function(e){
   updateItemField(item, "width", e.target.value);
 });
+  wWrap.style.flex = "1";
+wWrap.style.minWidth = "0";
 
 
 
