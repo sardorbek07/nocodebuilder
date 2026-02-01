@@ -4514,28 +4514,38 @@ fIBS.appendChild(inIBS);
   mtTuneSettingRow(fIBS, lIBS, inIBS);
 accForm.body.appendChild(fIBS);
 
-  var fIBC = document.createElement("div");
-fIBC.className = "field";
+//   var fIBC = document.createElement("div");
+// fIBC.className = "field";
 
-var lIBC = document.createElement("label");
-lIBC.textContent = "Input border rangi";
+// var lIBC = document.createElement("label");
+// lIBC.textContent = "Input border rangi";
 
-var inIBC = document.createElement("input");
-inIBC.type = "color";
-inIBC.value = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "#111827";
+// var inIBC = document.createElement("input");
+// inIBC.type = "color";
+// inIBC.value = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "#111827";
 
-inIBC.oninput = function(e){
-  if(!item.style) item.style = {};
-  item.style.inputBorderColor = String(e.target.value || "");
-  renderPreview();
-  renderLayers();
-  saveCurrentSiteState();
-};
+// inIBC.oninput = function(e){
+//   if(!item.style) item.style = {};
+//   item.style.inputBorderColor = String(e.target.value || "");
+//   renderPreview();
+//   renderLayers();
+//   saveCurrentSiteState();
+// };
 
-fIBC.appendChild(lIBC);
-fIBC.appendChild(inIBC);
-  mtTuneSettingRow(fIBC, lIBC, inIBC);
-accForm.body.appendChild(fIBC);
+// fIBC.appendChild(lIBC);
+// fIBC.appendChild(inIBC);
+//   mtTuneSettingRow(fIBC, lIBC, inIBC);
+// accForm.body.appendChild(fIBC);
+  accForm.body.appendChild(
+  mtColor("Input border rangi", (item.style && item.style.inputBorderColor) || "#111827", function(e){
+    item.style = item.style || {};
+    item.style.inputBorderColor = e.target.value;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  })
+);
+
 
   var fIR = document.createElement("div");
 fIR.className = "field";
@@ -4671,51 +4681,69 @@ fSR.appendChild(inSR);
   mtTuneSettingRow(fSR, lSR, inSR);
 accSubmit.body.appendChild(fSR);
 
-  var fSBG = document.createElement("div");
-fSBG.className = "field";
+//   var fSBG = document.createElement("div");
+// fSBG.className = "field";
 
-var lSBG = document.createElement("label");
-lSBG.textContent = "Submit background";
+// var lSBG = document.createElement("label");
+// lSBG.textContent = "Submit background";
 
-var inSBG = document.createElement("input");
-inSBG.type = "color";
-inSBG.value = (item.style && item.style.submitBg) ? item.style.submitBg : "#111111";
+// var inSBG = document.createElement("input");
+// inSBG.type = "color";
+// inSBG.value = (item.style && item.style.submitBg) ? item.style.submitBg : "#111111";
 
-inSBG.oninput = function(e){
-  if(!item.style) item.style = {};
-  item.style.submitBg = e.target.value;
-  renderPreview();
-  renderLayers();
-  saveCurrentSiteState();
-};
+// inSBG.oninput = function(e){
+//   if(!item.style) item.style = {};
+//   item.style.submitBg = e.target.value;
+//   renderPreview();
+//   renderLayers();
+//   saveCurrentSiteState();
+// };
 
-fSBG.appendChild(lSBG);
-fSBG.appendChild(inSBG);
-  mtTuneSettingRow(fSBG, lSBG, inSBG);
-accSubmit.body.appendChild(fSBG);
-var fSC = document.createElement("div");
-fSC.className = "field";
+// fSBG.appendChild(lSBG);
+// fSBG.appendChild(inSBG);
+//   mtTuneSettingRow(fSBG, lSBG, inSBG);
+// accSubmit.body.appendChild(fSBG);
+  accSubmit.body.appendChild(
+  mtColor("Submit background", (item.style && item.style.submitBg) || "#111111", function(e){
+    item.style = item.style || {};
+    item.style.submitBg = e.target.value;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  })
+);
 
-var lSC = document.createElement("label");
-lSC.textContent = "Submit matn rangi";
+// var fSC = document.createElement("div");
+// fSC.className = "field";
 
-var inSC = document.createElement("input");
-inSC.type = "color";
-inSC.value = (item.style && item.style.submitColor) ? item.style.submitColor : "#ffffff";
+// var lSC = document.createElement("label");
+// lSC.textContent = "Submit matn rangi";
 
-inSC.oninput = function(e){
-  if(!item.style) item.style = {};
-  item.style.submitColor = e.target.value;
-  renderPreview();
-  renderLayers();
-  saveCurrentSiteState();
-};
+// var inSC = document.createElement("input");
+// inSC.type = "color";
+// inSC.value = (item.style && item.style.submitColor) ? item.style.submitColor : "#ffffff";
 
-fSC.appendChild(lSC);
-fSC.appendChild(inSC);
-  mtTuneSettingRow(fSC, lSC, inSC);
-accSubmit.body.appendChild(fSC);
+// inSC.oninput = function(e){
+//   if(!item.style) item.style = {};
+//   item.style.submitColor = e.target.value;
+//   renderPreview();
+//   renderLayers();
+//   saveCurrentSiteState();
+// };
 
+// fSC.appendChild(lSC);
+// fSC.appendChild(inSC);
+//   mtTuneSettingRow(fSC, lSC, inSC);
+// accSubmit.body.appendChild(fSC);
+accSubmit.body.appendChild(
+  mtColor("Submit matn rangi", (item.style && item.style.submitColor) || "#ffffff", function(e){
+    item.style = item.style || {};
+    item.style.submitColor = e.target.value;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  })
+);
 
 var fSFS = document.createElement("div");
 fSFS.className = "field";
