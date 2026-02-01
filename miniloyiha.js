@@ -4045,7 +4045,7 @@ accSuccess.body.appendChild(fSl);
 fIW.className = "field";
 
 var lIW = document.createElement("label");
-lIW.textContent = "Input width (%)";
+lIW.textContent = "Input width (px)";
 
 var inIW = document.createElement("input");
 inIW.type = "number";
@@ -4055,8 +4055,7 @@ inIW.oninput = function(e){
   if(!item.style) item.style = {};
   var n = parseInt(e.target.value, 10);
   if(!isNaN(n)){
-    if(n < 10) n = 10;
-    if(n > 100) n = 100;
+    if(n < 40) n = 40;
     item.style.inputWidth = n;
     renderPreview();
     renderLayers();
@@ -4322,7 +4321,7 @@ accSubmit.body.appendChild(fSH);
 fSW.className = "field";
 
 var lSW = document.createElement("label");
-lSW.textContent = "Submit width (%)";
+lSW.textContent = "Submit width (px)";
 
 var inSW = document.createElement("input");
 inSW.type = "number";
@@ -4332,14 +4331,14 @@ inSW.oninput = function(e){
   if(!item.style) item.style = {};
   var n = parseInt(e.target.value, 10);
   if(!isNaN(n)){
-    if(n < 10) n = 10;
-    if(n > 100) n = 100;
+    if(n < 40) n = 40;
     item.style.submitWidth = n;
     renderPreview();
     renderLayers();
     saveCurrentSiteState();
   }
 };
+
 
 fSW.appendChild(lSW);
 fSW.appendChild(inSW);
