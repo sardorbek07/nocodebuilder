@@ -3165,6 +3165,11 @@ var hWrap = mtNum("Bo‘y (px)", item.height || 160, function(e){
 
 rowWH.appendChild(wWrap);
 rowWH.appendChild(hWrap);
+  wWrap.style.flex = "1";
+wWrap.style.minWidth = "0";
+
+hWrap.style.flex = "1";
+hWrap.style.minWidth = "0";
 settingsBody.appendChild(rowWH);
 
 // var rowBorder = document.createElement("div");
