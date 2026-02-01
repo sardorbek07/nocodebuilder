@@ -2624,20 +2624,26 @@ function updateOrderFromLayers(){
 
 function buildSectionSettings(block){
   settingsBody.innerHTML="";
-  const fBgColor=document.createElement("div");
-  fBgColor.className="field";
-  const l1=document.createElement("label");
-  l1.textContent="Fon rangi";
-  const inColor=document.createElement("input");
-  inColor.type="color";
-  inColor.value=block.bgColor||"#ffffff";
-  inColor.oninput=function(e){
-    block.bgColor=e.target.value;
-    renderPreview();
-    saveCurrentSiteState();
-  };
-  fBgColor.appendChild(l1);
-  fBgColor.appendChild(inColor);
+  var fBgColor = mtColor("Fon rangi", block.bgColor || "#ffffff", function(e){
+  block.bgColor = e.target.value;
+  renderPreview();
+  saveCurrentSiteState();
+});
+
+  // const fBgColor=document.createElement("div");
+  // fBgColor.className="field";
+  // const l1=document.createElement("label");
+  // l1.textContent="Fon rangi";
+  // const inColor=document.createElement("input");
+  // inColor.type="color";
+  // inColor.value=block.bgColor||"#ffffff";
+  // inColor.oninput=function(e){
+  //   block.bgColor=e.target.value;
+  //   renderPreview();
+  //   saveCurrentSiteState();
+  // };
+  // fBgColor.appendChild(l1);
+  // fBgColor.appendChild(inColor);
 
 const bgUp = mtCreateUploadBox({
   title: "Fon rasm",
@@ -3994,13 +4000,13 @@ function mtTuneSettingRow(w, l, c){
     c.style.padding = "0 8px";
   }
 
-  if(type === "color"){
-    c.style.width = "92px";
-    c.style.padding = "0";
-    c.style.borderRadius = "10px";
-    c.style.height = "32px";
-    c.style.background = "transparent";
-  }
+  // if(type === "color"){
+  //   c.style.width = "92px";
+  //   c.style.padding = "0";
+  //   c.style.borderRadius = "10px";
+  //   c.style.height = "32px";
+  //   c.style.background = "transparent";
+  // }
 
  if(type === "number"){
   c.step = "1";
@@ -4060,16 +4066,79 @@ function mtText(labelText, value, onInput){
   return mtField(labelText, inp);
 }
 
-function mtColor(labelText, value, onInput){
-  var inp = document.createElement("input");
-  inp.type = "color";
-  inp.value = (value && String(value).trim()) ? String(value) : "#111111";
-  inp.oninput = function(e){
-    if(typeof onInput === "function") onInput(e);
-  };
-  return mtField(labelText, inp);
-}
+// function mtColor(labelText, value, onInput){
+//   var inp = document.createElement("input");
+//   inp.type = "color";
+//   inp.value = (value && String(value).trim()) ? String(value) : "#111111";
+//   inp.oninput = function(e){
+//     if(typeof onInput === "function") onInput(e);
+//   };
+//   return mtField(labelText, inp);
+// }
 
+function mtColor(labelText, value, onInput){
+  var wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.gap = "8px";
+  wrap.style.alignItems = "center";
+
+  var picker = document.createElement("input");
+  picker.type = "color";
+
+  var code = document.createElement("input");
+  code.type = "text";
+  code.placeholder = "#RRGGBB";
+  code.style.flex = "1";
+  code.style.minWidth = "0";
+
+  function normHex(v){
+    v = String(v || "").trim();
+    if(!v) return "";
+    if(v[0] !== "#") v = "#" + v;
+    v = v.replace(/[^#0-9a-fA-F]/g, "");
+    if(v.length === 4){
+      v = "#" + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+    }
+    if(/^#[0-9a-fA-F]{6}$/.test(v)) return v.toLowerCase();
+    return null;
+  }
+
+  var start = normHex(value);
+  if(start){
+    picker.value = start;
+    code.value = start;
+  }else{
+    picker.value = "#111111";
+    code.value = "";
+  }
+
+  picker.oninput = function(){
+    var v = String(picker.value || "").trim();
+    code.value = v;
+    if(typeof onInput === "function") onInput({ target: { value: v } });
+  };
+
+  code.oninput = function(){
+    var raw = String(code.value || "");
+    var trimmed = raw.trim();
+
+    if(!trimmed){
+      if(typeof onInput === "function") onInput({ target: { value: "transparent" } });
+      return;
+    }
+
+    var hx = normHex(trimmed);
+    if(hx){
+      picker.value = hx;
+      if(typeof onInput === "function") onInput({ target: { value: hx } });
+    }
+  };
+
+  wrap.appendChild(picker);
+  wrap.appendChild(code);
+
+  return mtField(labelText, wrap);
+}
 
 
 
@@ -4319,60 +4388,81 @@ fTFS.appendChild(inTFS);
   mtTuneSettingRow(fTFS, lTFS, inTFS);
 accForm.body.appendChild(fTFS);
 
-  var fTC = document.createElement("div");
-fTC.className = "field";
+//   var fTC = document.createElement("div");
+// fTC.className = "field";
 
-var lTC = document.createElement("label");
-lTC.textContent = "Title color";
+// var lTC = document.createElement("label");
+// lTC.textContent = "Title color";
 
-var inTC = document.createElement("input");
-inTC.type = "color";
-inTC.value = (item.style && item.style.titleColor) ? item.style.titleColor : "#111111";
+// var inTC = document.createElement("input");
+// inTC.type = "color";
+// inTC.value = (item.style && item.style.titleColor) ? item.style.titleColor : "#111111";
 
-inTC.oninput = function(e){
-  item.style = item.style || {};
-  item.style.titleColor = String(e.target.value || "#111111");
-  renderPreview();
-  renderLayers();
-  saveCurrentSiteState();
-};
+// inTC.oninput = function(e){
+//   item.style = item.style || {};
+//   item.style.titleColor = String(e.target.value || "#111111");
+//   renderPreview();
+//   renderLayers();
+//   saveCurrentSiteState();
+// };
 
-fTC.appendChild(lTC);
-fTC.appendChild(inTC);
-mtTuneSettingRow(fTC, lTC, inTC);
-accForm.body.appendChild(fTC);
+// fTC.appendChild(lTC);
+// fTC.appendChild(inTC);
+// mtTuneSettingRow(fTC, lTC, inTC);
+// accForm.body.appendChild(fTC);
+  accForm.body.appendChild(
+  mtColor("Title color", (item.style && item.style.titleColor) || "#111111", function(e){
+    item.style = item.style || {};
+    item.style.titleColor = e.target.value;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  })
+);
 
 
-    var fIC = document.createElement("div");
-  fIC.className = "field";
 
-  var lIC = document.createElement("label");
-  lIC.textContent = "Input matn rangi";
+//     var fIC = document.createElement("div");
+//   fIC.className = "field";
 
-  var inIC = document.createElement("input");
-  inIC.type = "color";
-  inIC.value = (item.style && item.style.inputColor) ? item.style.inputColor : "#111111";
-  var fBg = document.createElement("div");
-fBg.className = "field";
+//   var lIC = document.createElement("label");
+//   lIC.textContent = "Input matn rangi";
 
-var lBg = document.createElement("label");
-lBg.textContent = "Input background";
+//   var inIC = document.createElement("input");
+//   inIC.type = "color";
+//   inIC.value = (item.style && item.style.inputColor) ? item.style.inputColor : "#111111";
+//   var fBg = document.createElement("div");
+// fBg.className = "field";
 
-var inBg = document.createElement("input");
-inBg.type = "color";
-inBg.value = item.style && item.style.inputBg ? item.style.inputBg : "#ffffff";
-inBg.oninput = function(e){
-  item.style = item.style || {};
-  item.style.inputBg = e.target.value;
-  renderPreview();
-  renderLayers();
-  saveCurrentSiteState();
-};
+// var lBg = document.createElement("label");
+// lBg.textContent = "Input background";
 
-fBg.appendChild(lBg);
-fBg.appendChild(inBg);
-  mtTuneSettingRow(fBg, lBg, inBg);
-accForm.body.appendChild(fBg);
+// var inBg = document.createElement("input");
+// inBg.type = "color";
+// inBg.value = item.style && item.style.inputBg ? item.style.inputBg : "#ffffff";
+// inBg.oninput = function(e){
+//   item.style = item.style || {};
+//   item.style.inputBg = e.target.value;
+//   renderPreview();
+//   renderLayers();
+//   saveCurrentSiteState();
+// };
+
+// fBg.appendChild(lBg);
+// fBg.appendChild(inBg);
+//   mtTuneSettingRow(fBg, lBg, inBg);
+// accForm.body.appendChild(fBg);
+
+  accForm.body.appendChild(
+  mtColor("Input background", (item.style && item.style.inputBg) || "#ffffff", function(e){
+    item.style = item.style || {};
+    item.style.inputBg = e.target.value;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  })
+);
+
 
 
   inIC.oninput = function(e){
