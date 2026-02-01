@@ -3349,161 +3349,249 @@ function buildButtonSettings(item){
   settingsBody.appendChild(del);
 }
 
+// function buildShapeSettings(item){
+//   settingsBody.innerHTML="";
+//   const alignRow=buildAlignRow(item);
+//   settingsBody.appendChild(alignRow);
+
+//   const rowWH=document.createElement("div");
+//   rowWH.style.display="flex";
+//   rowWH.style.gap="6px";
+
+//   const fW=document.createElement("div");
+//   fW.className="field";
+//   const lw=document.createElement("label");
+//   lw.textContent="En (px)";
+//   const inW=document.createElement("input");
+//   inW.type="number";
+//   inW.value=item.width||200;
+//   inW.oninput=function(e){updateItemField(item,"width",e.target.value)};
+//   fW.appendChild(lw);
+//   fW.appendChild(inW);
+
+//   const fH=document.createElement("div");
+//   fH.className="field";
+//   const lh=document.createElement("label");
+//   lh.textContent="Bo‘y (px)";
+//   const inH=document.createElement("input");
+//   inH.type="number";
+//   inH.value=item.height||80;
+//   inH.oninput=function(e){updateItemField(item,"height",e.target.value)};
+//   fH.appendChild(lh);
+//   fH.appendChild(inH);
+
+//   rowWH.appendChild(fW);
+//   rowWH.appendChild(fH);
+
+//   const fBg=document.createElement("div");
+//   fBg.className="field";
+//   const lb=document.createElement("label");
+//   lb.textContent="Fon rangi";
+//   const inBg=document.createElement("input");
+//   inBg.type="color";
+//   inBg.value=item.bgColor||"#e5e7eb";
+//   inBg.oninput=function(e){updateItemField(item,"bgColor",e.target.value)};
+//   fBg.appendChild(lb);
+//   fBg.appendChild(inBg);
+
+//   const rowBorder=document.createElement("div");
+//   rowBorder.style.display="flex";
+//   rowBorder.style.gap="6px";
+
+//   const fBw=document.createElement("div");
+//   fBw.className="field";
+//   const lbw=document.createElement("label");
+//   lbw.textContent="Border size (px)";
+//   const inBw=document.createElement("input");
+//   inBw.type="number";
+//   inBw.value=item.borderWidth||0;
+//   inBw.oninput=function(e){updateItemField(item,"borderWidth",e.target.value)};
+//   fBw.appendChild(lbw);
+//   fBw.appendChild(inBw);
+
+//   const fBc=document.createElement("div");
+//   fBc.className="field";
+//   const lbc=document.createElement("label");
+//   lbc.textContent="Border rangi";
+//   const inBc=document.createElement("input");
+//   inBc.type="color";
+//   inBc.value=item.borderColor||"#111827";
+//   inBc.oninput=function(e){updateItemField(item,"borderColor",e.target.value)};
+//   fBc.appendChild(lbc);
+//   fBc.appendChild(inBc);
+
+//   rowBorder.appendChild(fBw);
+//   rowBorder.appendChild(fBc);
+
+//   const fR=document.createElement("div");
+//   fR.className="field";
+//   const lr=document.createElement("label");
+//   lr.textContent="Radius (px)";
+//   const inR=document.createElement("input");
+//   inR.type="number";
+//   inR.value=item.radius||16;
+//   inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
+//   fR.appendChild(lr);
+//   fR.appendChild(inR);
+// var shapeUp = mtCreateUploadBox({
+//   title: "Fon rasm",
+//   onPick: function(file){
+//     return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+//       var assetId = mtNewAssetId();
+
+//       window.MT_ASSETS[assetId] = {
+//         blob: webpBlob,
+//         mime: "image/webp",
+//         size: webpBlob.size,
+//         name: assetId + ".webp"
+//       };
+
+//       mtSetAssetPreviewUrl(assetId, webpBlob);
+//       mtPreviewPutBlob(assetId, webpBlob);
+
+//       item.assetId = assetId;
+
+//       renderPreview();
+//       renderLayers();
+//       saveCurrentSiteState();
+
+//       return true;
+//     });
+//   }
+// });
+// if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
+
+
+
+//   const fHref=document.createElement("div");
+//   fHref.className="field";
+//   const lh2=document.createElement("label");
+//   lh2.textContent="Havola (href)";
+//   const inHref=document.createElement("input");
+//   inHref.type="text";
+//   inHref.value=item.href||"";
+//   inHref.oninput=function(e){updateItemField(item,"href",e.target.value)};
+//   fHref.appendChild(lh2);
+//   fHref.appendChild(inHref);
+
+//   settingsBody.appendChild(rowWH);
+// settingsBody.appendChild(fBg);
+//   settingsBody.appendChild(rowBorder);
+//   settingsBody.appendChild(fR);
+//   if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
+// if(shapeUp && shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(!!item.assetId);
+
+// if(shapeUp && shapeUp.mtOnClear){
+//   shapeUp.mtOnClear(function(){
+//     if(item.assetId){
+//       mtClearAssetPreviewUrl(item.assetId);
+//     }
+//     item.assetId = "";
+//     if(shapeUp.mtSetDone) shapeUp.mtSetDone(false);
+//     if(shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(false);
+//     renderPreview();
+//     renderLayers();
+//     saveCurrentSiteState();
+//   });
+// }
+
+//   settingsBody.appendChild(shapeUp);
+//   settingsBody.appendChild(fHref);
+
+//   const del=document.createElement("button");
+//   del.className="settings-delete-btn";
+//   const delIcon=document.createElement("div");
+//   delIcon.className="settings-delete-icon";
+//   del.appendChild(delIcon);
+//   del.onclick=function(){deleteItem(item.id)};
+//   settingsBody.appendChild(del);
+// }
 function buildShapeSettings(item){
-  settingsBody.innerHTML="";
-  const alignRow=buildAlignRow(item);
+  settingsBody.innerHTML = "";
+
+  var alignRow = buildAlignRow(item);
   settingsBody.appendChild(alignRow);
 
-  const rowWH=document.createElement("div");
-  rowWH.style.display="flex";
-  rowWH.style.gap="6px";
+  settingsBody.appendChild(mtNum("En (px)", item.width || 200, function(e){
+    updateItemField(item, "width", e.target.value);
+  }));
 
-  const fW=document.createElement("div");
-  fW.className="field";
-  const lw=document.createElement("label");
-  lw.textContent="En (px)";
-  const inW=document.createElement("input");
-  inW.type="number";
-  inW.value=item.width||200;
-  inW.oninput=function(e){updateItemField(item,"width",e.target.value)};
-  fW.appendChild(lw);
-  fW.appendChild(inW);
+  settingsBody.appendChild(mtNum("Bo‘y (px)", item.height || 80, function(e){
+    updateItemField(item, "height", e.target.value);
+  }));
 
-  const fH=document.createElement("div");
-  fH.className="field";
-  const lh=document.createElement("label");
-  lh.textContent="Bo‘y (px)";
-  const inH=document.createElement("input");
-  inH.type="number";
-  inH.value=item.height||80;
-  inH.oninput=function(e){updateItemField(item,"height",e.target.value)};
-  fH.appendChild(lh);
-  fH.appendChild(inH);
+  settingsBody.appendChild(mtColor("Fon rangi", item.bgColor || "#e5e7eb", function(e){
+    updateItemField(item, "bgColor", e.target.value);
+  }));
 
-  rowWH.appendChild(fW);
-  rowWH.appendChild(fH);
+  settingsBody.appendChild(mtNum("Border size (px)", item.borderWidth || 0, function(e){
+    updateItemField(item, "borderWidth", e.target.value);
+  }));
 
-  const fBg=document.createElement("div");
-  fBg.className="field";
-  const lb=document.createElement("label");
-  lb.textContent="Fon rangi";
-  const inBg=document.createElement("input");
-  inBg.type="color";
-  inBg.value=item.bgColor||"#e5e7eb";
-  inBg.oninput=function(e){updateItemField(item,"bgColor",e.target.value)};
-  fBg.appendChild(lb);
-  fBg.appendChild(inBg);
+  settingsBody.appendChild(mtColor("Border rangi", item.borderColor || "#111827", function(e){
+    updateItemField(item, "borderColor", e.target.value);
+  }));
 
-  const rowBorder=document.createElement("div");
-  rowBorder.style.display="flex";
-  rowBorder.style.gap="6px";
+  settingsBody.appendChild(mtNum("Radius (px)", item.radius || 16, function(e){
+    updateItemField(item, "radius", e.target.value);
+  }));
 
-  const fBw=document.createElement("div");
-  fBw.className="field";
-  const lbw=document.createElement("label");
-  lbw.textContent="Border size (px)";
-  const inBw=document.createElement("input");
-  inBw.type="number";
-  inBw.value=item.borderWidth||0;
-  inBw.oninput=function(e){updateItemField(item,"borderWidth",e.target.value)};
-  fBw.appendChild(lbw);
-  fBw.appendChild(inBw);
+  var shapeUp = mtCreateUploadBox({
+    title: "Fon rasm",
+    onPick: function(file){
+      return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
+        var assetId = mtNewAssetId();
 
-  const fBc=document.createElement("div");
-  fBc.className="field";
-  const lbc=document.createElement("label");
-  lbc.textContent="Border rangi";
-  const inBc=document.createElement("input");
-  inBc.type="color";
-  inBc.value=item.borderColor||"#111827";
-  inBc.oninput=function(e){updateItemField(item,"borderColor",e.target.value)};
-  fBc.appendChild(lbc);
-  fBc.appendChild(inBc);
+        window.MT_ASSETS[assetId] = {
+          blob: webpBlob,
+          mime: "image/webp",
+          size: webpBlob.size,
+          name: assetId + ".webp"
+        };
 
-  rowBorder.appendChild(fBw);
-  rowBorder.appendChild(fBc);
+        mtSetAssetPreviewUrl(assetId, webpBlob);
+        mtPreviewPutBlob(assetId, webpBlob);
 
-  const fR=document.createElement("div");
-  fR.className="field";
-  const lr=document.createElement("label");
-  lr.textContent="Radius (px)";
-  const inR=document.createElement("input");
-  inR.type="number";
-  inR.value=item.radius||16;
-  inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
-  fR.appendChild(lr);
-  fR.appendChild(inR);
-var shapeUp = mtCreateUploadBox({
-  title: "Fon rasm",
-  onPick: function(file){
-    return mtCompressToWebp(file, 100 * 1024).then(function(webpBlob){
-      var assetId = mtNewAssetId();
+        item.assetId = assetId;
 
-      window.MT_ASSETS[assetId] = {
-        blob: webpBlob,
-        mime: "image/webp",
-        size: webpBlob.size,
-        name: assetId + ".webp"
-      };
+        renderPreview();
+        renderLayers();
+        saveCurrentSiteState();
 
-      mtSetAssetPreviewUrl(assetId, webpBlob);
-      mtPreviewPutBlob(assetId, webpBlob);
+        return true;
+      });
+    }
+  });
 
-      item.assetId = assetId;
+  if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
+  if(shapeUp && shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(!!item.assetId);
 
+  if(shapeUp && shapeUp.mtOnClear){
+    shapeUp.mtOnClear(function(){
+      if(item.assetId){
+        mtClearAssetPreviewUrl(item.assetId);
+      }
+      item.assetId = "";
+      if(shapeUp.mtSetDone) shapeUp.mtSetDone(false);
+      if(shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(false);
       renderPreview();
       renderLayers();
       saveCurrentSiteState();
-
-      return true;
     });
   }
-});
-if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
-
-
-
-  const fHref=document.createElement("div");
-  fHref.className="field";
-  const lh2=document.createElement("label");
-  lh2.textContent="Havola (href)";
-  const inHref=document.createElement("input");
-  inHref.type="text";
-  inHref.value=item.href||"";
-  inHref.oninput=function(e){updateItemField(item,"href",e.target.value)};
-  fHref.appendChild(lh2);
-  fHref.appendChild(inHref);
-
-  settingsBody.appendChild(rowWH);
-settingsBody.appendChild(fBg);
-  settingsBody.appendChild(rowBorder);
-  settingsBody.appendChild(fR);
-  if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
-if(shapeUp && shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(!!item.assetId);
-
-if(shapeUp && shapeUp.mtOnClear){
-  shapeUp.mtOnClear(function(){
-    if(item.assetId){
-      mtClearAssetPreviewUrl(item.assetId);
-    }
-    item.assetId = "";
-    if(shapeUp.mtSetDone) shapeUp.mtSetDone(false);
-    if(shapeUp.mtSetClearVisible) shapeUp.mtSetClearVisible(false);
-    renderPreview();
-    renderLayers();
-    saveCurrentSiteState();
-  });
-}
 
   settingsBody.appendChild(shapeUp);
-  settingsBody.appendChild(fHref);
 
-  const del=document.createElement("button");
-  del.className="settings-delete-btn";
-  const delIcon=document.createElement("div");
-  delIcon.className="settings-delete-icon";
+  settingsBody.appendChild(mtText("Havola (href)", item.href || "", function(e){
+    updateItemField(item, "href", e.target.value);
+  }));
+
+  var del = document.createElement("button");
+  del.className = "settings-delete-btn";
+  var delIcon = document.createElement("div");
+  delIcon.className = "settings-delete-icon";
   del.appendChild(delIcon);
-  del.onclick=function(){deleteItem(item.id)};
+  del.onclick = function(){ deleteItem(item.id); };
   settingsBody.appendChild(del);
 }
 
