@@ -4254,14 +4254,6 @@ inIW.oninput = function(e){
   if(!isNaN(n)){
     if(n < 40) n = 40;
     item.style.inputWidth = n;
-    var w1 = parseInt(item.style.inputWidth || 0, 10) || 0;
-var w2 = parseInt(item.style.submitWidth || 0, 10) || 0;
-item.width = Math.max(w1, w2, 1);
-
-if(item.align === "center" || item.align === "right"){
-  applyAlign(item, item.align);
-}
-
     renderPreview();
     renderLayers();
     saveCurrentSiteState();
@@ -4538,14 +4530,6 @@ inSW.oninput = function(e){
   if(!isNaN(n)){
     if(n < 40) n = 40;
     item.style.submitWidth = n;
-    var w1 = parseInt(item.style.inputWidth || 0, 10) || 0;
-var w2 = parseInt(item.style.submitWidth || 0, 10) || 0;
-item.width = Math.max(w1, w2, 1);
-
-if(item.align === "center" || item.align === "right"){
-  applyAlign(item, item.align);
-}
-
     renderPreview();
     renderLayers();
     saveCurrentSiteState();
