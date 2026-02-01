@@ -2792,12 +2792,9 @@ var wWrap = mtNum("En (px)", item.width || 260, function(e){
   updateItemField(item, "width", e.target.value);
 });
 
-var hWrap = mtNum("Bo‘y (px, ixtiyoriy)", item.height || "", function(e){
-  updateItemField(item, "height", e.target.value);
-});
+
 
 rowWH.appendChild(wWrap);
-rowWH.appendChild(hWrap);
 settingsBody.appendChild(rowWH);
 
 settingsBody.appendChild(mtColor("Matn rangi", item.color || "#111827", function(e){
