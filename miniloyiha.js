@@ -2784,20 +2784,20 @@ settingsBody.appendChild(mtNum("Shrift o‘lchami (px)", item.fontSize || 18, fu
   updateItemField(item, "fontSize", e.target.value);
 }));
 
-// var rowWH = document.createElement("div");
-// rowWH.style.display = "flex";
-// rowWH.style.gap = "6px";
+var rowWH = document.createElement("div");
+rowWH.style.display = "flex";
+rowWH.style.gap = "6px";
 
-// var wWrap = mtNum("En (px)", item.width || 260, function(e){
-//   updateItemField(item, "width", e.target.value);
-// });
-//   wWrap.style.flex = "1";
-// wWrap.style.minWidth = "0";
+var wWrap = mtNum("En (px)", item.width || 260, function(e){
+  updateItemField(item, "width", e.target.value);
+});
+  wWrap.style.flex = "1";
+wWrap.style.minWidth = "0";
 
 
 
-// rowWH.appendChild(wWrap);
-// settingsBody.appendChild(rowWH);
+rowWH.appendChild(wWrap);
+settingsBody.appendChild(rowWH);
 
 settingsBody.appendChild(mtColor("Matn rangi", item.color || "#111827", function(e){
   updateItemField(item, "color", e.target.value);
@@ -3112,44 +3112,6 @@ if(imgUp && imgUp.mtOnClear){
 
   
 settingsBody.appendChild(imgUp);
-var rowAll = document.createElement("div");
-rowAll.style.display = "flex";
-rowAll.style.gap = "6px";
-
-var wWrap = mtNum("En", item.width || 260, function(e){
-  updateItemField(item, "width", e.target.value);
-});
-wWrap.style.flex = "1";
-wWrap.style.minWidth = "0";
-wWrap.style.marginBottom = "0";
-
-var hWrap = mtNum("Bo‘y", item.height || 160, function(e){
-  updateItemField(item, "height", e.target.value);
-});
-hWrap.style.flex = "1";
-hWrap.style.minWidth = "0";
-hWrap.style.marginBottom = "0";
-
-var bwWrap = mtNum("Border", item.borderWidth || 0, function(e){
-  updateItemField(item, "borderWidth", e.target.value);
-});
-bwWrap.style.flex = "1";
-bwWrap.style.minWidth = "0";
-bwWrap.style.marginBottom = "0";
-
-var bcWrap = mtColor("Rang", item.borderColor || "#111827", function(e){
-  updateItemField(item, "borderColor", e.target.value);
-});
-bcWrap.style.flex = "1";
-bcWrap.style.minWidth = "0";
-bcWrap.style.marginBottom = "0";
-
-rowAll.appendChild(wWrap);
-rowAll.appendChild(hWrap);
-rowAll.appendChild(bwWrap);
-rowAll.appendChild(bcWrap);
-
-settingsBody.appendChild(rowAll);
 
 var rowWH = document.createElement("div");
 rowWH.style.display = "flex";
@@ -3172,21 +3134,21 @@ hWrap.style.flex = "1";
 hWrap.style.minWidth = "0";
 settingsBody.appendChild(rowWH);
 
-// var rowBorder = document.createElement("div");
-// rowBorder.style.display = "flex";
-// rowBorder.style.gap = "6px";
+var rowBorder = document.createElement("div");
+rowBorder.style.display = "flex";
+rowBorder.style.gap = "6px";
 
-// var bwWrap = mtNum("Border size (px)", item.borderWidth || 0, function(e){
-//   updateItemField(item, "borderWidth", e.target.value);
-// });
+var bwWrap = mtNum("Border size (px)", item.borderWidth || 0, function(e){
+  updateItemField(item, "borderWidth", e.target.value);
+});
 
-// var bcWrap = mtColor("Border rangi", item.borderColor || "#111827", function(e){
-//   updateItemField(item, "borderColor", e.target.value);
-// });
+var bcWrap = mtColor("Border rangi", item.borderColor || "#111827", function(e){
+  updateItemField(item, "borderColor", e.target.value);
+});
 
-// rowBorder.appendChild(bwWrap);
-// rowBorder.appendChild(bcWrap);
-// settingsBody.appendChild(rowBorder);
+rowBorder.appendChild(bwWrap);
+rowBorder.appendChild(bcWrap);
+settingsBody.appendChild(rowBorder);
 
 settingsBody.appendChild(mtNum("Radius (px)", item.radius || 0, function(e){
   updateItemField(item, "radius", e.target.value);
