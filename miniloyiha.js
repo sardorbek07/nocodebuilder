@@ -4081,6 +4081,7 @@ function mtColor(labelText, value, onInput){
   wrap.style.display = "flex";
   wrap.style.gap = "8px";
   wrap.style.alignItems = "center";
+  wrap.style.width = "100%";
 
   var picker = document.createElement("input");
   picker.type = "color";
@@ -4090,9 +4091,8 @@ picker.style.minWidth = "32px";
   var code = document.createElement("input");
   code.type = "text";
   code.placeholder = "#RRGGBB";
-  code.style.width = "100px";
-code.style.minWidth = "100px";
-
+code.style.width = "120px";
+code.style.minWidth = "120px";
   function normHex(v){
     v = String(v || "").trim();
     if(!v) return "";
