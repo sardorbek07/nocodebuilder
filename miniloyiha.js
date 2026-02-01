@@ -5175,7 +5175,8 @@ function mtExportFormHtml(item){
     var ph = String(f.placeholder || "").trim();
     var req = !!f.required;
 
- out += '<div data-mt-field="1" style="display:flex;flex-direction:column;gap:6px;margin-bottom:' + ((st.inputGap!=null?st.inputGap:12)) + 'px;">';
+out += '<div data-mt-field="1" style="position:relative;display:flex;flex-direction:column;gap:6px;margin-bottom:' + ((st.inputGap!=null?st.inputGap:12)) + 'px;">';
+
 
 
     if(title){
@@ -5222,7 +5223,7 @@ else extra = ' data-mt-type="text"';
 out += '<input' + extra + ' ' + (req?'required':'') + ' type="' + escapeAttr(itype) + '" placeholder="' + escapeAttr(ph) + '" style="' + baseStyle + '">';
 
     }
-  out += '<div data-mt-err="1" style="display:none;margin-top:6px;font-size:12px;color:#ff3b3b;"></div>';
+out += '<div data-mt-err="1" style="display:none;position:absolute;left:0;top:100%;margin-top:6px;font-size:12px;color:#ff3b3b;line-height:1.2;pointer-events:none;z-index:5;"></div>';
     out += "</div>";
   }
 
