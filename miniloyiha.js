@@ -1390,9 +1390,9 @@ window.mtAddStandardForm = function(){
   padding: 12,
 
   inputHeight: 44,
-  inputWidth: 100,
+ inputWidth: 280,
   titleColor: "rgba(17,24,39,.7)",
-  submitWidth: 100,
+  submitWidth: 280,
   inputFontSize: 16,
   inputColor: "#111111",
   inputBg: "#ffffff",
@@ -5184,7 +5184,10 @@ function mtExportFormHtml(item){
     }
 
     var baseStyle =
-     "width:" + ((st.inputWidth!=null?st.inputWidth:100)) + "%;" +
+  "box-sizing:border-box;" +
+"display:block;" +
+"width:" + ((st.inputWidth!=null?st.inputWidth:280)) + "px;" +
+
       "border:" + ((st.inputBorderSize!=null?st.inputBorderSize:1)) + "px solid " + escapeAttr(st.inputBorderColor || "rgba(17,24,39,.12)") + ";" +
       "border-radius:" + ((st.inputRadius!=null?st.inputRadius:12)) + "px;" +
       "padding:10px 12px;" +
@@ -5225,7 +5228,10 @@ out += '<input' + extra + ' ' + (req?'required':'') + ' type="' + escapeAttr(ity
   }
 
   var btnStyle =
-   "width:" + ((st.submitWidth!=null?st.submitWidth:100)) + "%;" +
+ "box-sizing:border-box;" +
+"display:flex;align-items:center;justify-content:center;" +
+"width:" + ((st.submitWidth!=null?st.submitWidth:280)) + "px;" +
+
     "height:" + ((st.submitHeight!=null?st.submitHeight:46)) + "px;" +
     "border-radius:" + ((st.submitRadius!=null?st.submitRadius:14)) + "px;" +
     "border:0;" +
