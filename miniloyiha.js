@@ -6309,16 +6309,36 @@ if (
   if(e.key==="Escape"&&editorOverlay&&editorOverlay.style.display!=="none"){
     editorOverlay.style.display="none";
   }
-  if((e.key==="Backspace"||e.key==="Delete")&&editorOverlay&&editorOverlay.style.display!=="none"){
-    const target=e.target;
-    const tag=target.tagName;
-    if(tag==="INPUT"||tag==="TEXTAREA")return;
-    if(target.isContentEditable)return;
-    if(state.selectedId){
-      e.preventDefault();
-      deleteItem(state.selectedId);
-    }
+  // if((e.key==="Backspace"||e.key==="Delete")&&editorOverlay&&editorOverlay.style.display!=="none"){
+  //   const target=e.target;
+  //   const tag=target.tagName;
+  //   if(tag==="INPUT"||tag==="TEXTAREA")return;
+  //   if(target.isContentEditable)return;
+  //   if(state.selectedId){
+  //     e.preventDefault();
+  //     deleteItem(state.selectedId);
+  //   }
+  // }
+  if((e.key==="Backspace"||e.key==="Delete") && editorOverlay && editorOverlay.style.display!=="none"){
+  var path = (typeof e.composedPath === "function") ? e.composedPath() : [];
+  for(var i=0;i<path.length;i++){
+    var n = path[i];
+    if(!n) continue;
+    var tag = n.tagName;
+    if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    if(n.isContentEditable) return;
   }
+
+  var t = e.target;
+  if(t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
+  if(t && t.isContentEditable) return;
+
+  if(state.selectedId){
+    e.preventDefault();
+    deleteItem(state.selectedId);
+  }
+}
+
 });
 
 if(previewShell){
