@@ -3120,6 +3120,8 @@ settingsBody.appendChild(imgUp);
 
   const fW=document.createElement("div");
   fW.className="field";
+  fW.style.flex = "1";
+fW.style.minWidth = "0";
   const lw=document.createElement("label");
   lw.textContent="En (px)";
   const inW=document.createElement("input");
@@ -3131,6 +3133,8 @@ settingsBody.appendChild(imgUp);
 
   const fH=document.createElement("div");
   fH.className="field";
+  fH.style.flex = "1";
+fH.style.minWidth = "0";
   const lh=document.createElement("label");
   lh.textContent="Bo‘y (px)";
   const inH=document.createElement("input");
