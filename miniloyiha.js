@@ -3475,7 +3475,7 @@ if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
   fHref.appendChild(inHref);
 
   settingsBody.appendChild(rowWH);
- accForm.body.appendChild(fBg);
+settingsBody.appendChild(fBg);
   settingsBody.appendChild(rowBorder);
   settingsBody.appendChild(fR);
   if(shapeUp && shapeUp.mtSetDone) shapeUp.mtSetDone(!!item.assetId);
