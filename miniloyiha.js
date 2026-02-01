@@ -3190,162 +3190,216 @@ settingsBody.appendChild(mtText("Havola (href)", item.href || "", function(e){
   settingsBody.appendChild(del);
 }
 
+// function buildButtonSettings(item){
+//   settingsBody.innerHTML="";
+//   const alignRow=buildAlignRow(item);
+//   settingsBody.appendChild(alignRow);
+
+//   const fText=document.createElement("div");
+//   fText.className="field";
+//   const l1=document.createElement("label");
+//   l1.textContent="Tugma matni";
+//   const inText=document.createElement("input");
+//   inText.type="text";
+//   inText.value=item.text||"";
+//   inText.oninput=function(e){updateItemField(item,"text",e.target.value)};
+//   fText.appendChild(l1);
+//   fText.appendChild(inText);
+
+//   const fHref=document.createElement("div");
+//   fHref.className="field";
+//   const l2=document.createElement("label");
+//   l2.textContent="Havola (href)";
+//   const inHref=document.createElement("input");
+//   inHref.type="text";
+//   inHref.value=item.href||"";
+//   inHref.oninput=function(e){updateItemField(item,"href",e.target.value)};
+//   fHref.appendChild(l2);
+//   fHref.appendChild(inHref);
+
+//   const row1=document.createElement("div");
+//   row1.style.display="flex";
+//   row1.style.gap="6px";
+
+//   const fFont=document.createElement("div");
+//   fFont.className="field";
+//   const lf=document.createElement("label");
+//   lf.textContent="Matn o‘lchami (px)";
+//   const inFont=document.createElement("input");
+//   inFont.type="number";
+//   inFont.value=item.fontSize||14;
+//   inFont.oninput=function(e){updateItemField(item,"fontSize",e.target.value)};
+//   fFont.appendChild(lf);
+//   fFont.appendChild(inFont);
+
+//   const fR=document.createElement("div");
+//   fR.className="field";
+//   const lr=document.createElement("label");
+//   lr.textContent="Radius (px)";
+//   const inR=document.createElement("input");
+//   inR.type="number";
+//   inR.value=item.radius||999;
+//   inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
+//   fR.appendChild(lr);
+//   fR.appendChild(inR);
+
+//   row1.appendChild(fFont);
+//   row1.appendChild(fR);
+
+//   const row2=document.createElement("div");
+//   row2.style.display="flex";
+//   row2.style.gap="6px";
+
+//   const fW=document.createElement("div");
+//   fW.className="field";
+//   const lw=document.createElement("label");
+//   lw.textContent="En (px, ixtiyoriy)";
+//   const inW=document.createElement("input");
+//   inW.type="number";
+//   inW.value=item.width||"";
+//   inW.oninput=function(e){updateItemField(item,"width",e.target.value)};
+//   fW.appendChild(lw);
+//   fW.appendChild(inW);
+
+//   const fH=document.createElement("div");
+//   fH.className="field";
+//   const lh=document.createElement("label");
+//   lh.textContent="Bo‘y (px, ixtiyoriy)";
+//   const inH=document.createElement("input");
+//   inH.type="number";
+//   inH.value=item.height||"";
+//   inH.oninput=function(e){updateItemField(item,"height",e.target.value)};
+//   fH.appendChild(lh);
+//   fH.appendChild(inH);
+
+//   row2.appendChild(fW);
+//   row2.appendChild(fH);
+
+//   const row3=document.createElement("div");
+//   row3.style.display="flex";
+//   row3.style.gap="6px";
+
+//   const fColor=document.createElement("div");
+//   fColor.className="field";
+//   const lc=document.createElement("label");
+//   lc.textContent="Matn rangi";
+//   const inC=document.createElement("input");
+//   inC.type="color";
+//   inC.value=item.color||"#f9fafb";
+//   inC.oninput=function(e){updateItemField(item,"color",e.target.value)};
+//   fColor.appendChild(lc);
+//   fColor.appendChild(inC);
+
+//   const fBg=document.createElement("div");
+//   fBg.className="field";
+//   const lbg=document.createElement("label");
+//   lbg.textContent="Fon rangi";
+//   const inBg=document.createElement("input");
+//   inBg.type="color";
+//   inBg.value=item.bgColor||"#111827";
+//   inBg.oninput=function(e){updateItemField(item,"bgColor",e.target.value)};
+//   fBg.appendChild(lbg);
+//   fBg.appendChild(inBg);
+
+//   row3.appendChild(fColor);
+//   row3.appendChild(fBg);
+
+//   const row4=document.createElement("div");
+//   row4.style.display="flex";
+//   row4.style.gap="6px";
+
+//   const fBw=document.createElement("div");
+//   fBw.className="field";
+//   const lbw=document.createElement("label");
+//   lbw.textContent="Border size (px)";
+//   const inBw=document.createElement("input");
+//   inBw.type="number";
+//   inBw.value=item.borderWidth||0;
+//   inBw.oninput=function(e){updateItemField(item,"borderWidth",e.target.value)};
+//   fBw.appendChild(lbw);
+//   fBw.appendChild(inBw);
+
+//   const fBc=document.createElement("div");
+//   fBc.className="field";
+//   const lbc=document.createElement("label");
+//   lbc.textContent="Border rangi";
+//   const inBc=document.createElement("input");
+//   inBc.type="color";
+//   inBc.value=item.borderColor||"#111827";
+//   inBc.oninput=function(e){updateItemField(item,"borderColor",e.target.value)};
+//   fBc.appendChild(lbc);
+//   fBc.appendChild(inBc);
+
+//   row4.appendChild(fBw);
+//   row4.appendChild(fBc);
+
+//   settingsBody.appendChild(fText);
+//   settingsBody.appendChild(fHref);
+//   settingsBody.appendChild(row1);
+//   settingsBody.appendChild(row2);
+//   settingsBody.appendChild(row3);
+//   settingsBody.appendChild(row4);
+
+//   const del=document.createElement("button");
+//   del.className="settings-delete-btn";
+//   const delIcon=document.createElement("div");
+//   delIcon.className="settings-delete-icon";
+//   del.appendChild(delIcon);
+//   del.onclick=function(){deleteItem(item.id)};
+//   settingsBody.appendChild(del);
+// }
 function buildButtonSettings(item){
-  settingsBody.innerHTML="";
-  const alignRow=buildAlignRow(item);
+  settingsBody.innerHTML = "";
+
+  var alignRow = buildAlignRow(item);
   settingsBody.appendChild(alignRow);
 
-  const fText=document.createElement("div");
-  fText.className="field";
-  const l1=document.createElement("label");
-  l1.textContent="Tugma matni";
-  const inText=document.createElement("input");
-  inText.type="text";
-  inText.value=item.text||"";
-  inText.oninput=function(e){updateItemField(item,"text",e.target.value)};
-  fText.appendChild(l1);
-  fText.appendChild(inText);
+  settingsBody.appendChild(mtNum("En (px)", item.width || 160, function(e){
+    updateItemField(item, "width", e.target.value);
+  }));
 
-  const fHref=document.createElement("div");
-  fHref.className="field";
-  const l2=document.createElement("label");
-  l2.textContent="Havola (href)";
-  const inHref=document.createElement("input");
-  inHref.type="text";
-  inHref.value=item.href||"";
-  inHref.oninput=function(e){updateItemField(item,"href",e.target.value)};
-  fHref.appendChild(l2);
-  fHref.appendChild(inHref);
+  settingsBody.appendChild(mtNum("Bo‘y (px)", item.height || 50, function(e){
+    updateItemField(item, "height", e.target.value);
+  }));
 
-  const row1=document.createElement("div");
-  row1.style.display="flex";
-  row1.style.gap="6px";
+  settingsBody.appendChild(mtText("Matn", item.text || "Tugma", function(e){
+    updateItemField(item, "text", e.target.value);
+  }));
 
-  const fFont=document.createElement("div");
-  fFont.className="field";
-  const lf=document.createElement("label");
-  lf.textContent="Matn o‘lchami (px)";
-  const inFont=document.createElement("input");
-  inFont.type="number";
-  inFont.value=item.fontSize||14;
-  inFont.oninput=function(e){updateItemField(item,"fontSize",e.target.value)};
-  fFont.appendChild(lf);
-  fFont.appendChild(inFont);
+  settingsBody.appendChild(mtNum("Font size (px)", item.fontSize || 14, function(e){
+    updateItemField(item, "fontSize", e.target.value);
+  }));
 
-  const fR=document.createElement("div");
-  fR.className="field";
-  const lr=document.createElement("label");
-  lr.textContent="Radius (px)";
-  const inR=document.createElement("input");
-  inR.type="number";
-  inR.value=item.radius||999;
-  inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
-  fR.appendChild(lr);
-  fR.appendChild(inR);
+  settingsBody.appendChild(mtColor("Matn rangi", item.color || "#ffffff", function(e){
+    updateItemField(item, "color", e.target.value);
+  }));
 
-  row1.appendChild(fFont);
-  row1.appendChild(fR);
+  settingsBody.appendChild(mtColor("Fon rangi", item.bgColor || "#111827", function(e){
+    updateItemField(item, "bgColor", e.target.value);
+  }));
 
-  const row2=document.createElement("div");
-  row2.style.display="flex";
-  row2.style.gap="6px";
+  settingsBody.appendChild(mtNum("Border size (px)", item.borderWidth || 0, function(e){
+    updateItemField(item, "borderWidth", e.target.value);
+  }));
 
-  const fW=document.createElement("div");
-  fW.className="field";
-  const lw=document.createElement("label");
-  lw.textContent="En (px, ixtiyoriy)";
-  const inW=document.createElement("input");
-  inW.type="number";
-  inW.value=item.width||"";
-  inW.oninput=function(e){updateItemField(item,"width",e.target.value)};
-  fW.appendChild(lw);
-  fW.appendChild(inW);
+  settingsBody.appendChild(mtColor("Border rangi", item.borderColor || "#111827", function(e){
+    updateItemField(item, "borderColor", e.target.value);
+  }));
 
-  const fH=document.createElement("div");
-  fH.className="field";
-  const lh=document.createElement("label");
-  lh.textContent="Bo‘y (px, ixtiyoriy)";
-  const inH=document.createElement("input");
-  inH.type="number";
-  inH.value=item.height||"";
-  inH.oninput=function(e){updateItemField(item,"height",e.target.value)};
-  fH.appendChild(lh);
-  fH.appendChild(inH);
+  settingsBody.appendChild(mtNum("Radius (px)", item.radius || 999, function(e){
+    updateItemField(item, "radius", e.target.value);
+  }));
 
-  row2.appendChild(fW);
-  row2.appendChild(fH);
+  settingsBody.appendChild(mtText("Havola (href)", item.href || "", function(e){
+    updateItemField(item, "href", e.target.value);
+  }));
 
-  const row3=document.createElement("div");
-  row3.style.display="flex";
-  row3.style.gap="6px";
-
-  const fColor=document.createElement("div");
-  fColor.className="field";
-  const lc=document.createElement("label");
-  lc.textContent="Matn rangi";
-  const inC=document.createElement("input");
-  inC.type="color";
-  inC.value=item.color||"#f9fafb";
-  inC.oninput=function(e){updateItemField(item,"color",e.target.value)};
-  fColor.appendChild(lc);
-  fColor.appendChild(inC);
-
-  const fBg=document.createElement("div");
-  fBg.className="field";
-  const lbg=document.createElement("label");
-  lbg.textContent="Fon rangi";
-  const inBg=document.createElement("input");
-  inBg.type="color";
-  inBg.value=item.bgColor||"#111827";
-  inBg.oninput=function(e){updateItemField(item,"bgColor",e.target.value)};
-  fBg.appendChild(lbg);
-  fBg.appendChild(inBg);
-
-  row3.appendChild(fColor);
-  row3.appendChild(fBg);
-
-  const row4=document.createElement("div");
-  row4.style.display="flex";
-  row4.style.gap="6px";
-
-  const fBw=document.createElement("div");
-  fBw.className="field";
-  const lbw=document.createElement("label");
-  lbw.textContent="Border size (px)";
-  const inBw=document.createElement("input");
-  inBw.type="number";
-  inBw.value=item.borderWidth||0;
-  inBw.oninput=function(e){updateItemField(item,"borderWidth",e.target.value)};
-  fBw.appendChild(lbw);
-  fBw.appendChild(inBw);
-
-  const fBc=document.createElement("div");
-  fBc.className="field";
-  const lbc=document.createElement("label");
-  lbc.textContent="Border rangi";
-  const inBc=document.createElement("input");
-  inBc.type="color";
-  inBc.value=item.borderColor||"#111827";
-  inBc.oninput=function(e){updateItemField(item,"borderColor",e.target.value)};
-  fBc.appendChild(lbc);
-  fBc.appendChild(inBc);
-
-  row4.appendChild(fBw);
-  row4.appendChild(fBc);
-
-  settingsBody.appendChild(fText);
-  settingsBody.appendChild(fHref);
-  settingsBody.appendChild(row1);
-  settingsBody.appendChild(row2);
-  settingsBody.appendChild(row3);
-  settingsBody.appendChild(row4);
-
-  const del=document.createElement("button");
-  del.className="settings-delete-btn";
-  const delIcon=document.createElement("div");
-  delIcon.className="settings-delete-icon";
+  var del = document.createElement("button");
+  del.className = "settings-delete-btn";
+  var delIcon = document.createElement("div");
+  delIcon.className = "settings-delete-icon";
   del.appendChild(delIcon);
-  del.onclick=function(){deleteItem(item.id)};
+  del.onclick = function(){ deleteItem(item.id); };
   settingsBody.appendChild(del);
 }
 
