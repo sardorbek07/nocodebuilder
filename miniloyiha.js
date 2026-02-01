@@ -2780,72 +2780,33 @@ function buildTextSettings(item){
   textAlignRow.appendChild(ra);
   settingsBody.appendChild(textAlignRow);
 
-  const fSize=document.createElement("div");
-  fSize.className="field";
-  const l2=document.createElement("label");
-  l2.textContent="Shrift o‘lchami (px)";
-  const inSize=document.createElement("input");
-  inSize.type="number";
-  inSize.value=item.fontSize||18;
-  inSize.oninput=function(e){updateItemField(item,"fontSize",e.target.value)};
-  fSize.appendChild(l2);
-  fSize.appendChild(inSize);
+settingsBody.appendChild(mtNum("Shrift o‘lchami (px)", item.fontSize || 18, function(e){
+  updateItemField(item, "fontSize", e.target.value);
+}));
 
-  const rowWH=document.createElement("div");
-  rowWH.style.display="flex";
-  rowWH.style.gap="6px";
+var rowWH = document.createElement("div");
+rowWH.style.display = "flex";
+rowWH.style.gap = "6px";
 
-  const fW=document.createElement("div");
-  fW.className="field";
-  const lw=document.createElement("label");
-  lw.textContent="En (px)";
-  const inW=document.createElement("input");
-  inW.type="number";
-  inW.value=item.width||260;
-  inW.oninput=function(e){updateItemField(item,"width",e.target.value)};
-  fW.appendChild(lw);
-  fW.appendChild(inW);
+var wWrap = mtNum("En (px)", item.width || 260, function(e){
+  updateItemField(item, "width", e.target.value);
+});
 
-  const fH=document.createElement("div");
-  fH.className="field";
-  const lh=document.createElement("label");
-  lh.textContent="Bo‘y (px, ixtiyoriy)";
-  const inH=document.createElement("input");
-  inH.type="number";
-  inH.value=item.height||"";
-  inH.oninput=function(e){updateItemField(item,"height",e.target.value)};
-  fH.appendChild(lh);
-  fH.appendChild(inH);
+var hWrap = mtNum("Bo‘y (px, ixtiyoriy)", item.height || "", function(e){
+  updateItemField(item, "height", e.target.value);
+});
 
-  rowWH.appendChild(fW);
-  rowWH.appendChild(fH);
+rowWH.appendChild(wWrap);
+rowWH.appendChild(hWrap);
+settingsBody.appendChild(rowWH);
 
-  const fColor=document.createElement("div");
-  fColor.className="field";
-  const l3=document.createElement("label");
-  l3.textContent="Matn rangi";
-  const inColor=document.createElement("input");
-  inColor.type="color";
-  inColor.value=item.color||"#111827";
-  inColor.oninput=function(e){updateItemField(item,"color",e.target.value)};
-  fColor.appendChild(l3);
-  fColor.appendChild(inColor);
+settingsBody.appendChild(mtColor("Matn rangi", item.color || "#111827", function(e){
+  updateItemField(item, "color", e.target.value);
+}));
 
-  const fHref=document.createElement("div");
-  fHref.className="field";
-  const l4=document.createElement("label");
-  l4.textContent="Havola (href)";
-  const inHref=document.createElement("input");
-  inHref.type="text";
-  inHref.value=item.href||"";
-  inHref.oninput=function(e){updateItemField(item,"href",e.target.value)};
-  fHref.appendChild(l4);
-  fHref.appendChild(inHref);
-
-  settingsBody.appendChild(fSize);
-  settingsBody.appendChild(rowWH);
-  settingsBody.appendChild(fColor);
-  settingsBody.appendChild(fHref);
+settingsBody.appendChild(mtText("Havola (href)", item.href || "", function(e){
+  updateItemField(item, "href", e.target.value);
+}));
 
   const del=document.createElement("button");
   del.className="settings-delete-btn";
@@ -3873,6 +3834,51 @@ function mtTuneSettingRow(w, l, c){
 }
 
 }
+
+function mtField(labelText, control){
+  var w = document.createElement("div");
+  w.className = "field";
+
+  var l = document.createElement("label");
+  l.textContent = String(labelText || "");
+
+  w.appendChild(l);
+  w.appendChild(control);
+
+  mtTuneSettingRow(w, l, control);
+  return w;
+}
+
+function mtNum(labelText, value, onInput){
+  var inp = document.createElement("input");
+  inp.type = "number";
+  inp.value = (value == null ? "" : String(value));
+  inp.oninput = function(e){
+    if(typeof onInput === "function") onInput(e);
+  };
+  return mtField(labelText, inp);
+}
+
+function mtText(labelText, value, onInput){
+  var inp = document.createElement("input");
+  inp.type = "text";
+  inp.value = (value == null ? "" : String(value));
+  inp.oninput = function(e){
+    if(typeof onInput === "function") onInput(e);
+  };
+  return mtField(labelText, inp);
+}
+
+function mtColor(labelText, value, onInput){
+  var inp = document.createElement("input");
+  inp.type = "color";
+  inp.value = (value && String(value).trim()) ? String(value) : "#111111";
+  inp.oninput = function(e){
+    if(typeof onInput === "function") onInput(e);
+  };
+  return mtField(labelText, inp);
+}
+
 
 
 
