@@ -1514,16 +1514,33 @@ function updateItemField(item,field,value){
     return;
   }
   const numericFields=["fontSize","width","height","paddingX","paddingY","radius","borderWidth","timerHours","timerMinutes","timerSeconds"];
-  if(numericFields.includes(field)){
-    const n=parseInt(value,10);
-    if(!isNaN(n)){
-      item[field]=n;
-      renderPreview();
-      renderLayers();
-      saveCurrentSiteState();
+  // if(numericFields.includes(field)){
+  //   const n=parseInt(value,10);
+  //   if(!isNaN(n)){
+  //     item[field]=n;
+  //     renderPreview();
+  //     renderLayers();
+  //     saveCurrentSiteState();
+  //   }
+  //   return;
+  // }
+if(numericFields.includes(field)){
+  const n = parseInt(value, 10);
+  if(!isNaN(n)){
+    item[field] = n;
+
+    if(field === "width" && (item.align === "center" || item.align === "right")){
+      applyAlign(item, item.align);
+      return;
     }
-    return;
+
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
   }
+  return;
+}
+
   if(field==="color"||field==="bgColor"||field==="borderColor"||field==="text"||field==="textAlign"){
     item[field]=value;
     renderPreview();
