@@ -3113,95 +3113,47 @@ if(imgUp && imgUp.mtOnClear){
   
 settingsBody.appendChild(imgUp);
 
+var rowWH = document.createElement("div");
+rowWH.style.display = "flex";
+rowWH.style.gap = "6px";
 
-  const rowWH=document.createElement("div");
-  rowWH.style.display="flex";
-  rowWH.style.gap="6px";
+var wWrap = mtNum("En (px)", item.width || 260, function(e){
+  updateItemField(item, "width", e.target.value);
+});
 
-  const fW=document.createElement("div");
-  fW.className="field";
-  fW.style.flex = "1";
-fW.style.minWidth = "0";
-  const lw=document.createElement("label");
-  lw.textContent="En (px)";
-  const inW=document.createElement("input");
-  inW.type="number";
-  inW.value=item.width||260;
-  inW.oninput=function(e){updateItemField(item,"width",e.target.value)};
-  fW.appendChild(lw);
-  fW.appendChild(inW);
+var hWrap = mtNum("Bo‘y (px)", item.height || 160, function(e){
+  updateItemField(item, "height", e.target.value);
+});
 
-  const fH=document.createElement("div");
-  fH.className="field";
-  fH.style.flex = "1";
-fH.style.minWidth = "0";
-  const lh=document.createElement("label");
-  lh.textContent="Bo‘y (px)";
-  const inH=document.createElement("input");
-  inH.type="number";
-  inH.value=item.height||160;
-  inH.oninput=function(e){updateItemField(item,"height",e.target.value)};
-  fH.appendChild(lh);
-  fH.appendChild(inH);
+rowWH.appendChild(wWrap);
+rowWH.appendChild(hWrap);
+settingsBody.appendChild(rowWH);
 
-  rowWH.appendChild(fW);
-  rowWH.appendChild(fH);
+var rowBorder = document.createElement("div");
+rowBorder.style.display = "flex";
+rowBorder.style.gap = "6px";
 
-  const rowBorder=document.createElement("div");
-  rowBorder.style.display="flex";
-  rowBorder.style.gap="6px";
+var bwWrap = mtNum("Border size (px)", item.borderWidth || 0, function(e){
+  updateItemField(item, "borderWidth", e.target.value);
+});
 
-  const fBw=document.createElement("div");
-  fBw.className="field";
-  const lbw=document.createElement("label");
-  lbw.textContent="Border size (px)";
-  const inBw=document.createElement("input");
-  inBw.type="number";
-  inBw.value=item.borderWidth||0;
-  inBw.oninput=function(e){updateItemField(item,"borderWidth",e.target.value)};
-  fBw.appendChild(lbw);
-  fBw.appendChild(inBw);
+var bcWrap = mtColor("Border rangi", item.borderColor || "#111827", function(e){
+  updateItemField(item, "borderColor", e.target.value);
+});
 
-  const fBc=document.createElement("div");
-  fBc.className="field";
-  const lbc=document.createElement("label");
-  lbc.textContent="Border rangi";
-  const inBc=document.createElement("input");
-  inBc.type="color";
-  inBc.value=item.borderColor||"#111827";
-  inBc.oninput=function(e){updateItemField(item,"borderColor",e.target.value)};
-  fBc.appendChild(lbc);
-  fBc.appendChild(inBc);
+rowBorder.appendChild(bwWrap);
+rowBorder.appendChild(bcWrap);
+settingsBody.appendChild(rowBorder);
 
-  rowBorder.appendChild(fBw);
-  rowBorder.appendChild(fBc);
+settingsBody.appendChild(mtNum("Radius (px)", item.radius || 0, function(e){
+  updateItemField(item, "radius", e.target.value);
+}));
 
-  const fR=document.createElement("div");
-  fR.className="field";
-  const lr=document.createElement("label");
-  lr.textContent="Radius (px)";
-  const inR=document.createElement("input");
-  inR.type="number";
-  inR.value=item.radius||0;
-  inR.oninput=function(e){updateItemField(item,"radius",e.target.value)};
-  fR.appendChild(lr);
-  fR.appendChild(inR);
+settingsBody.appendChild(mtText("Havola (href)", item.href || "", function(e){
+  updateItemField(item, "href", e.target.value);
+}));
 
-  const fHref=document.createElement("div");
-  fHref.className="field";
-  const lh2=document.createElement("label");
-  lh2.textContent="Havola (href)";
-  const inHref=document.createElement("input");
-  inHref.type="text";
-  inHref.value=item.href||"";
-  inHref.oninput=function(e){updateItemField(item,"href",e.target.value)};
-  fHref.appendChild(lh2);
-  fHref.appendChild(inHref);
-
-  settingsBody.appendChild(rowWH);
-  settingsBody.appendChild(rowBorder);
-  settingsBody.appendChild(fR);
-  settingsBody.appendChild(fHref);
+ 
 
   const del=document.createElement("button");
   del.className="settings-delete-btn";
