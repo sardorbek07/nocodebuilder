@@ -5465,7 +5465,7 @@ out += '<div data-mt-err="1" style="display:none;position:absolute;left:0;top:10
               '">' +
               (
             item.href && item.href.trim()
-            ? ('<a href="' + escapeHtml(mtResolveHrefForExport(currentSite, item.href.trim()) || item.href.trim()) + '" style="color:inherit;text-decoration:none;">' + escapeHtml(item.text || "") + "</a>")
+            ? ('<a href="' + escapeAttr(mtResolveHrefForExport(currentSite, item.href.trim()) || item.href.trim()) + '" style="color:inherit;text-decoration:none;">' + escapeHtml(item.text || "") + "</a>")
             : escapeHtml(item.text || "")
             ) +
           "</div>"
@@ -5483,36 +5483,57 @@ out += '<div data-mt-err="1" style="display:none;position:absolute;left:0;top:10
           }
             var wImg = item.width ? "width:" + item.width + "px;" : "";
             var hImg = item.height ? "height:" + item.height + "px;" : "";
-            var bSize =
-              item.borderWidth != null
-                ? "item.borderWidth" + item.borderWidth + "px;"
-                : "item.borderWidth:0;";
+          var bSize =
+          item.borderWidth != null
+          ? "border-width:" + item.borderWidth + "px;"
+          : "border-width:0;";
             var bColor =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyle = "border-style:solid;";
             var radius =
               "border-radius:" + (item.radius != null ? item.radius : 0) + "px;";
 
-            return (
-              '<img loading="lazy" decoding="async" src="' +
-              escapeHtml(fileName) +
-              '" style="' +
-              "position:absolute;" +
-              "left:" +
-              left +
-              "px;" +
-              "top:" +
-              top +
-              "px;" +
-              wImg +
-              hImg +
-              radius +
-              bSize +
-              bStyle +
-              bColor +
-              "display:block;" +
-              '">'
-            );
+          var hrefI =
+  item.href && item.href.trim()
+    ? (mtResolveHrefForExport(currentSite, item.href.trim()) || item.href.trim())
+    : "";
+
+var imgTag =
+  '<img loading="lazy" decoding="async" src="' +
+  escapeAttr(fileName) +
+  '" style="' +
+  "width:100%;height:100%;display:block;" +
+  radius +
+  bSize +
+  bStyle +
+  bColor +
+  '">';
+
+var boxStyle =
+  "position:absolute;" +
+  "left:" + left + "px;" +
+  "top:" + top + "px;" +
+  (item.width ? "width:" + item.width + "px;" : "") +
+  (item.height ? "height:" + item.height + "px;" : "");
+
+if (hrefI) {
+  return (
+    '<a href="' + escapeAttr(hrefI) + '" style="' +
+    boxStyle +
+    'text-decoration:none;display:block;">' +
+    imgTag +
+    "</a>"
+  );
+}
+
+return (
+  '<div style="' +
+  boxStyle +
+  '">' +
+  imgTag +
+  "</div>"
+);
+
           }
 
           // ==== TUGMA ====
@@ -5575,10 +5596,10 @@ out += '<div data-mt-err="1" style="display:none;position:absolute;left:0;top:10
               "border-radius:" +
               (item.radius != null ? item.radius : 16) +
               "px;";
-            var bSizeShape =
-              item.borderWidth != null
-                ? "item.borderWidth" + item.borderWidth + "px;"
-                : "border-widt:0;";
+           var bSizeShape =
+          item.borderWidth != null
+          ? "border-width:" + item.borderWidth + "px;"
+          : "border-width:0;";
             var bColorShape =
               "border-color:" + (item.borderColor || "transparent") + ";";
             var bStyleShape = "border-style:solid;";
@@ -5587,7 +5608,7 @@ out += '<div data-mt-err="1" style="display:none;position:absolute;left:0;top:10
             if(item.assetId){
   var aid = String(item.assetId).replace(/[^\w\-]+/g, "");
   if(aid){
-    bgImgStyle = "background-image:url(" + escapeHtml("assets/" + aid + ".webp") + ");background-size:cover;background-position:center;";
+   bgImgStyle = "background-image:url(" + escapeAttr("assets/" + aid + ".webp") + ");background-size:cover;background-position:center;";
   }
 }
 
@@ -5602,25 +5623,44 @@ if(!bgImgStyle && item.url){
               }
             }
 
-            return (
-              '<div style="' +
-              "position:absolute;" +
-              "left:" +
-              left +
-              "px;" +
-              "top:" +
-              top +
-              "px;" +
-              ws +
-              hs +
-              bg +
-              rShape +
-              bSizeShape +
-              bStyleShape +
-              bColorShape +
-              bgImgStyle +
-              '"></div>'
-            );
+           var hrefS =
+  item.href && item.href.trim()
+    ? (mtResolveHrefForExport(currentSite, item.href.trim()) || item.href.trim())
+    : "";
+
+var innerStyle =
+  "width:100%;height:100%;display:block;" +
+  bg +
+  rShape +
+  bSizeShape +
+  bStyleShape +
+  bColorShape +
+  bgImgStyle;
+
+var boxStyle =
+  "position:absolute;" +
+  "left:" + left + "px;" +
+  "top:" + top + "px;" +
+  ws +
+  hs;
+
+if(hrefS){
+  return (
+    '<a href="' + escapeAttr(hrefS) + '" style="' +
+    boxStyle +
+    'text-decoration:none;display:block;">' +
+    '<div style="' + innerStyle + '"></div>' +
+    "</a>"
+  );
+}
+
+return (
+  '<div style="' +
+  boxStyle +
+  innerStyle +
+  '"></div>'
+);
+
           }
 
           // ==== VIDEO ====
