@@ -3362,9 +3362,26 @@ function buildButtonSettings(item){
     updateItemField(item, "height", e.target.value);
   }));
 
-  settingsBody.appendChild(mtText("Matn", item.text || "Tugma", function(e){
-    updateItemField(item, "text", e.target.value);
-  }));
+  // settingsBody.appendChild(mtText("Matn", item.text || "Tugma", function(e){
+  //   updateItemField(item, "text", e.target.value);
+  // }));
+  var fText = document.createElement("div");
+fText.className = "field";
+
+var lText = document.createElement("label");
+lText.textContent = "Matn";
+
+var iText = document.createElement("input");
+iText.type = "text";
+iText.value = item.text || "Tugma";
+iText.oninput = function(e){
+  updateItemField(item, "text", e.target.value);
+};
+
+fText.appendChild(lText);
+fText.appendChild(iText);
+settingsBody.appendChild(fText);
+
 
   settingsBody.appendChild(mtNum("Font size (px)", item.fontSize || 14, function(e){
     updateItemField(item, "fontSize", e.target.value);
