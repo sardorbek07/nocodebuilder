@@ -5576,32 +5576,6 @@ var scriptPart =
 '      }\n' +
 '    });\n' +
 '  }\n' +
-
-'  function mtValidateForm(f){\n' +
-'    var ok = true;\n' +
-'    var fields = f.querySelectorAll("[data-mt-field]");\n' +
-'    fields.forEach(function(w){\n' +
-'      var c = w.querySelector("input,textarea,select");\n' +
-'      if(!c) return;\n' +
-'      var req = !!c.required;\n' +
-'      if(!req){ mtSetErr(w,""); return; }\n' +
-'      var t = String(c.getAttribute("data-mt-type") || "");\n' +
-'      if(t==="dropdown"){\n' +
-'        if(!String(c.value||"")){ mtSetErr(w,"Iltimos maydonni to\\u2019ldiring"); ok=false; return; }\n' +
-'        mtSetErr(w,""); return;\n' +
-'      }\n' +
-'      if(t==="phone"){\n' +
-'        var r = mtPhoneMaskValue(c.value||"");\n' +
-'        if(r.empty){ mtSetErr(w,"Iltimos maydonni to\\u2019ldiring"); ok=false; return; }\n' +
-'        if(!r.ok){ mtSetErr(w,"Telefon raqamni to\\u2019g\\u2019ri kiriting"); ok=false; return; }\n' +
-'        mtSetErr(w,""); return;\n' +
-'      }\n' +
-'      var v = String(c.value||"").trim();\n' +
-'      if(!v){ mtSetErr(w,"Iltimos maydonni to\\u2019ldiring"); ok=false; return; }\n' +
-'      mtSetErr(w,"");\n' +
-'    });\n' +
-'    return ok;\n' +
-'  }\n' +
 '  mtBindMasks(document);\n' +
 '  document.querySelectorAll("form[data-mt-form]").forEach(function(f){ f.setAttribute("novalidate","novalidate"); });\n' +
 '  document.addEventListener("invalid", function(e){\n' +
@@ -5657,7 +5631,9 @@ var scriptPart =
 '    if(!el || !el.closest) return;\n' +
 '    var w = el.closest("[data-mt-field]");\n' +
 '    if(!w) return;\n' +
-'    mtValidateForm(el.closest("form"));\n' +
+'    var form = el.closest("form[data-mt-form]");\n' +
+'    if(!form) return;\n' +
+'    mtValidateForm(form);\n' +
 '  }, true);\n' +
 
 '  document.addEventListener("change", function(e){\n' +
@@ -5665,7 +5641,9 @@ var scriptPart =
 '    if(!el || !el.closest) return;\n' +
 '    var w = el.closest("[data-mt-field]");\n' +
 '    if(!w) return;\n' +
-'    mtValidateForm(el.closest("form"));\n' +
+'    var form = el.closest("form[data-mt-form]");\n' +
+'    if(!form) return;\n' +
+'    mtValidateForm(form);\n' +
 '  }, true);\n' +
 
 '  document.addEventListener("blur", function(e){\n' +
@@ -5673,7 +5651,9 @@ var scriptPart =
 '    if(!el || !el.closest) return;\n' +
 '    var w = el.closest("[data-mt-field]");\n' +
 '    if(!w) return;\n' +
-'    mtValidateForm(el.closest("form"));\n' +
+'    var form = el.closest("form[data-mt-form]");\n' +
+'    if(!form) return;\n' +
+'    mtValidateForm(form);\n' +
 '  }, true);\n' +
 '});\n' +
 '</scr' + 'ipt>';
