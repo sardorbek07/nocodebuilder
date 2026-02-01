@@ -4442,27 +4442,27 @@ accForm.body.appendChild(fTFS);
   })
 );
 
-  var fBg = document.createElement("div");
-fBg.className = "field";
+//   var fBg = document.createElement("div");
+// fBg.className = "field";
 
-var lBg = document.createElement("label");
-lBg.textContent = "Input background";
+// var lBg = document.createElement("label");
+// lBg.textContent = "Input background";
 
-var inBg = document.createElement("input");
-inBg.type = "color";
-inBg.value = item.style && item.style.inputBg ? item.style.inputBg : "#ffffff";
-inBg.oninput = function(e){
-  item.style = item.style || {};
-  item.style.inputBg = e.target.value;
-  renderPreview();
-  renderLayers();
-  saveCurrentSiteState();
-};
+// var inBg = document.createElement("input");
+// inBg.type = "color";
+// inBg.value = item.style && item.style.inputBg ? item.style.inputBg : "#ffffff";
+// inBg.oninput = function(e){
+//   item.style = item.style || {};
+//   item.style.inputBg = e.target.value;
+//   renderPreview();
+//   renderLayers();
+//   saveCurrentSiteState();
+// };
 
-fBg.appendChild(lBg);
-fBg.appendChild(inBg);
-  mtTuneSettingRow(fBg, lBg, inBg);
-accForm.body.appendChild(fBg);
+// fBg.appendChild(lBg);
+// fBg.appendChild(inBg);
+//   mtTuneSettingRow(fBg, lBg, inBg);
+// accForm.body.appendChild(fBg);
 
   accForm.body.appendChild(
   mtColor("Input background", (item.style && item.style.inputBg) || "#ffffff", function(e){
