@@ -4078,21 +4078,22 @@ function mtText(labelText, value, onInput){
 
 function mtColor(labelText, value, onInput){
   var wrap = document.createElement("div");
-  wrap.style.display = "flex";
-  wrap.style.gap = "8px";
-  wrap.style.alignItems = "center";
-  wrap.style.width = "100%";
-
+ wrap.style.display = "flex";
+wrap.style.flexDirection = "column";
+wrap.style.gap = "6px";
+wrap.style.alignItems = "stretch";
+wrap.style.width = "100%";
+  
   var picker = document.createElement("input");
   picker.type = "color";
-  picker.style.width = "32px";
-picker.style.minWidth = "32px";
+picker.style.width = "100%";
+picker.style.height = "32px";
 
   var code = document.createElement("input");
   code.type = "text";
   code.placeholder = "#RRGGBB";
-code.style.width = "120px";
-code.style.minWidth = "120px";
+code.style.width = "100%";
+code.style.minWidth = "0";
   function normHex(v){
     v = String(v || "").trim();
     if(!v) return "";
