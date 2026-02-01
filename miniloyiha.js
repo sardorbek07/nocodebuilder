@@ -3978,7 +3978,8 @@ function mtTuneSettingRow(w, l, c){
 
   c.style.boxSizing = "border-box";
   c.style.width = "100%";
-  c.style.height = "32px";
+ c.style.minHeight = "32px";
+c.style.height = "auto";
   c.style.borderRadius = "10px";
   c.style.border = "1px solid rgba(255,255,255,.12)";
   c.style.background = "rgba(255,255,255,.06)";
