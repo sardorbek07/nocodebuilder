@@ -3111,28 +3111,39 @@ if(imgUp && imgUp.mtOnClear){
 }
 
   
-settingsBody.appendChild(imgUp);
+// settingsBody.appendChild(imgUp);
 
-var rowWH = document.createElement("div");
-rowWH.style.display = "flex";
-rowWH.style.gap = "6px";
+// var rowWH = document.createElement("div");
+// rowWH.style.display = "flex";
+// rowWH.style.gap = "6px";
+
+// var wWrap = mtNum("En (px)", item.width || 260, function(e){
+//   updateItemField(item, "width", e.target.value);
+// });
+
+// var hWrap = mtNum("Bo‘y (px)", item.height || 160, function(e){
+//   updateItemField(item, "height", e.target.value);
+// });
+
+// rowWH.appendChild(wWrap);
+// rowWH.appendChild(hWrap);
+//   wWrap.style.flex = "1";
+// wWrap.style.minWidth = "0";
+
+// hWrap.style.flex = "1";
+// hWrap.style.minWidth = "0";
+// settingsBody.appendChild(rowWH);
+  settingsBody.appendChild(imgUp);
 
 var wWrap = mtNum("En (px)", item.width || 260, function(e){
   updateItemField(item, "width", e.target.value);
 });
+settingsBody.appendChild(wWrap);
 
 var hWrap = mtNum("Bo‘y (px)", item.height || 160, function(e){
   updateItemField(item, "height", e.target.value);
 });
-
-rowWH.appendChild(wWrap);
-rowWH.appendChild(hWrap);
-  wWrap.style.flex = "1";
-wWrap.style.minWidth = "0";
-
-hWrap.style.flex = "1";
-hWrap.style.minWidth = "0";
-settingsBody.appendChild(rowWH);
+settingsBody.appendChild(hWrap);
 
 var rowBorder = document.createElement("div");
 rowBorder.style.display = "flex";
