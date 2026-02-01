@@ -4476,18 +4476,18 @@ accForm.body.appendChild(fTFS);
 
 
 
-  inIC.oninput = function(e){
-    if(!item.style) item.style = {};
-    item.style.inputColor = String(e.target.value || "#111111");
-    renderPreview();
-    renderLayers();
-    saveCurrentSiteState();
-  };
+ //  inIC.oninput = function(e){
+ //    if(!item.style) item.style = {};
+ //    item.style.inputColor = String(e.target.value || "#111111");
+ //    renderPreview();
+ //    renderLayers();
+ //    saveCurrentSiteState();
+ //  };
 
-  fIC.appendChild(lIC);
-  fIC.appendChild(inIC);
-  mtTuneSettingRow(fIC, lIC, inIC);
- accForm.body.appendChild(fIC);
+ //  fIC.appendChild(lIC);
+ //  fIC.appendChild(inIC);
+ //  mtTuneSettingRow(fIC, lIC, inIC);
+ // accForm.body.appendChild(fIC);
   var fIBS = document.createElement("div");
 fIBS.className = "field";
 
