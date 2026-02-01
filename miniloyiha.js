@@ -4422,36 +4422,47 @@ accForm.body.appendChild(fTFS);
 
 
 
-//     var fIC = document.createElement("div");
-//   fIC.className = "field";
+  //   var fIC = document.createElement("div");
+  // fIC.className = "field";
 
-//   var lIC = document.createElement("label");
-//   lIC.textContent = "Input matn rangi";
+  // var lIC = document.createElement("label");
+  // lIC.textContent = "Input matn rangi";
 
-//   var inIC = document.createElement("input");
-//   inIC.type = "color";
-//   inIC.value = (item.style && item.style.inputColor) ? item.style.inputColor : "#111111";
-//   var fBg = document.createElement("div");
-// fBg.className = "field";
+  // var inIC = document.createElement("input");
+  // inIC.type = "color";
+  // inIC.value = (item.style && item.style.inputColor) ? item.style.inputColor : "#111111";
 
-// var lBg = document.createElement("label");
-// lBg.textContent = "Input background";
+  accForm.body.appendChild(
+  mtColor("Input matn rangi", (item.style && item.style.inputColor) || "#111111", function(e){
+    item.style = item.style || {};
+    item.style.inputColor = e.target.value;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  })
+);
 
-// var inBg = document.createElement("input");
-// inBg.type = "color";
-// inBg.value = item.style && item.style.inputBg ? item.style.inputBg : "#ffffff";
-// inBg.oninput = function(e){
-//   item.style = item.style || {};
-//   item.style.inputBg = e.target.value;
-//   renderPreview();
-//   renderLayers();
-//   saveCurrentSiteState();
-// };
+  var fBg = document.createElement("div");
+fBg.className = "field";
 
-// fBg.appendChild(lBg);
-// fBg.appendChild(inBg);
-//   mtTuneSettingRow(fBg, lBg, inBg);
-// accForm.body.appendChild(fBg);
+var lBg = document.createElement("label");
+lBg.textContent = "Input background";
+
+var inBg = document.createElement("input");
+inBg.type = "color";
+inBg.value = item.style && item.style.inputBg ? item.style.inputBg : "#ffffff";
+inBg.oninput = function(e){
+  item.style = item.style || {};
+  item.style.inputBg = e.target.value;
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+};
+
+fBg.appendChild(lBg);
+fBg.appendChild(inBg);
+  mtTuneSettingRow(fBg, lBg, inBg);
+accForm.body.appendChild(fBg);
 
   accForm.body.appendChild(
   mtColor("Input background", (item.style && item.style.inputBg) || "#ffffff", function(e){
