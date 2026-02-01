@@ -1918,7 +1918,10 @@ lab.style.color = ((item.style && item.style.titleColor) ? item.style.titleColor
       if(ph && t!=="dropdown") control.placeholder=ph;
       if(f.required) control.required=true;
 
-     control.style.width = ((item.style && item.style.inputWidth!=null) ? item.style.inputWidth : 100) + "%";
+ control.style.boxSizing = "border-box";
+control.style.display = "block";
+control.style.width = (((item.style && item.style.inputWidth!=null) ? item.style.inputWidth : (item.width||280))) + "px";
+
      var bs = (item.style && item.style.inputBorderSize != null) ? item.style.inputBorderSize : 1;
 var bc = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "rgba(17,24,39,.12)";
 control.style.border = bs + "px solid " + bc;
@@ -2132,7 +2135,12 @@ if(t === "dropdown"){
   var submit=document.createElement("button");
   submit.type="button";
   submit.textContent=String(item.submitText||"Yuborish");
- submit.style.width = ((item.style && item.style.submitWidth!=null) ? item.style.submitWidth : 100) + "%";
+ submit.style.boxSizing = "border-box";
+submit.style.display = "flex";
+submit.style.alignItems = "center";
+submit.style.justifyContent = "center";
+submit.style.width = (((item.style && item.style.submitWidth!=null) ? item.style.submitWidth : (item.width||280))) + "px";
+
   submit.style.height = (((item.style && item.style.submitHeight)!=null ? item.style.submitHeight : 46)) + "px";
 submit.style.borderRadius = (((item.style && item.style.submitRadius)!=null ? item.style.submitRadius : 14)) + "px";
 
