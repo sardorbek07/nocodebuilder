@@ -1390,6 +1390,9 @@ window.mtAddStandardForm = function(){
   padding: 12,
 
   inputHeight: 44,
+  inputWidth: 100,
+  titleColor: "rgba(17,24,39,.7)",
+  submitWidth: 100,
   inputFontSize: 16,
   inputColor: "#111111",
   inputBg: "#ffffff",
@@ -1846,7 +1849,7 @@ if(bgSrc){
   var card=document.createElement("form");
   card.setAttribute("data-mt-form", String(item.formKey||""));
   card.style.width="100%";
-  card.style.height="100%";
+card.style.height="auto";
   card.style.pointerEvents = "none";
  card.style.background = "transparent";
   card.style.border = "none";
@@ -1915,7 +1918,7 @@ lab.style.color = ((item.style && item.style.titleColor) ? item.style.titleColor
       if(ph && t!=="dropdown") control.placeholder=ph;
       if(f.required) control.required=true;
 
-      control.style.width="100%";
+     control.style.width = ((item.style && item.style.inputWidth!=null) ? item.style.inputWidth : 100) + "%";
      var bs = (item.style && item.style.inputBorderSize != null) ? item.style.inputBorderSize : 1;
 var bc = (item.style && item.style.inputBorderColor) ? item.style.inputBorderColor : "rgba(17,24,39,.12)";
 control.style.border = bs + "px solid " + bc;
@@ -2129,7 +2132,7 @@ if(t === "dropdown"){
   var submit=document.createElement("button");
   submit.type="button";
   submit.textContent=String(item.submitText||"Yuborish");
-  submit.style.width="100%";
+ submit.style.width = ((item.style && item.style.submitWidth!=null) ? item.style.submitWidth : 100) + "%";
   submit.style.height = (((item.style && item.style.submitHeight)!=null ? item.style.submitHeight : 46)) + "px";
 submit.style.borderRadius = (((item.style && item.style.submitRadius)!=null ? item.style.submitRadius : 14)) + "px";
 
@@ -4029,6 +4032,35 @@ accSuccess.body.appendChild(fSl);
   fIH.appendChild(inIH);
   mtTuneSettingRow(fIH, lIH, inIH);
   accForm.body.appendChild(fIH);
+
+  var fIW = document.createElement("div");
+fIW.className = "field";
+
+var lIW = document.createElement("label");
+lIW.textContent = "Input width (%)";
+
+var inIW = document.createElement("input");
+inIW.type = "number";
+inIW.value = (item.style && item.style.inputWidth != null) ? item.style.inputWidth : 100;
+
+inIW.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    if(n < 10) n = 10;
+    if(n > 100) n = 100;
+    item.style.inputWidth = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fIW.appendChild(lIW);
+fIW.appendChild(inIW);
+mtTuneSettingRow(fIW, lIW, inIW);
+accForm.body.appendChild(fIW);
+
     var fFS = document.createElement("div");
   fFS.className = "field";
 
@@ -4082,6 +4114,29 @@ fTFS.appendChild(lTFS);
 fTFS.appendChild(inTFS);
   mtTuneSettingRow(fTFS, lTFS, inTFS);
 accForm.body.appendChild(fTFS);
+
+  var fTC = document.createElement("div");
+fTC.className = "field";
+
+var lTC = document.createElement("label");
+lTC.textContent = "Title color";
+
+var inTC = document.createElement("input");
+inTC.type = "color";
+inTC.value = (item.style && item.style.titleColor) ? item.style.titleColor : "#111111";
+
+inTC.oninput = function(e){
+  item.style = item.style || {};
+  item.style.titleColor = String(e.target.value || "#111111");
+  renderPreview();
+  renderLayers();
+  saveCurrentSiteState();
+};
+
+fTC.appendChild(lTC);
+fTC.appendChild(inTC);
+mtTuneSettingRow(fTC, lTC, inTC);
+accForm.body.appendChild(fTC);
 
 
     var fIC = document.createElement("div");
@@ -4255,6 +4310,34 @@ fSH.appendChild(lSH);
 fSH.appendChild(inSH);
   mtTuneSettingRow(fSH, lSH, inSH);
 accSubmit.body.appendChild(fSH);
+  var fSW = document.createElement("div");
+fSW.className = "field";
+
+var lSW = document.createElement("label");
+lSW.textContent = "Submit width (%)";
+
+var inSW = document.createElement("input");
+inSW.type = "number";
+inSW.value = (item.style && item.style.submitWidth != null) ? item.style.submitWidth : 100;
+
+inSW.oninput = function(e){
+  if(!item.style) item.style = {};
+  var n = parseInt(e.target.value, 10);
+  if(!isNaN(n)){
+    if(n < 10) n = 10;
+    if(n > 100) n = 100;
+    item.style.submitWidth = n;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+};
+
+fSW.appendChild(lSW);
+fSW.appendChild(inSW);
+mtTuneSettingRow(fSW, lSW, inSW);
+accSubmit.body.appendChild(fSW);
+
 
 
   var fSR = document.createElement("div");
@@ -5070,7 +5153,7 @@ function mtExportFormHtml(item){
   var fields = Array.isArray(item.fields) ? item.fields : [];
 
   var formStyle =
-    "width:100%;height:100%;" +
+   "width:100%;height:auto;" +
     "background:transparent;border:0;" +
     "border-radius:" + ((st.radius!=null?st.radius:16)) + "px;" +
     "padding:0;display:flex;flex-direction:column;gap:10px;";
@@ -5093,7 +5176,7 @@ function mtExportFormHtml(item){
     }
 
     var baseStyle =
-      "width:100%;" +
+     "width:" + ((st.inputWidth!=null?st.inputWidth:100)) + "%;" +
       "border:" + ((st.inputBorderSize!=null?st.inputBorderSize:1)) + "px solid " + escapeAttr(st.inputBorderColor || "rgba(17,24,39,.12)") + ";" +
       "border-radius:" + ((st.inputRadius!=null?st.inputRadius:12)) + "px;" +
       "padding:10px 12px;" +
@@ -5134,7 +5217,7 @@ out += '<input' + extra + ' ' + (req?'required':'') + ' type="' + escapeAttr(ity
   }
 
   var btnStyle =
-    "width:100%;" +
+   "width:" + ((st.submitWidth!=null?st.submitWidth:100)) + "%;" +
     "height:" + ((st.submitHeight!=null?st.submitHeight:46)) + "px;" +
     "border-radius:" + ((st.submitRadius!=null?st.submitRadius:14)) + "px;" +
     "border:0;" +
