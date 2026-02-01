@@ -3764,87 +3764,121 @@ function buildVideoSettings(item){
   del.onclick=function(){deleteItem(item.id)};
   settingsBody.appendChild(del);
 }
-
 function buildTimerSettings(item){
-  settingsBody.innerHTML="";
-  const alignRow=buildAlignRow(item);
+  settingsBody.innerHTML = "";
+
+  var alignRow = buildAlignRow(item);
   settingsBody.appendChild(alignRow);
 
-  const row=document.createElement("div");
-  row.style.display="flex";
-  row.style.gap="6px";
+  settingsBody.appendChild(mtNum("Soat", item.timerHours || 0, function(e){
+    updateItemField(item, "timerHours", e.target.value);
+  }));
 
-  const fH=document.createElement("div");
-  fH.className="field";
-  const lh=document.createElement("label");
-  lh.textContent="Soat";
-  const inH=document.createElement("input");
-  inH.type="number";
-  inH.value=item.timerHours||0;
-  inH.oninput=function(e){updateItemField(item,"timerHours",e.target.value)};
-  fH.appendChild(lh);
-  fH.appendChild(inH);
+  settingsBody.appendChild(mtNum("Minut", item.timerMinutes || 0, function(e){
+    updateItemField(item, "timerMinutes", e.target.value);
+  }));
 
-  const fM=document.createElement("div");
-  fM.className="field";
-  const lm=document.createElement("label");
-  lm.textContent="Minut";
-  const inM=document.createElement("input");
-  inM.type="number";
-  inM.value=item.timerMinutes||0;
-  inM.oninput=function(e){updateItemField(item,"timerMinutes",e.target.value)};
-  fM.appendChild(lm);
-  fM.appendChild(inM);
+  settingsBody.appendChild(mtNum("Sekund", item.timerSeconds || 0, function(e){
+    updateItemField(item, "timerSeconds", e.target.value);
+  }));
 
-  const fS=document.createElement("div");
-  fS.className="field";
-  const ls=document.createElement("label");
-  ls.textContent="Sekund";
-  const inS=document.createElement("input");
-  inS.type="number";
-  inS.value=item.timerSeconds||0;
-  inS.oninput=function(e){updateItemField(item,"timerSeconds",e.target.value)};
-  fS.appendChild(ls);
-  fS.appendChild(inS);
+  settingsBody.appendChild(mtNum("Matn o‘lchami (px)", item.fontSize || 20, function(e){
+    updateItemField(item, "fontSize", e.target.value);
+  }));
 
-  row.appendChild(fH);
-  row.appendChild(fM);
-  row.appendChild(fS);
+  settingsBody.appendChild(mtColor("Matn rangi", item.color || "#111827", function(e){
+    updateItemField(item, "color", e.target.value);
+  }));
 
-  const fSize=document.createElement("div");
-  fSize.className="field";
-  const lfs=document.createElement("label");
-  lfs.textContent="Matn o‘lchami (px)";
-  const inFs=document.createElement("input");
-  inFs.type="number";
-  inFs.value=item.fontSize||20;
-  inFs.oninput=function(e){updateItemField(item,"fontSize",e.target.value)};
-  fSize.appendChild(lfs);
-  fSize.appendChild(inFs);
-
-  const fColor=document.createElement("div");
-  fColor.className="field";
-  const lc=document.createElement("label");
-  lc.textContent="Matn rangi";
-  const inC=document.createElement("input");
-  inC.type="color";
-  inC.value=item.color||"#111827";
-  inC.oninput=function(e){updateItemField(item,"color",e.target.value)};
-  fColor.appendChild(lc);
-  fColor.appendChild(inC);
-
-  settingsBody.appendChild(row);
-  settingsBody.appendChild(fSize);
-  settingsBody.appendChild(fColor);
-
-  const del=document.createElement("button");
-  del.className="settings-delete-btn";
-  const delIcon=document.createElement("div");
-  delIcon.className="settings-delete-icon";
+  var del = document.createElement("button");
+  del.className = "settings-delete-btn";
+  var delIcon = document.createElement("div");
+  delIcon.className = "settings-delete-icon";
   del.appendChild(delIcon);
-  del.onclick=function(){deleteItem(item.id)};
+  del.onclick = function(){ deleteItem(item.id); };
   settingsBody.appendChild(del);
 }
+
+// function buildTimerSettings(item){
+//   settingsBody.innerHTML="";
+//   const alignRow=buildAlignRow(item);
+//   settingsBody.appendChild(alignRow);
+
+//   const row=document.createElement("div");
+//   row.style.display="flex";
+//   row.style.gap="6px";
+
+//   const fH=document.createElement("div");
+//   fH.className="field";
+//   const lh=document.createElement("label");
+//   lh.textContent="Soat";
+//   const inH=document.createElement("input");
+//   inH.type="number";
+//   inH.value=item.timerHours||0;
+//   inH.oninput=function(e){updateItemField(item,"timerHours",e.target.value)};
+//   fH.appendChild(lh);
+//   fH.appendChild(inH);
+
+//   const fM=document.createElement("div");
+//   fM.className="field";
+//   const lm=document.createElement("label");
+//   lm.textContent="Minut";
+//   const inM=document.createElement("input");
+//   inM.type="number";
+//   inM.value=item.timerMinutes||0;
+//   inM.oninput=function(e){updateItemField(item,"timerMinutes",e.target.value)};
+//   fM.appendChild(lm);
+//   fM.appendChild(inM);
+
+//   const fS=document.createElement("div");
+//   fS.className="field";
+//   const ls=document.createElement("label");
+//   ls.textContent="Sekund";
+//   const inS=document.createElement("input");
+//   inS.type="number";
+//   inS.value=item.timerSeconds||0;
+//   inS.oninput=function(e){updateItemField(item,"timerSeconds",e.target.value)};
+//   fS.appendChild(ls);
+//   fS.appendChild(inS);
+
+//   row.appendChild(fH);
+//   row.appendChild(fM);
+//   row.appendChild(fS);
+
+//   const fSize=document.createElement("div");
+//   fSize.className="field";
+//   const lfs=document.createElement("label");
+//   lfs.textContent="Matn o‘lchami (px)";
+//   const inFs=document.createElement("input");
+//   inFs.type="number";
+//   inFs.value=item.fontSize||20;
+//   inFs.oninput=function(e){updateItemField(item,"fontSize",e.target.value)};
+//   fSize.appendChild(lfs);
+//   fSize.appendChild(inFs);
+
+//   const fColor=document.createElement("div");
+//   fColor.className="field";
+//   const lc=document.createElement("label");
+//   lc.textContent="Matn rangi";
+//   const inC=document.createElement("input");
+//   inC.type="color";
+//   inC.value=item.color||"#111827";
+//   inC.oninput=function(e){updateItemField(item,"color",e.target.value)};
+//   fColor.appendChild(lc);
+//   fColor.appendChild(inC);
+
+//   settingsBody.appendChild(row);
+//   settingsBody.appendChild(fSize);
+//   settingsBody.appendChild(fColor);
+
+//   const del=document.createElement("button");
+//   del.className="settings-delete-btn";
+//   const delIcon=document.createElement("div");
+//   delIcon.className="settings-delete-icon";
+//   del.appendChild(delIcon);
+//   del.onclick=function(){deleteItem(item.id)};
+//   settingsBody.appendChild(del);
+// }
 function mtAcc(title){
   var host = document.createElement("div");
   host.setAttribute("data-mt-acc","1");
