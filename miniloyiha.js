@@ -2687,10 +2687,11 @@ ov.style.padding = "0";
       modal.style.minHeight = "100vh";
       modal.style.borderRadius = "0";
 
-    if(topbar) topbar.style.display = "none";
+   if(topbar) topbar.style.display = "block";
 
       closeBtn.style.top = "10px";
       closeBtn.style.right = "10px";
+      closeBtn.style.color = "#fff";
 
       tEl.parentElement.style.padding = "70px 18px 10px 18px";
       body.style.padding = "10px 18px 22px 18px";
@@ -2713,7 +2714,7 @@ ov.style.padding = "0";
 
   closeBtn.style.top = "14px";
   closeBtn.style.right = "16px";
-      closeBtn.style.color = "#000";
+   closeBtn.style.color = (p && p.closeColor) ? String(p.closeColor) : "#000";
 
   tEl.parentElement.style.padding = "28px 28px 10px 28px";
   body.style.padding = "14px 28px 28px 28px";
