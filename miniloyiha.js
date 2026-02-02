@@ -2695,12 +2695,18 @@ ov.style.padding = "0";
       tEl.parentElement.style.padding = "70px 18px 10px 18px";
       body.style.padding = "10px 18px 22px 18px";
     }else{
+      ov.style.position = "fixed";
+ov.style.inset = "0";
   ov.style.display = "flex";
   ov.style.alignItems = "center";
   ov.style.justifyContent = "center";
   ov.style.padding = "20px";
 
   modal.style.margin = "0";
+      modal.style.position = "relative";
+modal.style.left = "0";
+modal.style.top = "0";
+modal.style.transform = "none";
   modal.style.width = "calc(100% - 40px)";
   modal.style.maxWidth = "520px";
   modal.style.minHeight = "";
