@@ -3005,7 +3005,37 @@ if(!Array.isArray(p.fields)) p.fields = fields;
     if(!ok) return;
 
     var text = (p && p.successText && String(p.successText).trim()) ? String(p.successText).trim() : "Rahmat, ma’lumotlaringiz yuborildi";
-    alert(text);
+   var link = (p && p.successLink && String(p.successLink).trim()) ? String(p.successLink).trim() : "";
+
+var popup = document.createElement("div");
+popup.style.position = "fixed";
+popup.style.left = "50%";
+popup.style.top = "20px";
+popup.style.transform = "translateX(-50%)";
+popup.style.background = "#111";
+popup.style.color = "#fff";
+popup.style.padding = "12px 16px";
+popup.style.borderRadius = "12px";
+popup.style.fontSize = "14px";
+popup.style.zIndex = "999999";
+popup.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
+popup.textContent = text;
+
+if(link){
+  popup.style.cursor = "pointer";
+  popup.onclick = function(){
+    window.open(link, "_blank");
+  };
+}
+
+document.body.appendChild(popup);
+
+setTimeout(function(){
+  if(popup && popup.parentNode){
+    popup.parentNode.removeChild(popup);
+  }
+}, 3000);
+
   };
 
   wrap.appendChild(btn);
