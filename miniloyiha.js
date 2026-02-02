@@ -40,7 +40,7 @@ window.mtSetUser = function(uid){
 // start holatda ham window da tursin
 window.MT_CURRENT_USER_ID = MT_CURRENT_USER_ID;
 
-const state={blocks:[],currentBlockId:null,selectedId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;let currentPageId=null;
+const state={blocks:[],popups:[],currentBlockId:null,selectedId:null,selectedPopupId:null,counterBlock:0,counterItem:0,previewMode:"mobile"};let sites=[];let currentSiteId=null;let currentPageId=null;
 window.MT_ASSETS = window.MT_ASSETS || {};
 window.MT_ASSET_URLS = window.MT_ASSET_URLS || {};
 function mtPreviewDbName(){
@@ -168,13 +168,14 @@ let MT_HISTORY_LAST_AT = 0;
 function mtGetSnap(){
   return {
     blocks: JSON.parse(JSON.stringify(state.blocks || [])),
+    popups: JSON.parse(JSON.stringify(state.popups || [])),
     currentBlockId: state.currentBlockId,
+    selectedPopupId: state.selectedPopupId,
     counterBlock: state.counterBlock,
     counterItem: state.counterItem,
     previewMode: "mobile"
   };
 }
-
 function mtSig(snap){
   return JSON.stringify({
     b: snap.blocks,
@@ -222,11 +223,14 @@ function mtUndo(){
   if(!snap) return;
 
   state.blocks = Array.isArray(snap.blocks) ? JSON.parse(JSON.stringify(snap.blocks)) : [];
+  state.popups = Array.isArray(snap.popups) ? JSON.parse(JSON.stringify(snap.popups)) : [];
   state.currentBlockId = snap.currentBlockId || (state.blocks[0] ? state.blocks[0].id : null);
+  state.selectedPopupId = snap.selectedPopupId || null;
   state.counterBlock = snap.counterBlock || state.blocks.length;
   state.counterItem = snap.counterItem || 0;
   state.previewMode = "mobile";
   state.selectedId = null;
+
 
   renderBlocks();
   renderPreview();
@@ -715,7 +719,9 @@ function initEmptyState(){
 
 function loadStateFrom(saved){
   state.blocks=Array.isArray(saved.blocks)?saved.blocks:[];
+  state.popups=Array.isArray(saved.popups)?saved.popups:[];
   state.currentBlockId=saved.currentBlockId|| (state.blocks[0]?state.blocks[0].id:null);
+  state.selectedPopupId=null;
   state.selectedId=null;
   state.counterBlock=saved.counterBlock||state.blocks.length;
   state.counterItem=saved.counterItem||0;
@@ -724,13 +730,14 @@ function loadStateFrom(saved){
 }
 function loadStateFromSilent(saved){
   state.blocks = Array.isArray(saved && saved.blocks) ? saved.blocks : [];
+  state.popups = Array.isArray(saved && saved.popups) ? saved.popups : [];
   state.currentBlockId = (saved && saved.currentBlockId) || (state.blocks[0] ? state.blocks[0].id : null);
+  state.selectedPopupId = null;
   state.selectedId = null;
   state.counterBlock = (saved && saved.counterBlock) || state.blocks.length;
   state.counterItem = (saved && saved.counterItem) || 0;
   state.previewMode = "mobile";
 }
-
 function mtCollectAssetIdsFromBuilderState(saved){
   var out = {};
   var blocks = saved && Array.isArray(saved.blocks) ? saved.blocks : [];
@@ -798,6 +805,7 @@ function saveCurrentSiteState(){
 
   page.builderState = {
     blocks: JSON.parse(JSON.stringify(state.blocks)),
+    popups: JSON.parse(JSON.stringify(state.popups || [])),
     currentBlockId: state.currentBlockId,
     counterBlock: state.counterBlock,
     counterItem: state.counterItem,
@@ -1417,6 +1425,71 @@ window.mtAddStandardForm = function(){
   state.selectedId = item.id;
   render();
 };
+window.mtAddPopupForm = function(){
+  if(!Array.isArray(state.popups)) state.popups = [];
+
+  var pid = "mtp_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  var formKey = "pf_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+  function fid(){
+    return "fld_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  var popup = {
+    id: pid,
+    type: "form_popup",
+    popupName: "Pop up forma",
+    callName: "popup",
+    popupTitle: "",
+    popupSubtitle: "",
+    titleFontSize: 28,
+    titleColor: "#111111",
+    subtitleFontSize: 16,
+    subtitleColor: "rgba(17,24,39,.75)",
+    overlayBg: "rgba(0,0,0,.65)",
+    closeColor: "#ffffff",
+    formKey: formKey,
+    fields: [
+      { id: fid(), type: "name", title: "", placeholder: "Name", required: true, options: [] },
+      { id: fid(), type: "phone", title: "", placeholder: "Phone", required: true, options: [] }
+    ],
+    submitText: "Yuborish",
+    successText: "Rahmat, ma'lumotlaringiz yuborildi",
+    errorText: "Xatolik",
+    successLink: "",
+    style: {
+      bgColor: "#ffffff",
+      borderColor: "rgba(17,24,39,.12)",
+      radius: 16,
+      padding: 12,
+      inputHeight: 44,
+      inputWidth: 280,
+      inputFontSize: 16,
+      inputColor: "#111111",
+      inputBg: "#ffffff",
+      inputBorderSize: 1,
+      inputBorderColor: "rgba(17,24,39,.12)",
+      inputRadius: 12,
+      inputGap: 12,
+      titleFontSize: 14,
+      titleColor: "#111111",
+      submitWidth: 280,
+      submitHeight: 46,
+      submitBg: "#111111",
+      submitColor: "#ffffff",
+      submitBorderSize: 0,
+      submitBorderColor: "transparent",
+      submitRadius: 14,
+      submitFontSize: 14
+    }
+  };
+
+  state.popups.push(popup);
+  state.selectedPopupId = popup.id;
+  state.selectedId = null;
+  render();
+};
+
 
 function selectItem(id){
   state.selectedId=id;
@@ -2423,6 +2496,522 @@ if(["image","shape","button"].includes(item.type)){
     renderLayers();
   };
 }
+function renderPopupsTray(){
+  var host = document.getElementById("mtPopupTrays");
+  if(!host) return;
+
+  host.innerHTML = "";
+
+  var list = Array.isArray(state.popups) ? state.popups : [];
+  if(!list.length){
+    host.style.display = "none";
+    return;
+  }
+
+  host.style.display = "flex";
+  host.style.flexDirection = "column";
+  host.style.gap = "10px";
+  host.style.padding = "12px 0 0 0";
+
+  for(var i=0;i<list.length;i++){
+    (function(p){
+      if(!p || !p.id) return;
+
+      var row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.justifyContent = "space-between";
+      row.style.gap = "10px";
+      row.style.width = (getCanvasWidth() || 320) + "px";
+      row.style.margin = "0 auto";
+      row.style.padding = "12px 12px";
+      row.style.borderRadius = "14px";
+      row.style.border = "1px solid rgba(255,255,255,.10)";
+      row.style.background = "rgba(255,255,255,.04)";
+            if(state.selectedPopupId === p.id){
+        row.style.border = "1px solid rgba(255,233,200,.45)";
+        row.style.background = "rgba(255,233,200,.06)";
+      }
+
+      var left = document.createElement("div");
+      left.style.minWidth = "0";
+      left.style.flex = "1";
+      left.style.color = "#fff";
+      left.style.fontSize = "13px";
+      left.style.whiteSpace = "nowrap";
+      left.style.overflow = "hidden";
+      left.style.textOverflow = "ellipsis";
+      left.textContent = String(p.popupName || "Pop up forma");
+
+      var right = document.createElement("div");
+      right.style.display = "inline-flex";
+      right.style.alignItems = "center";
+      right.style.gap = "8px";
+
+      var edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "mt-header-link";
+      edit.style.height = "34px";
+      edit.style.padding = "0 12px";
+      edit.style.justifyContent = "center";
+      edit.textContent = "Edit";
+      edit.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        state.selectedPopupId = p.id;
+        state.selectedId = null;
+        renderSettings();
+      };
+
+      var prev = document.createElement("button");
+      prev.type = "button";
+      prev.className = "mt-header-link";
+      prev.style.height = "34px";
+      prev.style.padding = "0 12px";
+      prev.style.justifyContent = "center";
+      prev.textContent = "Preview";
+    prev.onclick = function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  mtOpenPopupPreview(p);
+};
+
+
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "mt-header-link";
+      del.style.width = "38px";
+      del.style.height = "34px";
+      del.style.padding = "0";
+      del.style.justifyContent = "center";
+      del.textContent = "✕";
+      del.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(!confirm("Popup formani o‘chirishni xohlaysizmi?")) return;
+
+        state.popups = (Array.isArray(state.popups) ? state.popups : []).filter(function(x){
+          return String(x && x.id ? x.id : "") !== String(p.id);
+        });
+
+        if(state.selectedPopupId === p.id) state.selectedPopupId = null;
+
+        render();
+      };
+
+      right.appendChild(edit);
+      right.appendChild(prev);
+      right.appendChild(del);
+
+      row.appendChild(left);
+      row.appendChild(right);
+
+      host.appendChild(row);
+    })(list[i]);
+  }
+}
+function mtPopupGet(id){
+  var list = Array.isArray(state.popups) ? state.popups : [];
+  for(var i=0;i<list.length;i++){
+    if(list[i] && list[i].id === id) return list[i];
+  }
+  return null;
+}
+
+function mtClosePopupPreview(){
+  var ov = document.getElementById("mtPopupPreviewOverlay");
+  var body = document.getElementById("mtPopupPreviewBody");
+  if(body) body.innerHTML = "";
+  if(ov) ov.style.display = "none";
+  try{ document.documentElement.style.overflow = ""; }catch(e){}
+}
+
+function mtOpenPopupPreview(p){
+  if(!p || !p.id) return;
+
+  var ov = document.getElementById("mtPopupPreviewOverlay");
+  var back = document.getElementById("mtPopupPreviewBackdrop");
+  var modal = document.getElementById("mtPopupPreviewModal");
+  var topbar = document.getElementById("mtPopupPreviewTopBar");
+  var closeBtn = document.getElementById("mtPopupPreviewClose");
+  var tEl = document.getElementById("mtPopupPreviewTitle");
+  var sEl = document.getElementById("mtPopupPreviewSubtitle");
+  var body = document.getElementById("mtPopupPreviewBody");
+
+  if(!ov || !back || !modal || !closeBtn || !tEl || !sEl || !body) return;
+
+  var overlayBg = String(p.overlayBg || "rgba(0,0,0,.65)");
+  var closeColor = String(p.closeColor || "#ffffff");
+
+  back.style.background = overlayBg;
+  closeBtn.style.color = closeColor;
+
+  var title = String(p.popupTitle || "");
+  var sub = String(p.popupSubtitle || "");
+
+  tEl.textContent = title;
+  sEl.textContent = sub;
+
+  tEl.style.fontSize = (parseInt(p.titleFontSize,10) || 28) + "px";
+  tEl.style.color = String(p.titleColor || "#111111");
+
+  sEl.style.fontSize = (parseInt(p.subtitleFontSize,10) || 16) + "px";
+  sEl.style.color = String(p.subtitleColor || "rgba(17,24,39,.75)");
+
+  body.innerHTML = "";
+  body.appendChild(mtBuildPopupFormPreview(p));
+
+  function applyMode(){
+    var w = window.innerWidth || document.documentElement.clientWidth || 1200;
+    var isMob = w <= 520;
+
+    if(isMob){
+      modal.style.margin = "0 auto 0";
+      modal.style.width = "100%";
+      modal.style.maxWidth = "none";
+      modal.style.minHeight = "100vh";
+      modal.style.borderRadius = "0";
+
+      if(topbar) topbar.style.display = "block";
+
+      closeBtn.style.top = "10px";
+      closeBtn.style.right = "10px";
+
+      tEl.parentElement.style.padding = "70px 18px 10px 18px";
+      body.style.padding = "10px 18px 22px 18px";
+    }else{
+      modal.style.margin = "60px auto 0";
+      modal.style.width = "calc(100% - 40px)";
+      modal.style.maxWidth = "720px";
+      modal.style.minHeight = "";
+      modal.style.borderRadius = "0";
+
+      if(topbar) topbar.style.display = "none";
+
+      closeBtn.style.top = "14px";
+      closeBtn.style.right = "16px";
+
+      tEl.parentElement.style.padding = "28px 28px 10px 28px";
+      body.style.padding = "14px 28px 28px 28px";
+    }
+  }
+
+  applyMode();
+
+  ov.style.display = "block";
+  try{ document.documentElement.style.overflow = "hidden"; }catch(e){}
+
+  closeBtn.onclick = mtClosePopupPreview;
+  back.onclick = mtClosePopupPreview;
+
+  setTimeout(function(){
+    window.addEventListener("resize", applyMode);
+    ov.__mtResizeBind = applyMode;
+  }, 0);
+}
+
+function mtBuildPopupFormPreview(p){
+  var st = p && p.style ? p.style : {};
+  var fields = Array.isArray(p.fields) ? p.fields : [];
+
+  var wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.flexDirection = "column";
+  wrap.style.gap = "10px";
+
+  var validators = [];
+
+  function setErr(w,msg){
+    var e = w ? w.querySelector("[data-mt-err]") : null;
+    if(!e) return;
+    e.textContent = msg || "";
+    e.style.display = msg ? "block" : "none";
+  }
+
+  function digits(s){ return String(s||"").replace(/\D+/g,""); }
+
+  function phoneMask(raw){
+    var d = digits(raw);
+    if(d.indexOf("998") === 0) d = d.slice(3);
+    d = d.slice(0, 9);
+    var a = d.slice(0,2);
+    var b = d.slice(2,5);
+    var c = d.slice(5,7);
+    var e = d.slice(7,9);
+    var out = "+998";
+    if(a) out += " " + a;
+    if(b) out += " " + b;
+    if(c) out += " " + c;
+    if(e) out += " " + e;
+    return { val: out, ok: d.length === 9, empty: d.length === 0 };
+  }
+
+  function lockPrefix(inp, pref){
+    pref = String(pref||"");
+    function esc(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
+    function fix(){
+      var v = String(inp.value||"");
+      if(v.indexOf(pref) !== 0) inp.value = pref + v.replace(new RegExp("^"+esc(pref)),"").trim();
+      if(inp.selectionStart != null && inp.selectionStart < pref.length){
+        try{ inp.setSelectionRange(pref.length, pref.length); }catch(e){}
+      }
+    }
+    inp.addEventListener("focus", fix);
+    inp.addEventListener("click", fix);
+    inp.addEventListener("keydown", function(ev){
+      if(ev.key === "Backspace"){
+        if(inp.selectionStart != null && inp.selectionStart <= pref.length){
+          ev.preventDefault();
+          try{ inp.setSelectionRange(pref.length, pref.length); }catch(e){}
+        }
+      }
+    });
+  }
+
+  function emailOk(v){
+    v = String(v||"").trim();
+    if(!v) return false;
+    if(v.indexOf("@") === -1) return false;
+    var at = v.indexOf("@");
+    if(at === 0 || at === v.length-1) return false;
+    if(v.indexOf(".", at) === -1) return false;
+    return true;
+  }
+
+  for(var i=0;i<fields.length;i++){
+    (function(f){
+      f = f || {};
+      var t = String(f.type || "").trim();
+
+      var w = document.createElement("div");
+      w.style.display = "flex";
+      w.style.flexDirection = "column";
+      w.style.gap = "6px";
+      w.style.marginBottom = ((st.inputGap!=null?st.inputGap:12)) + "px";
+      w.style.position = "relative";
+
+      var title = String(f.title || "").trim();
+      if(title){
+        var lab = document.createElement("div");
+        lab.textContent = title;
+        lab.style.fontSize = ((st.titleFontSize!=null?st.titleFontSize:14)) + "px";
+        lab.style.color = String(st.titleColor || "rgba(17,24,39,.7)");
+        w.appendChild(lab);
+      }
+
+      var ph = String(f.placeholder || "").trim();
+      var control = null;
+
+      if(t === "textarea"){
+        control = document.createElement("textarea");
+        control.rows = 3;
+      }else if(t === "dropdown"){
+        control = document.createElement("select");
+        var firstText = String(f.firstText || "Tanlang");
+        var o0 = document.createElement("option");
+        o0.value = "";
+        o0.textContent = firstText;
+        control.appendChild(o0);
+        var opts = Array.isArray(f.options) ? f.options : [];
+        for(var k=0;k<opts.length;k++){
+          var o = document.createElement("option");
+          o.value = String(opts[k]||"");
+          o.textContent = String(opts[k]||"");
+          control.appendChild(o);
+        }
+      }else{
+        control = document.createElement("input");
+        if(t === "email") control.type = "email";
+        else if(t === "phone") control.type = "tel";
+        else if(t === "date") control.type = "date";
+        else if(t === "time") control.type = "time";
+        else control.type = "text";
+      }
+
+      if(control){
+        if(ph && t !== "dropdown") control.placeholder = ph;
+        if(f.required) control.required = true;
+
+        control.style.boxSizing = "border-box";
+        control.style.display = "block";
+        control.style.width = "100%";
+
+        var bs = (st.inputBorderSize != null) ? st.inputBorderSize : 1;
+        var bc = st.inputBorderColor ? st.inputBorderColor : "rgba(17,24,39,.12)";
+        control.style.border = bs + "px solid " + bc;
+        control.style.borderRadius = ((st.inputRadius!=null?st.inputRadius:12)) + "px";
+        control.style.padding = "10px 12px";
+        control.style.height = ((st.inputHeight!=null?st.inputHeight:44)) + "px";
+        control.style.fontSize = ((st.inputFontSize!=null?st.inputFontSize:16)) + "px";
+        control.style.color = String(st.inputColor || "#111111");
+        control.style.outline = "none";
+        control.style.background = String(st.inputBg || "#ffffff");
+      }
+
+      var err = document.createElement("div");
+      err.setAttribute("data-mt-err","1");
+      err.style.display = "none";
+      err.style.position = "absolute";
+      err.style.left = "0";
+      err.style.top = "100%";
+      err.style.marginTop = "6px";
+      err.style.fontSize = "12px";
+      err.style.color = "#ff3b3b";
+      err.style.lineHeight = "1.2";
+      err.style.pointerEvents = "none";
+      err.style.zIndex = "5";
+
+      if(f.required){
+        validators.push(function(){
+          if(!control) return true;
+
+          if(t === "dropdown"){
+            if(!String(control.value||"")){
+              setErr(w, "Iltimos maydonni to'ldiring");
+              return false;
+            }
+            setErr(w, "");
+            return true;
+          }
+
+          if(t === "phone"){
+            var r = phoneMask(control.value || "");
+            if(r.empty){
+              setErr(w, "Iltimos maydonni to'ldiring");
+              return false;
+            }
+            if(!r.ok){
+              setErr(w, "Telefon raqamni to'g'ri kiriting");
+              return false;
+            }
+            setErr(w, "");
+            return true;
+          }
+
+          if(t === "email"){
+            var em = String(control.value || "").trim();
+            if(!em){
+              setErr(w, "Iltimos maydonni to'ldiring");
+              return false;
+            }
+            if(!emailOk(em)){
+              setErr(w, "Iltimos emailni to'g'ri kiriting");
+              return false;
+            }
+            setErr(w, "");
+            return true;
+          }
+
+          var v = String(control.value || "").trim();
+          if(!v){
+            setErr(w, "Iltimos maydonni to'ldiring");
+            return false;
+          }
+          setErr(w, "");
+          return true;
+        });
+      }
+
+      if(t === "phone" && control){
+        var r0 = phoneMask(control.value || "");
+        control.value = r0.val;
+        lockPrefix(control, "+998");
+        control.addEventListener("input", function(){
+          var r1 = phoneMask(control.value || "");
+          control.value = r1.val;
+          if(f.required){
+            if(r1.empty) setErr(w, "Iltimos maydonni to'ldiring");
+            else if(!r1.ok) setErr(w, "Telefon raqamni to'g'ri kiriting");
+            else setErr(w, "");
+          }
+        });
+        control.addEventListener("blur", function(){
+          var r2 = phoneMask(control.value || "");
+          if(f.required){
+            if(r2.empty) setErr(w, "Iltimos maydonni to'ldiring");
+            else if(!r2.ok) setErr(w, "Telefon raqamni to'g'ri kiriting");
+            else setErr(w, "");
+          }
+        });
+      }
+
+      if(t === "email" && control){
+        control.addEventListener("input", function(){
+          var v1 = String(control.value || "").trim();
+          if(f.required && v1 && !emailOk(v1)) setErr(w, "Iltimos emailni to'g'ri kiriting");
+          else if(f.required && !v1) setErr(w, "Iltimos maydonni to'ldiring");
+          else setErr(w, "");
+        });
+        control.addEventListener("blur", function(){
+          var v2 = String(control.value || "").trim();
+          if(f.required && !v2) setErr(w, "Iltimos maydonni to'ldiring");
+          else if(f.required && !emailOk(v2)) setErr(w, "Iltimos emailni to'g'ri kiriting");
+          else setErr(w, "");
+        });
+      }
+
+      if(t === "dropdown" && control){
+        control.addEventListener("change", function(){
+          if(f.required && !control.value) setErr(w, "Iltimos maydonni to'ldiring");
+          else setErr(w, "");
+        });
+        control.addEventListener("blur", function(){
+          if(f.required && !control.value) setErr(w, "Iltimos maydonni to'ldiring");
+          else setErr(w, "");
+        });
+      }
+
+      w.appendChild(control);
+      w.appendChild(err);
+      wrap.appendChild(w);
+    })(fields[i]);
+  }
+
+  var btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = String(p.submitText || "Yuborish");
+  btn.style.boxSizing = "border-box";
+  btn.style.display = "flex";
+  btn.style.alignItems = "center";
+  btn.style.justifyContent = "center";
+  btn.style.width = "100%";
+  btn.style.height = ((st.submitHeight!=null?st.submitHeight:46)) + "px";
+  btn.style.borderRadius = ((st.submitRadius!=null?st.submitRadius:14)) + "px";
+  btn.style.border = "0";
+  btn.style.background = String(st.submitBg || "#111111");
+  btn.style.color = String(st.submitColor || "#ffffff");
+  btn.style.fontSize = ((st.submitFontSize!=null?st.submitFontSize:14)) + "px";
+  btn.style.cursor = "pointer";
+
+  btn.onclick = function(e){
+    e.preventDefault();
+    var ok = true;
+    for(var i=0;i<validators.length;i++){
+      try{
+        if(!validators[i]()) ok = false;
+      }catch(err){
+        ok = false;
+      }
+    }
+    if(!ok) return;
+
+    var text = (p && p.successText && String(p.successText).trim()) ? String(p.successText).trim() : "Rahmat, ma’lumotlaringiz yuborildi";
+    alert(text);
+  };
+
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+(function(){
+  var ov = document.getElementById("mtPopupPreviewOverlay");
+  if(!ov) return;
+  ov.addEventListener("click", function(e){
+    if(e.target === ov) mtClosePopupPreview();
+  });
+})();
+
+
 
 let dragState = null;
 let lastDragAt = 0;
@@ -2740,6 +3329,18 @@ function buildAlignRow(item){
 
 function renderSettings(){
   settingsBody.innerHTML="";
+    if(state.selectedPopupId){
+    var p = (Array.isArray(state.popups) ? state.popups : []).find(function(x){
+      return x && x.id === state.selectedPopupId;
+    });
+    if(p){
+      buildPopupFormSettings(p);
+      return;
+    }else{
+      state.selectedPopupId = null;
+    }
+  }
+
   const block=getCurrentBlock();
   if(!block){
     const d=document.createElement("div");
@@ -4145,6 +4746,128 @@ code.style.minWidth = "0";
 }
 
 
+function buildPopupFormSettings(p){
+  settingsBody.innerHTML = "";
+  selectedLabel.textContent = "Pop up forma • " + String(p.id || "");
+
+  settingsBody.appendChild(mtText("Pop up nomi", p.popupName || "Pop up forma", function(e){
+    p.popupName = String(e.target.value || "");
+    renderPopupsTray();
+    saveCurrentSiteState();
+  }));
+
+(function(){
+  var wrap = document.createElement("div");
+  wrap.className = "field";
+
+  var l = document.createElement("label");
+  l.textContent = "Chaqiruv ID";
+  wrap.appendChild(l);
+
+  var row = document.createElement("div");
+  row.style.display = "grid";
+  row.style.gridTemplateColumns = "38px 1fr";
+  row.style.gap = "8px";
+  row.style.alignItems = "center";
+
+  var hash = document.createElement("div");
+  hash.textContent = "#";
+  hash.style.height = "32px";
+  hash.style.display = "flex";
+  hash.style.alignItems = "center";
+  hash.style.justifyContent = "center";
+  hash.style.borderRadius = "10px";
+  hash.style.border = "1px solid rgba(255,255,255,.12)";
+  hash.style.background = "rgba(255,255,255,.06)";
+  hash.style.color = "#fff";
+  hash.style.fontSize = "12px";
+  hash.style.userSelect = "none";
+
+  var inp = document.createElement("input");
+  inp.type = "text";
+  inp.value = String((p.callId || "").replace(/^#/, "") || "popup");
+  inp.oninput = function(){
+    var v = String(inp.value || "").trim();
+    v = v.replace(/\s+/g,"-").replace(/[^a-zA-Z0-9_-]/g,"");
+    inp.value = v;
+    p.callId = "#" + (v || "popup");
+    saveCurrentSiteState();
+  };
+
+  mtTuneSettingRow(wrap, l, inp);
+
+  row.appendChild(hash);
+  row.appendChild(inp);
+  wrap.appendChild(row);
+
+  settingsBody.appendChild(wrap);
+
+  if(!p.callId){
+    p.callId = "#popup";
+    saveCurrentSiteState();
+  }else{
+    if(String(p.callId || "")[0] !== "#") p.callId = "#" + String(p.callId || "");
+  }
+})();
+
+
+  settingsBody.appendChild(mtText("Title", p.popupTitle || "", function(e){
+    p.popupTitle = String(e.target.value || "");
+    saveCurrentSiteState();
+  }));
+
+  settingsBody.appendChild(mtText("Subtitle", p.popupSubtitle || "", function(e){
+    p.popupSubtitle = String(e.target.value || "");
+    saveCurrentSiteState();
+  }));
+
+  settingsBody.appendChild(mtNum("Title font size", p.titleFontSize || 28, function(e){
+    var n = parseInt(e.target.value,10);
+    if(!isNaN(n)) p.titleFontSize = n;
+    saveCurrentSiteState();
+  }));
+
+  settingsBody.appendChild(mtColor("Title color", p.titleColor || "#111111", function(e){
+    p.titleColor = e.target.value;
+    saveCurrentSiteState();
+  }));
+
+  settingsBody.appendChild(mtNum("Subtitle font size", p.subtitleFontSize || 16, function(e){
+    var n = parseInt(e.target.value,10);
+    if(!isNaN(n)) p.subtitleFontSize = n;
+    saveCurrentSiteState();
+  }));
+
+  settingsBody.appendChild(mtColor("Subtitle color", p.subtitleColor || "rgba(17,24,39,.75)", function(e){
+    p.subtitleColor = e.target.value;
+    saveCurrentSiteState();
+  }));
+
+  settingsBody.appendChild(mtColor("Pop up fon rangi", p.overlayBg || "rgba(0,0,0,.65)", function(e){
+    p.overlayBg = e.target.value;
+    saveCurrentSiteState();
+  }));
+
+  settingsBody.appendChild(mtColor("Yopish (X) rangi", p.closeColor || "#ffffff", function(e){
+    p.closeColor = e.target.value;
+    saveCurrentSiteState();
+  }));
+
+  var del = document.createElement("button");
+  del.className = "settings-delete-btn";
+  var delIcon = document.createElement("div");
+  delIcon.className = "settings-delete-icon";
+  del.appendChild(delIcon);
+  del.onclick = function(){
+    if(!confirm("Popup formani o‘chirishni xohlaysizmi?")) return;
+    state.popups = (Array.isArray(state.popups)?state.popups:[]).filter(function(x){
+      return String(x && x.id ? x.id : "") !== String(p.id);
+    });
+    state.selectedPopupId = null;
+    render();
+  };
+  settingsBody.appendChild(del);
+}
 
 
 function buildFormSettings(item){
@@ -6178,6 +6901,7 @@ var scriptPart =
 function render(){
   renderBlocks();
   renderPreview();
+  renderPopupsTray();
   renderLayers();
   renderSettings();
   saveCurrentSiteState();
@@ -6284,6 +7008,13 @@ if(addFormBtn)addFormBtn.onclick=function(){
     m.style.display = "none";
     if(typeof window.mtAddStandardForm === "function") {
       window.mtAddStandardForm();
+    }
+  };
+    var pop = document.getElementById("mtPickPopupFormBtn");
+  if(pop && m) pop.onclick = function(){
+    m.style.display = "none";
+    if(typeof window.mtAddPopupForm === "function") {
+      window.mtAddPopupForm();
     }
   };
 
