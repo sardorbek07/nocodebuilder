@@ -2714,7 +2714,9 @@ ov.style.padding = "0";
 
   closeBtn.style.top = "14px";
   closeBtn.style.right = "16px";
-   closeBtn.style.color = (p && p.closeColor) ? String(p.closeColor) : "#000";
+  var cc = (p && p.closeColor) ? String(p.closeColor).trim().toLowerCase() : "";
+if(cc === "#fff" || cc === "#ffffff") cc = "";
+closeBtn.style.color = cc || "#000";
 
   tEl.parentElement.style.padding = "28px 28px 10px 28px";
   body.style.padding = "14px 28px 28px 28px";
