@@ -1492,12 +1492,12 @@ window.mtAddPopupForm = function(){
 
 
 function selectItem(id){
+  state.selectedPopupId = null;
   state.selectedId=id;
   renderSettings();
   highlightPreview();
   renderLayers();
 }
-
 function deleteItem(id){
   const block=getCurrentBlock();
   if(!block)return;
@@ -2490,6 +2490,7 @@ if(["image","shape","button"].includes(item.type)){
 
   screenInner.appendChild(blockDiv);
   screenInner.onclick=function(){
+    state.selectedPopupId = null;
     state.selectedId=null;
     renderSettings();
     highlightPreview();
@@ -2518,6 +2519,12 @@ function renderPopupsTray(){
       if(!p || !p.id) return;
 
       var row = document.createElement("div");
+       row.onclick = function(){
+        state.selectedPopupId = p.id;
+        state.selectedId = null;
+        renderSettings();
+        renderPopupsTray();
+      };
       row.style.display = "flex";
       row.style.alignItems = "center";
       row.style.justifyContent = "space-between";
