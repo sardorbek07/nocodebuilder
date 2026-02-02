@@ -4754,13 +4754,15 @@ code.style.minWidth = "0";
 
 function buildPopupFormSettings(p){
   var ui = mtBuildFormSettingsUi(p, {
-    title: "Pop up forma • " + String(p.id || ""),
-    showAlign: false,
-    showCrm: false,
-    onInputs: function(){
-      alert("Inputlar keyingi qadamda popupga ulanadi");
+  title: "Pop up forma • " + String(p.id || ""),
+  showAlign: false,
+  showCrm: false,
+  onInputs: function(){
+    if(typeof window.mtOpenPopupFormFieldsModal === "function"){
+      window.mtOpenPopupFormFieldsModal(p);
     }
-  });
+  }
+});
 
   var accPop = mtAcc("Pop up stillari");
   settingsBody.appendChild(accPop.wrap);
@@ -6243,6 +6245,462 @@ if(isOpen){
   modal.style.display = "flex";
   render();
 };
+
+window.mtOpenPopupFormFieldsModal = function(popup){
+  var modal = document.getElementById("mtFormFieldsModal");
+  var body = document.getElementById("mtFormFieldsBody");
+  var btnClose = document.getElementById("mtFormFieldsClose");
+  var btnCancel = document.getElementById("mtFormFieldsCancel");
+  var btnSave = document.getElementById("mtFormFieldsSave");
+
+  if(!modal || !body) return;
+  if(!popup || !popup.id) return;
+
+  if(!Array.isArray(popup.fields)) popup.fields = [];
+
+  var original = JSON.parse(JSON.stringify(popup.fields));
+  var temp = JSON.parse(JSON.stringify(original));
+  var expandedId = temp[0] ? String(temp[0].id || "") : "";
+  var mtDragId = "";
+
+  function fid(){
+    return "fld_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  function labelType(t){
+    t = String(t||"");
+    if(t === "name") return "Ism";
+    if(t === "phone") return "Telefon";
+    if(t === "email") return "Email";
+    if(t === "text") return "Matn";
+    if(t === "textarea") return "Katta matn";
+    if(t === "date") return "Sana";
+    if(t === "time") return "Vaqt";
+    if(t === "dropdown") return "Tanlash inputi";
+    return t || "Matn";
+  }
+
+  function getById(id){
+    id = String(id || "");
+    for(var i=0;i<temp.length;i++){
+      if(temp[i] && String(temp[i].id) === id) return temp[i];
+    }
+    return null;
+  }
+
+  function styleInput(el){
+    el.style.width = "100%";
+    el.style.padding = "12px";
+    el.style.borderRadius = "12px";
+    el.style.border = "1px solid rgba(255,255,255,.10)";
+    el.style.background = "#0b1016";
+    el.style.color = "#fff";
+    el.style.outline = "none";
+    el.style.fontFamily = "monospace";
+    el.style.fontSize = "13px";
+    return el;
+  }
+
+  function fieldWrap(labelText, el){
+    var w = document.createElement("div");
+    w.style.display = "flex";
+    w.style.flexDirection = "column";
+    w.style.gap = "6px";
+
+    var l = document.createElement("div");
+    l.style.fontSize = "12px";
+    l.style.color = "rgba(255,255,255,.6)";
+    l.textContent = labelText;
+
+    w.appendChild(l);
+    w.appendChild(el);
+    return w;
+  }
+
+  function mtMoveField(dragId, overId){
+    dragId = String(dragId||"");
+    overId = String(overId||"");
+    if(!dragId || !overId || dragId === overId) return;
+
+    var from = -1, to = -1;
+    for(var i=0;i<temp.length;i++){
+      var id = String(temp[i] && temp[i].id ? temp[i].id : "");
+      if(id === dragId) from = i;
+      if(id === overId) to = i;
+    }
+    if(from === -1 || to === -1) return;
+
+    var item = temp.splice(from, 1)[0];
+    if(from < to) to -= 1;
+    temp.splice(to, 0, item);
+  }
+
+  function renderEditor(target){
+    var editor = document.createElement("div");
+    editor.style.marginTop = "12px";
+    editor.style.paddingTop = "12px";
+    editor.style.borderTop = "1px solid rgba(255,255,255,.08)";
+    editor.style.display = "flex";
+    editor.style.flexDirection = "column";
+    editor.style.gap = "10px";
+
+    var typeSel = document.createElement("select");
+    styleInput(typeSel);
+    [
+      ["name","Ism"],
+      ["phone","Telefon"],
+      ["email","Email"],
+      ["text","Matn"],
+      ["textarea","Katta matn"],
+      ["date","Sana"],
+      ["time","Vaqt"],
+      ["dropdown","Tanlash inputi"]
+    ].forEach(function(p){
+      var o = document.createElement("option");
+      o.value = p[0];
+      o.textContent = p[1];
+      typeSel.appendChild(o);
+    });
+
+    typeSel.value = String(target.type || "text");
+    typeSel.onchange = function(){
+      target.type = String(typeSel.value || "text");
+
+      if(target.type === "dropdown"){
+        if(!Array.isArray(target.options)) target.options = [];
+        if(typeof target.firstText !== "string") target.firstText = "Tanlang";
+        target.placeholder = "";
+      }else{
+        if(!Array.isArray(target.options)) target.options = [];
+        if(typeof target.firstText !== "string") target.firstText = "";
+        if(target.type === "phone" || target.type === "date" || target.type === "time"){
+          target.placeholder = "";
+        }
+      }
+
+      render();
+    };
+
+    var reqRow = document.createElement("div");
+    reqRow.style.display = "flex";
+    reqRow.style.alignItems = "center";
+    reqRow.style.gap = "10px";
+
+    var req = document.createElement("input");
+    req.type = "checkbox";
+    req.checked = !!target.required;
+    req.onchange = function(){
+      target.required = !!req.checked;
+      render();
+    };
+
+    var reqLbl = document.createElement("div");
+    reqLbl.style.fontSize = "13px";
+    reqLbl.style.color = "#fff";
+    reqLbl.textContent = "Majburiy qilish";
+
+    reqRow.appendChild(req);
+    reqRow.appendChild(reqLbl);
+
+    var titleIn = document.createElement("input");
+    titleIn.type = "text";
+    styleInput(titleIn);
+    titleIn.value = String(target.title || "");
+    titleIn.oninput = function(e){
+      target.title = String(e.target.value || "");
+    };
+
+    var phIn = document.createElement("input");
+    phIn.type = "text";
+    styleInput(phIn);
+    phIn.value = String(target.placeholder || "");
+    phIn.oninput = function(e){
+      target.placeholder = String(e.target.value || "");
+    };
+
+    editor.appendChild(fieldWrap("Type", typeSel));
+    editor.appendChild(reqRow);
+
+    var tp = String(target.type || "text");
+
+    if(tp === "phone"){
+      editor.appendChild(fieldWrap("Title", titleIn));
+    }
+
+    if(tp === "dropdown"){
+      editor.appendChild(fieldWrap("Title", titleIn));
+
+      var firstIn = document.createElement("input");
+      firstIn.type = "text";
+      styleInput(firstIn);
+      firstIn.value = String(target.firstText || "Tanlang");
+      firstIn.oninput = function(e){
+        target.firstText = String(e.target.value || "");
+      };
+      editor.appendChild(fieldWrap("Birinchi text", firstIn));
+
+      var ta = document.createElement("textarea");
+      ta.rows = 5;
+      styleInput(ta);
+      ta.style.resize = "vertical";
+      var opts = Array.isArray(target.options) ? target.options : [];
+      ta.value = opts.map(function(x){ return String(x||""); }).join("\n");
+      ta.oninput = function(e){
+        var lines = String(e.target.value || "").split("\n").map(function(x){ return String(x||"").trim(); }).filter(Boolean);
+        target.options = lines;
+      };
+      editor.appendChild(fieldWrap("Options (har qator 1 ta)", ta));
+    }
+
+    if(tp === "date"){
+      editor.appendChild(fieldWrap("Title", titleIn));
+    }
+
+    if(tp === "time"){
+      editor.appendChild(fieldWrap("Title", titleIn));
+    }
+
+    if(tp === "name" || tp === "email" || tp === "text" || tp === "textarea"){
+      editor.appendChild(fieldWrap("Title", titleIn));
+      editor.appendChild(fieldWrap("Placeholder", phIn));
+    }
+
+    return editor;
+  }
+
+  function render(){
+    body.innerHTML = "";
+
+    var listWrap = document.createElement("div");
+    listWrap.style.display = "flex";
+    listWrap.style.flexDirection = "column";
+    listWrap.style.gap = "10px";
+
+    for(var i=0;i<temp.length;i++){
+      (function(f){
+        var fid0 = String(f && f.id ? f.id : "");
+        var isOpen = (fid0 && fid0 === String(expandedId || ""));
+
+        var card = document.createElement("div");
+        card.style.borderRadius = "16px";
+        card.style.border = "1px solid rgba(255,255,255,.08)";
+        card.style.background = "rgba(255,255,255,.03)";
+        card.style.padding = "14px 14px";
+        card.style.display = "flex";
+        card.style.flexDirection = "column";
+        card.style.gap = "0px";
+
+        if(isOpen){
+          card.style.borderColor = "rgba(255,233,200,.45)";
+          card.style.background = "rgba(255,233,200,.06)";
+        }
+
+        var head = document.createElement("button");
+        head.style.display = "flex";
+        head.style.alignItems = "center";
+        head.style.justifyContent = "space-between";
+        head.style.gap = "12px";
+        head.style.cursor = "pointer";
+        head.style.userSelect = "none";
+        head.type = "button";
+        head.style.width = "100%";
+        head.style.border = "0";
+        head.style.padding = "0";
+        head.style.margin = "0";
+        head.style.background = "transparent";
+        head.style.color = "inherit";
+        head.style.textAlign = "left";
+        head.style.font = "inherit";
+        head.style.lineHeight = "inherit";
+        head.style.boxShadow = "none";
+        head.style.outline = "none";
+        head.style.appearance = "none";
+        head.dataset.fid = fid0;
+
+        var left = document.createElement("div");
+        left.style.minWidth = "0";
+        left.style.flex = "1";
+
+        var top = document.createElement("div");
+        top.style.fontSize = "13px";
+        top.style.color = "#fff";
+        top.style.whiteSpace = "nowrap";
+        top.style.overflow = "hidden";
+        top.style.textOverflow = "ellipsis";
+        top.textContent = labelType(f.type);
+
+        left.appendChild(top);
+
+        var right = document.createElement("div");
+        right.style.display = "inline-flex";
+        right.style.alignItems = "center";
+        right.style.gap = "10px";
+
+        var h = document.createElement("div");
+        h.className = "mt-f-handle";
+        h.textContent = "⋮⋮";
+        h.draggable = true;
+
+        h.addEventListener("dragstart", function(e){
+          if(!fid0) return;
+          mtDragId = fid0;
+          try{ e.dataTransfer.setData("text/plain", fid0); }catch(err){}
+          e.dataTransfer.effectAllowed = "move";
+          card.style.opacity = ".7";
+        });
+
+        h.addEventListener("dragend", function(){
+          card.style.opacity = "1";
+        });
+
+        right.appendChild(h);
+
+        var che = document.createElement("div");
+        che.textContent = "▾";
+        che.style.opacity = ".75";
+        che.style.fontSize = "16px";
+        che.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+        che.style.transition = "transform .15s ease";
+
+        var del = document.createElement("button");
+        del.type = "button";
+        del.className = "mt-header-link";
+        del.style.width = "44px";
+        del.style.height = "34px";
+        del.style.display = "inline-flex";
+        del.style.alignItems = "center";
+        del.style.justifyContent = "center";
+        del.style.borderRadius = "999px";
+        del.textContent = "×";
+        del.onclick = function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          temp = temp.filter(function(x){ return String(x && x.id ? x.id : "") !== fid0; });
+          if(String(expandedId || "") === fid0){
+            expandedId = temp[0] ? String(temp[0].id || "") : "";
+          }
+          render();
+        };
+
+        head.onclick = function(){
+          if(!fid0) return;
+          if(String(expandedId || "") === fid0) expandedId = "";
+          else expandedId = fid0;
+          render();
+        };
+
+        card.addEventListener("dragover", function(e){
+          if(!mtDragId) return;
+          if(!fid0 || fid0 === mtDragId) return;
+          e.preventDefault();
+          try{ e.dataTransfer.dropEffect = "move"; }catch(err){}
+          card.style.outline = "1px dashed rgba(255,233,200,.55)";
+          card.style.outlineOffset = "2px";
+        });
+
+        card.addEventListener("dragleave", function(){
+          card.style.outline = "";
+          card.style.outlineOffset = "";
+        });
+
+        card.addEventListener("drop", function(e){
+          if(!mtDragId) return;
+          if(!fid0 || fid0 === mtDragId) return;
+          e.preventDefault();
+          card.style.outline = "";
+          card.style.outlineOffset = "";
+          mtMoveField(mtDragId, fid0);
+          mtDragId = "";
+          render();
+        });
+
+        right.appendChild(che);
+        right.appendChild(del);
+
+        head.appendChild(left);
+        head.appendChild(right);
+
+        card.appendChild(head);
+
+        var editorWrap = document.createElement("div");
+        editorWrap.className = "mt-f-editor";
+        card.appendChild(editorWrap);
+
+        if(isOpen){
+          var active = getById(expandedId);
+          if(active){
+            editorWrap.innerHTML = "";
+            editorWrap.appendChild(renderEditor(active));
+            editorWrap.classList.add("is-open");
+          }
+        }else{
+          editorWrap.classList.remove("is-open");
+          editorWrap.innerHTML = "";
+        }
+
+        listWrap.appendChild(card);
+      })(temp[i]);
+    }
+
+    body.appendChild(listWrap);
+
+    var addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.className = "mt-btn secondary";
+    addBtn.style.marginTop = "10px";
+    addBtn.textContent = "+ Input qo‘shish";
+    addBtn.onclick = function(){
+      var n = { id: fid(), type: "text", title: "", placeholder: "New field", required: false, options: [] };
+      temp.push(n);
+      expandedId = String(n.id || "");
+      render();
+      setTimeout(function(){
+        try{
+          var m = document.getElementById("mtFormFieldsBody");
+          if(!m) return;
+          m.scrollTop = m.scrollHeight;
+        }catch(e){}
+      }, 0);
+    };
+    body.appendChild(addBtn);
+
+    if(!temp.length){
+      var hint = document.createElement("div");
+      hint.style.marginTop = "12px";
+      hint.style.fontSize = "12px";
+      hint.style.color = "rgba(255,255,255,.55)";
+      hint.textContent = "Hali input yo‘q.";
+      body.appendChild(hint);
+    }
+  }
+
+  function closeOnly(){
+    modal.style.display = "none";
+  }
+
+  function cancel(){
+    closeOnly();
+  }
+
+  function save(){
+    popup.fields = JSON.parse(JSON.stringify(temp));
+    renderPopupsTray();
+    saveCurrentSiteState();
+    closeOnly();
+  }
+
+  if(btnClose) btnClose.onclick = cancel;
+  if(btnCancel) btnCancel.onclick = cancel;
+  if(btnSave) btnSave.onclick = save;
+
+  modal.addEventListener("click", function(e){
+    if(e.target === modal) cancel();
+  }, { once:true });
+
+  modal.style.display = "flex";
+  render();
+};
+
 
 
 
