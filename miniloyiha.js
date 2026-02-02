@@ -2720,6 +2720,8 @@ function mtOpenPopupPreview(p){
 function mtBuildPopupFormPreview(p){
   var st = p && p.style ? p.style : {};
   var fields = Array.isArray(p.fields) ? p.fields : [];
+  if(!Array.isArray(fields) && Array.isArray(p.fields)) fields = p.fields;
+if(!Array.isArray(p.fields)) p.fields = fields;
 
   var wrap = document.createElement("div");
   wrap.style.display = "flex";
