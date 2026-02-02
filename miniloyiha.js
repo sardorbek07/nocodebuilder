@@ -2679,6 +2679,8 @@ function mtOpenPopupPreview(p){
     var isMob = w <= 520;
 
     if(isMob){
+      ov.style.display = "block";
+ov.style.padding = "0";
       modal.style.margin = "0 auto 0";
       modal.style.width = "100%";
       modal.style.maxWidth = "none";
@@ -2693,20 +2695,25 @@ function mtOpenPopupPreview(p){
       tEl.parentElement.style.padding = "70px 18px 10px 18px";
       body.style.padding = "10px 18px 22px 18px";
     }else{
-      modal.style.margin = "60px auto 0";
-      modal.style.width = "calc(100% - 40px)";
-      modal.style.maxWidth = "720px";
-      modal.style.minHeight = "";
-      modal.style.borderRadius = "0";
+  ov.style.display = "flex";
+  ov.style.alignItems = "center";
+  ov.style.justifyContent = "center";
+  ov.style.padding = "20px";
 
-      if(topbar) topbar.style.display = "none";
+  modal.style.margin = "0";
+  modal.style.width = "calc(100% - 40px)";
+  modal.style.maxWidth = "520px";
+  modal.style.minHeight = "";
+  modal.style.borderRadius = "0";
 
-      closeBtn.style.top = "14px";
-      closeBtn.style.right = "16px";
+  if(topbar) topbar.style.display = "none";
 
-      tEl.parentElement.style.padding = "28px 28px 10px 28px";
-      body.style.padding = "14px 28px 28px 28px";
-    }
+  closeBtn.style.top = "14px";
+  closeBtn.style.right = "16px";
+
+  tEl.parentElement.style.padding = "28px 28px 10px 28px";
+  body.style.padding = "14px 28px 28px 28px";
+}
   }
 
   applyMode();
