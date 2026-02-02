@@ -4752,110 +4752,113 @@ code.style.minWidth = "0";
   return mtField(labelText, wrap);
 }
 
-
 function buildPopupFormSettings(p){
-  settingsBody.innerHTML = "";
-  selectedLabel.textContent = "Pop up forma • " + String(p.id || "");
+  var ui = mtBuildFormSettingsUi(p, {
+    title: "Pop up forma • " + String(p.id || ""),
+    showAlign: false,
+    showCrm: false,
+    onInputs: function(){
+      alert("Inputlar keyingi qadamda popupga ulanadi");
+    }
+  });
 
-  settingsBody.appendChild(mtText("Pop up nomi", p.popupName || "Pop up forma", function(e){
+  var accPop = mtAcc("Pop up stillari");
+  settingsBody.appendChild(accPop.wrap);
+
+  accPop.body.appendChild(mtText("Pop up nomi", p.popupName || "Pop up forma", function(e){
     p.popupName = String(e.target.value || "");
     renderPopupsTray();
     saveCurrentSiteState();
   }));
 
-(function(){
-  var wrap = document.createElement("div");
-  wrap.className = "field";
+  (function(){
+    var wrap = document.createElement("div");
+    wrap.className = "field";
 
-  var l = document.createElement("label");
-  l.textContent = "Chaqiruv ID";
-  wrap.appendChild(l);
+    var l = document.createElement("label");
+    l.textContent = "Chaqiruv ID";
+    wrap.appendChild(l);
 
-  var row = document.createElement("div");
-  row.style.display = "grid";
-  row.style.gridTemplateColumns = "38px 1fr";
-  row.style.gap = "8px";
-  row.style.alignItems = "center";
+    var row = document.createElement("div");
+    row.style.display = "grid";
+    row.style.gridTemplateColumns = "38px 1fr";
+    row.style.gap = "8px";
+    row.style.alignItems = "center";
 
-  var hash = document.createElement("div");
-  hash.textContent = "#";
-  hash.style.height = "32px";
-  hash.style.display = "flex";
-  hash.style.alignItems = "center";
-  hash.style.justifyContent = "center";
-  hash.style.borderRadius = "10px";
-  hash.style.border = "1px solid rgba(255,255,255,.12)";
-  hash.style.background = "rgba(255,255,255,.06)";
-  hash.style.color = "#fff";
-  hash.style.fontSize = "12px";
-  hash.style.userSelect = "none";
+    var hash = document.createElement("div");
+    hash.textContent = "#";
+    hash.style.height = "32px";
+    hash.style.display = "flex";
+    hash.style.alignItems = "center";
+    hash.style.justifyContent = "center";
+    hash.style.borderRadius = "10px";
+    hash.style.border = "1px solid rgba(255,255,255,.12)";
+    hash.style.background = "rgba(255,255,255,.06)";
+    hash.style.color = "#fff";
+    hash.style.fontSize = "12px";
+    hash.style.userSelect = "none";
 
-  var inp = document.createElement("input");
-  inp.type = "text";
-  inp.value = String((p.callId || "").replace(/^#/, "") || "popup");
-  inp.oninput = function(){
-    var v = String(inp.value || "").trim();
-    v = v.replace(/\s+/g,"-").replace(/[^a-zA-Z0-9_-]/g,"");
-    inp.value = v;
-    p.callId = "#" + (v || "popup");
-    saveCurrentSiteState();
-  };
+    var inp = document.createElement("input");
+    inp.type = "text";
+    inp.value = String((p.callId || "").replace(/^#/, "") || "popup");
+    inp.oninput = function(){
+      var v = String(inp.value || "").trim();
+      v = v.replace(/\s+/g,"-").replace(/[^a-zA-Z0-9_-]/g,"");
+      inp.value = v;
+      p.callId = "#" + (v || "popup");
+      saveCurrentSiteState();
+    };
 
-  mtTuneSettingRow(wrap, l, inp);
+    mtTuneSettingRow(wrap, l, inp);
 
-  row.appendChild(hash);
-  row.appendChild(inp);
-  wrap.appendChild(row);
+    row.appendChild(hash);
+    row.appendChild(inp);
+    wrap.appendChild(row);
 
-  settingsBody.appendChild(wrap);
+    accPop.body.appendChild(wrap);
 
-  if(!p.callId){
-    p.callId = "#popup";
-    saveCurrentSiteState();
-  }else{
+    if(!p.callId) p.callId = "#popup";
     if(String(p.callId || "")[0] !== "#") p.callId = "#" + String(p.callId || "");
-  }
-})();
+  })();
 
-
-  settingsBody.appendChild(mtText("Title", p.popupTitle || "", function(e){
+  accPop.body.appendChild(mtText("Title", p.popupTitle || "", function(e){
     p.popupTitle = String(e.target.value || "");
     saveCurrentSiteState();
   }));
 
-  settingsBody.appendChild(mtText("Subtitle", p.popupSubtitle || "", function(e){
+  accPop.body.appendChild(mtText("Subtitle", p.popupSubtitle || "", function(e){
     p.popupSubtitle = String(e.target.value || "");
     saveCurrentSiteState();
   }));
 
-  settingsBody.appendChild(mtNum("Title font size", p.titleFontSize || 28, function(e){
+  accPop.body.appendChild(mtNum("Title font size", p.titleFontSize || 28, function(e){
     var n = parseInt(e.target.value,10);
     if(!isNaN(n)) p.titleFontSize = n;
     saveCurrentSiteState();
   }));
 
-  settingsBody.appendChild(mtColor("Title color", p.titleColor || "#111111", function(e){
+  accPop.body.appendChild(mtColor("Title color", p.titleColor || "#111111", function(e){
     p.titleColor = e.target.value;
     saveCurrentSiteState();
   }));
 
-  settingsBody.appendChild(mtNum("Subtitle font size", p.subtitleFontSize || 16, function(e){
+  accPop.body.appendChild(mtNum("Subtitle font size", p.subtitleFontSize || 16, function(e){
     var n = parseInt(e.target.value,10);
     if(!isNaN(n)) p.subtitleFontSize = n;
     saveCurrentSiteState();
   }));
 
-  settingsBody.appendChild(mtColor("Subtitle color", p.subtitleColor || "rgba(17,24,39,.75)", function(e){
+  accPop.body.appendChild(mtColor("Subtitle color", p.subtitleColor || "rgba(17,24,39,.75)", function(e){
     p.subtitleColor = e.target.value;
     saveCurrentSiteState();
   }));
 
-  settingsBody.appendChild(mtColor("Pop up fon rangi", p.overlayBg || "rgba(0,0,0,.65)", function(e){
+  accPop.body.appendChild(mtColor("Pop up fon rangi", p.overlayBg || "rgba(0,0,0,.65)", function(e){
     p.overlayBg = e.target.value;
     saveCurrentSiteState();
   }));
 
-  settingsBody.appendChild(mtColor("Yopish (X) rangi", p.closeColor || "#ffffff", function(e){
+  accPop.body.appendChild(mtColor("Yopish (X) rangi", p.closeColor || "#ffffff", function(e){
     p.closeColor = e.target.value;
     saveCurrentSiteState();
   }));
@@ -4874,6 +4877,179 @@ function buildPopupFormSettings(p){
     render();
   };
   settingsBody.appendChild(del);
+}
+
+function mtBuildFormSettingsUi(target, opt){
+  opt = opt || {};
+  settingsBody.innerHTML = "";
+
+  if(opt.title){
+    selectedLabel.textContent = opt.title;
+  }
+
+  if(opt.showAlign && typeof buildAlignRow === "function"){
+    settingsBody.appendChild(buildAlignRow(target));
+  }
+
+  var btn = document.createElement("button");
+  btn.className = "secondary";
+  btn.textContent = "Inputlar";
+  btn.onclick = function(){
+    if(typeof opt.onInputs === "function") opt.onInputs();
+  };
+  settingsBody.appendChild(btn);
+
+  if(opt.showCrm){
+    var fCrm = document.createElement("div");
+    fCrm.className = "field";
+    var lCrm = document.createElement("label");
+    lCrm.textContent = "CRM list";
+    var s = document.createElement("select");
+    s.style.width = "100%";
+    s.style.borderRadius = "5px";
+    s.style.border = "1px solid #1f2937";
+    s.style.background = "transparent";
+    s.style.color = "#ffffff";
+    s.style.padding = "4px 6px";
+    s.style.fontSize = "11px";
+
+    var o0 = document.createElement("option");
+    o0.value = "";
+    o0.textContent = "— Tanlang —";
+    s.appendChild(o0);
+
+    var lists = Array.isArray(window.mtCrmLists) ? window.mtCrmLists : [];
+    for(var i=0;i<lists.length;i++){
+      var it = lists[i] || {};
+      var o = document.createElement("option");
+      o.value = String(it.id || "");
+      o.textContent = String(it.name || "");
+      s.appendChild(o);
+    }
+
+    s.value = String(target.crmListId || "");
+    s.onchange = function(){
+      target.crmListId = String(s.value || "");
+      renderPreview();
+      renderLayers();
+      saveCurrentSiteState();
+    };
+
+    fCrm.appendChild(lCrm);
+    fCrm.appendChild(s);
+    mtTuneSettingRow(fCrm, lCrm, s);
+    settingsBody.appendChild(fCrm);
+  }
+
+  var accForm = mtAcc("Forma stillari");
+  settingsBody.appendChild(accForm.wrap);
+
+  var accSubmit = mtAcc("Yuborish tugmasi stillari");
+  settingsBody.appendChild(accSubmit.wrap);
+
+  var accSuccess = mtAcc("Muvaffaqiyat");
+  settingsBody.appendChild(accSuccess.wrap);
+
+  var fText = document.createElement("div");
+  fText.className = "field";
+  var l1 = document.createElement("label");
+  l1.textContent = "Submit matni";
+  var in1 = document.createElement("input");
+  in1.type = "text";
+  in1.value = target.submitText || "Yuborish";
+  in1.oninput = function(e){
+    target.submitText = String(e.target.value || "");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+  fText.appendChild(l1);
+  fText.appendChild(in1);
+  mtTuneSettingRow(fText, l1, in1);
+  fText.style.gridTemplateColumns = "1fr";
+  fText.style.gap = "6px";
+  fText.style.alignItems = "stretch";
+  accSubmit.body.appendChild(fText);
+
+  var fSx = document.createElement("div");
+  fSx.className = "field";
+  var lSx = document.createElement("label");
+  lSx.textContent = "Success matn";
+  var inSx = document.createElement("textarea");
+  inSx.rows = 3;
+  inSx.value = target.successText || "";
+  inSx.oninput = function(e){
+    target.successText = String(e.target.value || "");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+  fSx.appendChild(lSx);
+  fSx.appendChild(inSx);
+  mtTuneSettingRow(fSx, lSx, inSx);
+  accSuccess.body.appendChild(fSx);
+
+  var fSl = document.createElement("div");
+  fSl.className = "field";
+  var lSl = document.createElement("label");
+  lSl.textContent = "Success link";
+  var inSl = document.createElement("input");
+  inSl.type = "text";
+  inSl.value = target.successLink || "";
+  inSl.oninput = function(e){
+    target.successLink = String(e.target.value || "");
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  };
+  fSl.appendChild(lSl);
+  fSl.appendChild(inSl);
+  mtTuneSettingRow(fSl, lSl, inSl);
+  fSl.style.gridTemplateColumns = "1fr";
+  fSl.style.gap = "6px";
+  fSl.style.alignItems = "stretch";
+  accSuccess.body.appendChild(fSl);
+
+  if(!target.style) target.style = {};
+
+  var st = target.style;
+
+  function setNum(k, v){
+    var n = parseInt(v,10);
+    if(!isNaN(n)){
+      st[k] = n;
+      renderPreview();
+      renderLayers();
+      saveCurrentSiteState();
+    }
+  }
+  function setVal(k, v){
+    st[k] = v;
+    renderPreview();
+    renderLayers();
+    saveCurrentSiteState();
+  }
+
+  accForm.body.appendChild(mtNum("Input balandligi (px)", st.inputHeight != null ? st.inputHeight : 44, function(e){ setNum("inputHeight", e.target.value); }));
+  accForm.body.appendChild(mtNum("Input width (px)", st.inputWidth != null ? st.inputWidth : 280, function(e){ setNum("inputWidth", e.target.value); }));
+  accForm.body.appendChild(mtNum("Input font-size (px)", st.inputFontSize != null ? st.inputFontSize : 16, function(e){ setNum("inputFontSize", e.target.value); }));
+  accForm.body.appendChild(mtNum("Title font-size (px)", st.titleFontSize != null ? st.titleFontSize : 14, function(e){ setNum("titleFontSize", e.target.value); }));
+  accForm.body.appendChild(mtColor("Title color", st.titleColor || "#111111", function(e){ setVal("titleColor", e.target.value); }));
+  accForm.body.appendChild(mtColor("Input matn rangi", st.inputColor || "#111111", function(e){ setVal("inputColor", e.target.value); }));
+  accForm.body.appendChild(mtColor("Input background", st.inputBg || "#ffffff", function(e){ setVal("inputBg", e.target.value); }));
+  accForm.body.appendChild(mtNum("Input border size (px)", st.inputBorderSize != null ? st.inputBorderSize : 1, function(e){ setNum("inputBorderSize", e.target.value); }));
+  accForm.body.appendChild(mtColor("Input border rangi", st.inputBorderColor || "rgba(17,24,39,.12)", function(e){ setVal("inputBorderColor", e.target.value); }));
+  accForm.body.appendChild(mtNum("Input radius (px)", st.inputRadius != null ? st.inputRadius : 12, function(e){ setNum("inputRadius", e.target.value); }));
+  accForm.body.appendChild(mtNum("Oraliq masofa", st.inputGap != null ? st.inputGap : 12, function(e){ setNum("inputGap", e.target.value); }));
+
+  accSubmit.body.appendChild(mtNum("Submit balandligi (px)", st.submitHeight != null ? st.submitHeight : 46, function(e){ setNum("submitHeight", e.target.value); }));
+  accSubmit.body.appendChild(mtNum("Submit width (px)", st.submitWidth != null ? st.submitWidth : 280, function(e){ setNum("submitWidth", e.target.value); }));
+  accSubmit.body.appendChild(mtNum("Submit radius (px)", st.submitRadius != null ? st.submitRadius : 14, function(e){ setNum("submitRadius", e.target.value); }));
+  accSubmit.body.appendChild(mtColor("Submit background", st.submitBg || "#111111", function(e){ setVal("submitBg", e.target.value); }));
+  accSubmit.body.appendChild(mtColor("Submit matn rangi", st.submitColor || "#ffffff", function(e){ setVal("submitColor", e.target.value); }));
+  accSubmit.body.appendChild(mtNum("Submit font-size (px)", st.submitFontSize != null ? st.submitFontSize : 14, function(e){ setNum("submitFontSize", e.target.value); }));
+
+  return { accForm: accForm, accSubmit: accSubmit, accSuccess: accSuccess };
 }
 
 
