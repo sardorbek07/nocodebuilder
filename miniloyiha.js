@@ -2630,6 +2630,12 @@ function mtClosePopupPreview(){
   var body = document.getElementById("mtPopupPreviewBody");
   if(body) body.innerHTML = "";
   if(ov) ov.style.display = "none";
+    try{
+    if(ov && ov.__mtResizeBind){
+      window.removeEventListener("resize", ov.__mtResizeBind);
+      ov.__mtResizeBind = null;
+    }
+  }catch(e){}
   try{ document.documentElement.style.overflow = ""; }catch(e){}
 }
 
