@@ -1450,8 +1450,8 @@ window.mtAddPopupForm = function(){
     closeColor: "#ffffff",
     formKey: formKey,
     fields: [
-      { id: fid(), type: "name", title: "", placeholder: "Sardor", required: true, options: [] },
-      { id: fid(), type: "phone", title: "", placeholder: "Phone", required: true, options: [] }
+      { id: fid(), type: "name", title: "Ismingiz", placeholder: "Sardor", required: true, options: [] },
+      { id: fid(), type: "phone", title: "Telefon raqamingiz", placeholder: "Phone", required: true, options: [] }
     ],
     submitText: "Yuborish",
     successText: "Rahmat, ma'lumotlaringiz yuborildi",
