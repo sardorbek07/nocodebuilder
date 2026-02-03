@@ -8367,7 +8367,7 @@ window.addEventListener("resize", updateDesktopVisibility);
         var gear = document.createElement("button");
         gear.type = "button";
         gear.className = "mt-crm-list-gear";
-        gear.innerHTML = '<img src="https://static.tildacdn.com/tild3533-3335-4134-b137-363961623363/iconoir_settings.svg" alt="">';
+        gear.innerHTML = '<img src="https://static.tildacdn.com/tild6536-3863-4530-a433-343633633736/Vector_58.svg" alt="">';
 
         gear.onclick = function(e){
           e.preventDefault();
