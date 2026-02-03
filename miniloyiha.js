@@ -2644,7 +2644,7 @@ function renderPopupsTray(){
       edit.style.height = "34px";
       edit.style.padding = "0 12px";
       edit.style.justifyContent = "center";
-      edit.textContent = "Edit";
+     edit.textContent = "Tahrirlash";
       edit.onclick = function(e){
         e.preventDefault();
         e.stopPropagation();
@@ -2659,7 +2659,7 @@ function renderPopupsTray(){
       prev.style.height = "34px";
       prev.style.padding = "0 12px";
       prev.style.justifyContent = "center";
-      prev.textContent = "Preview";
+      prev.textContent = "Oldindan ko'rish";
     prev.onclick = function(e){
   e.preventDefault();
   e.stopPropagation();
