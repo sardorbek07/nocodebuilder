@@ -1383,7 +1383,7 @@ window.mtAddStandardForm = function(){
     crmListId: "",
 
     fields: [
-      { id: fid(), type: "name", title: "", placeholder: "Name", required: true, options: [] },
+      { id: fid(), type: "name", title: "", placeholder: "Sardor", required: true, options: [] },
       { id: fid(), type: "phone", title: "", placeholder: "Phone", required: true, options: [] }
     ],
 
@@ -1450,7 +1450,7 @@ window.mtAddPopupForm = function(){
     closeColor: "#ffffff",
     formKey: formKey,
     fields: [
-      { id: fid(), type: "name", title: "", placeholder: "Name", required: true, options: [] },
+      { id: fid(), type: "name", title: "", placeholder: "Sardor", required: true, options: [] },
       { id: fid(), type: "phone", title: "", placeholder: "Phone", required: true, options: [] }
     ],
     submitText: "Yuborish",
