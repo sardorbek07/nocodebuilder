@@ -2656,7 +2656,7 @@ function mtOpenPopupPreview(p){
   var overlayBg = String(p.overlayBg || "rgba(0,0,0,.65)");
   var closeColor = String(p.closeColor || "#ffffff");
 
-  back.style.background = overlayBg;
+ back.style.background = "rgba(0,0,0,.65)";
   modal.style.background = (p.style && p.style.bgColor) || "#ffffff";
   closeBtn.style.color = closeColor;
 
