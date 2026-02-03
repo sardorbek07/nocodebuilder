@@ -2659,7 +2659,7 @@ function renderPopupsTray(){
       prev.style.height = "34px";
       prev.style.padding = "0 12px";
       prev.style.justifyContent = "center";
-      prev.textContent = "Oldindan ko'rish";
+      prev.textContent = "Demo versiya";
     prev.onclick = function(e){
   e.preventDefault();
   e.stopPropagation();
