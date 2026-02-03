@@ -2631,7 +2631,7 @@ function renderPopupsTray(){
       left.style.whiteSpace = "nowrap";
       left.style.overflow = "hidden";
       left.style.textOverflow = "ellipsis";
-      left.textContent = String(p.popupName || "Pop up forma");
+      left.textContent = String(p.popupName || "Pop up");
 
       var right = document.createElement("div");
       right.style.display = "inline-flex";
