@@ -2657,6 +2657,7 @@ function mtOpenPopupPreview(p){
   var closeColor = String(p.closeColor || "#ffffff");
 
   back.style.background = overlayBg;
+  modal.style.background = (p.style && p.style.bgColor) || "#ffffff";
   closeBtn.style.color = closeColor;
 
   var title = String(p.popupTitle || "");
@@ -4934,8 +4935,9 @@ function buildPopupFormSettings(p){
     saveCurrentSiteState();
   }));
 
-accPop.body.appendChild(mtColor("Pop up fon rangi", p.popupBg || "#ffffff", function(e){
-  p.popupBg = e.target.value;
+accPop.body.appendChild(mtColor("Pop up fon rangi", (p.style && p.style.bgColor) || "#ffffff", function(e){
+  if(!p.style) p.style = {};
+  p.style.bgColor = e.target.value;
   renderPreview();
   renderLayers();
   saveCurrentSiteState();
