@@ -2265,40 +2265,123 @@ if(!runValidators()){
 }
 
 
-  var text = (item && item.successText && item.successText.trim())
+  // var text = (item && item.successText && item.successText.trim())
+  //   ? item.successText.trim()
+  //   : "Rahmat, ma’lumotlaringiz yuborildi";
+
+  // var link = (item && item.successLink && item.successLink.trim())
+  //   ? item.successLink.trim()
+  //   : "";
+
+  // var popup = document.createElement("div");
+  // popup.style.position = "fixed";
+  // popup.style.left = "50%";
+  // popup.style.top = "20px";
+  // popup.style.transform = "translateX(-50%)";
+  // popup.style.background = "#111";
+  // popup.style.color = "#fff";
+  // popup.style.padding = "12px 16px";
+  // popup.style.borderRadius = "12px";
+  // popup.style.fontSize = "14px";
+  // popup.style.zIndex = "999999";
+  // popup.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
+  // popup.textContent = text;
+
+  // if(link){
+  //   popup.style.cursor = "pointer";
+  //   popup.onclick = function(){
+  //     window.open(link, "_blank");
+  //   };
+  // }
+
+  // document.body.appendChild(popup);
+
+  // setTimeout(function(){
+  //   if(popup && popup.parentNode){
+  //     popup.parentNode.removeChild(popup);
+  //   }
+  // }, 3000);
+        var text = (item && item.successText && item.successText.trim())
     ? item.successText.trim()
-    : "Rahmat, ma’lumotlaringiz yuborildi";
+    : "Rahmat, ma'lumotlaringiz yuborildi";
 
   var link = (item && item.successLink && item.successLink.trim())
     ? item.successLink.trim()
     : "";
 
+  var overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.left = "0";
+  overlay.style.top = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.background = "rgba(0,0,0,.5)";
+  overlay.style.zIndex = "999998";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+
   var popup = document.createElement("div");
-  popup.style.position = "fixed";
-  popup.style.left = "50%";
-  popup.style.top = "20px";
-  popup.style.transform = "translateX(-50%)";
-  popup.style.background = "#111";
-  popup.style.color = "#fff";
-  popup.style.padding = "12px 16px";
-  popup.style.borderRadius = "12px";
-  popup.style.fontSize = "14px";
+  popup.style.position = "relative";
+  popup.style.width = "250px";
+  popup.style.height = "auto";
+  popup.style.background = "#ffffff";
+  popup.style.borderRadius = "18px";
+  popup.style.padding = "32px 24px";
+  popup.style.boxShadow = "0 20px 60px rgba(0,0,0,.2)";
   popup.style.zIndex = "999999";
-  popup.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
-  popup.textContent = text;
+  popup.style.textAlign = "center";
+
+  var icon = document.createElement("div");
+  icon.textContent = "✓";
+  icon.style.width = "48px";
+  icon.style.height = "48px";
+  icon.style.borderRadius = "999px";
+  icon.style.background = "#e8f5e9";
+  icon.style.color = "#4caf50";
+  icon.style.fontSize = "24px";
+  icon.style.display = "flex";
+  icon.style.alignItems = "center";
+  icon.style.justifyContent = "center";
+  icon.style.margin = "0 auto 16px";
+
+  var txt = document.createElement("div");
+  txt.textContent = text;
+  txt.style.fontSize = "15px";
+  txt.style.color = "#111111";
+  txt.style.lineHeight = "1.4";
+
+  popup.appendChild(icon);
+  popup.appendChild(txt);
 
   if(link){
-    popup.style.cursor = "pointer";
-    popup.onclick = function(){
+    var btn = document.createElement("button");
+    btn.textContent = "Davom etish";
+    btn.style.marginTop = "20px";
+    btn.style.padding = "10px 24px";
+    btn.style.borderRadius = "12px";
+    btn.style.border = "none";
+    btn.style.background = "#111111";
+    btn.style.color = "#ffffff";
+    btn.style.fontSize = "14px";
+    btn.style.cursor = "pointer";
+    btn.onclick = function(){
       window.open(link, "_blank");
+      document.body.removeChild(overlay);
     };
+    popup.appendChild(btn);
   }
 
-  document.body.appendChild(popup);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  overlay.onclick = function(e){
+    if(e.target === overlay) document.body.removeChild(overlay);
+  };
 
   setTimeout(function(){
-    if(popup && popup.parentNode){
-      popup.parentNode.removeChild(popup);
+    if(overlay && overlay.parentNode){
+      overlay.parentNode.removeChild(overlay);
     }
   }, 3000);
 };
@@ -3028,34 +3111,109 @@ if(!Array.isArray(p.fields)) p.fields = fields;
     var text = (p && p.successText && String(p.successText).trim()) ? String(p.successText).trim() : "Rahmat, ma’lumotlaringiz yuborildi";
    var link = (p && p.successLink && String(p.successLink).trim()) ? String(p.successLink).trim() : "";
 
+    var overlay = document.createElement("div");
+overlay.style.position = "fixed";
+overlay.style.left = "0";
+overlay.style.top = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background = "rgba(0,0,0,.5)";
+overlay.style.zIndex = "999998";
+overlay.style.display = "flex";
+overlay.style.alignItems = "center";
+overlay.style.justifyContent = "center";
+
 var popup = document.createElement("div");
-popup.style.position = "fixed";
-popup.style.left = "50%";
-popup.style.top = "20px";
-popup.style.transform = "translateX(-50%)";
-popup.style.background = "#111";
-popup.style.color = "#fff";
-popup.style.padding = "12px 16px";
-popup.style.borderRadius = "12px";
-popup.style.fontSize = "14px";
+popup.style.position = "relative";
+popup.style.width = "250px";
+popup.style.height = "auto";
+popup.style.background = "#ffffff";
+popup.style.borderRadius = "18px";
+popup.style.padding = "32px 24px";
+popup.style.boxShadow = "0 20px 60px rgba(0,0,0,.2)";
 popup.style.zIndex = "999999";
-popup.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
-popup.textContent = text;
+popup.style.textAlign = "center";
+
+var icon = document.createElement("div");
+icon.textContent = "✓";
+icon.style.width = "48px";
+icon.style.height = "48px";
+icon.style.borderRadius = "999px";
+icon.style.background = "#e8f5e9";
+icon.style.color = "#4caf50";
+icon.style.fontSize = "24px";
+icon.style.display = "flex";
+icon.style.alignItems = "center";
+icon.style.justifyContent = "center";
+icon.style.margin = "0 auto 16px";
+
+var txt = document.createElement("div");
+txt.textContent = text;
+txt.style.fontSize = "15px";
+txt.style.color = "#111111";
+txt.style.lineHeight = "1.4";
+
+popup.appendChild(icon);
+popup.appendChild(txt);
 
 if(link){
-  popup.style.cursor = "pointer";
-  popup.onclick = function(){
+  var btn = document.createElement("button");
+  btn.textContent = "Davom etish";
+  btn.style.marginTop = "20px";
+  btn.style.padding = "10px 24px";
+  btn.style.borderRadius = "12px";
+  btn.style.border = "none";
+  btn.style.background = "#111111";
+  btn.style.color = "#ffffff";
+  btn.style.fontSize = "14px";
+  btn.style.cursor = "pointer";
+  btn.onclick = function(){
     window.open(link, "_blank");
+    document.body.removeChild(overlay);
   };
+  popup.appendChild(btn);
 }
 
-document.body.appendChild(popup);
+overlay.appendChild(popup);
+document.body.appendChild(overlay);
+
+overlay.onclick = function(e){
+  if(e.target === overlay) document.body.removeChild(overlay);
+};
 
 setTimeout(function(){
-  if(popup && popup.parentNode){
-    popup.parentNode.removeChild(popup);
+  if(overlay && overlay.parentNode){
+    overlay.parentNode.removeChild(overlay);
   }
 }, 3000);
+// var popup = document.createElement("div");
+// popup.style.position = "fixed";
+// popup.style.left = "50%";
+// popup.style.top = "20px";
+// popup.style.transform = "translateX(-50%)";
+// popup.style.background = "#111";
+// popup.style.color = "#fff";
+// popup.style.padding = "12px 16px";
+// popup.style.borderRadius = "12px";
+// popup.style.fontSize = "14px";
+// popup.style.zIndex = "999999";
+// popup.style.boxShadow = "0 10px 30px rgba(0,0,0,.25)";
+// popup.textContent = text;
+
+// if(link){
+//   popup.style.cursor = "pointer";
+//   popup.onclick = function(){
+//     window.open(link, "_blank");
+//   };
+// }
+
+// document.body.appendChild(popup);
+
+// setTimeout(function(){
+//   if(popup && popup.parentNode){
+//     popup.parentNode.removeChild(popup);
+//   }
+// }, 3000);
 
   };
 
@@ -7455,22 +7613,64 @@ var scriptPart =
 '  });\n' +
 
 '  function mtShowPopup(text, link){\n' +
+'    var overlay=document.createElement("div");\n' +
+'    overlay.style.position="fixed";\n' +
+'    overlay.style.left="0";\n' +
+'    overlay.style.top="0";\n' +
+'    overlay.style.width="100%";\n' +
+'    overlay.style.height="100%";\n' +
+'    overlay.style.background="rgba(0,0,0,.5)";\n' +
+'    overlay.style.zIndex="999998";\n' +
+'    overlay.style.display="flex";\n' +
+'    overlay.style.alignItems="center";\n' +
+'    overlay.style.justifyContent="center";\n' +
 '    var p=document.createElement("div");\n' +
-'    p.style.position="fixed";\n' +
-'    p.style.left="50%";\n' +
-'    p.style.top="20px";\n' +
-'    p.style.transform="translateX(-50%)";\n' +
-'    p.style.background="#111";\n' +
-'    p.style.color="#fff";\n' +
-'    p.style.padding="12px 16px";\n' +
-'    p.style.borderRadius="12px";\n' +
-'    p.style.fontSize="14px";\n' +
+'    p.style.position="relative";\n' +
+'    p.style.width="250px";\n' +
+'    p.style.height="auto";\n' +
+'    p.style.background="#ffffff";\n' +
+'    p.style.borderRadius="18px";\n' +
+'    p.style.padding="32px 24px";\n' +
+'    p.style.boxShadow="0 20px 60px rgba(0,0,0,.2)";\n' +
 '    p.style.zIndex="999999";\n' +
-'    p.style.boxShadow="0 10px 30px rgba(0,0,0,.25)";\n' +
-'    p.textContent=text||"Rahmat, ma\\u2019lumotlaringiz yuborildi";\n' +
-'    if(link){ p.style.cursor="pointer"; p.onclick=function(){window.open(link,"_blank");}; }\n' +
-'    document.body.appendChild(p);\n' +
-'    setTimeout(function(){ if(p&&p.parentNode) p.parentNode.removeChild(p); },3000);\n' +
+'    p.style.textAlign="center";\n' +
+'    var icon=document.createElement("div");\n' +
+'    icon.textContent="✓";\n' +
+'    icon.style.width="48px";\n' +
+'    icon.style.height="48px";\n' +
+'    icon.style.borderRadius="999px";\n' +
+'    icon.style.background="#e8f5e9";\n' +
+'    icon.style.color="#4caf50";\n' +
+'    icon.style.fontSize="24px";\n' +
+'    icon.style.display="flex";\n' +
+'    icon.style.alignItems="center";\n' +
+'    icon.style.justifyContent="center";\n' +
+'    icon.style.margin="0 auto 16px";\n' +
+'    var txt=document.createElement("div");\n' +
+'    txt.textContent=text||"Rahmat, ma\\u2019lumotlaringiz yuborildi";\n' +
+'    txt.style.fontSize="15px";\n' +
+'    txt.style.color="#111111";\n' +
+'    txt.style.lineHeight="1.4";\n' +
+'    p.appendChild(icon);\n' +
+'    p.appendChild(txt);\n' +
+'    if(link){\n' +
+'      var btn=document.createElement("button");\n' +
+'      btn.textContent="Davom etish";\n' +
+'      btn.style.marginTop="20px";\n' +
+'      btn.style.padding="10px 24px";\n' +
+'      btn.style.borderRadius="12px";\n' +
+'      btn.style.border="none";\n' +
+'      btn.style.background="#111111";\n' +
+'      btn.style.color="#ffffff";\n' +
+'      btn.style.fontSize="14px";\n' +
+'      btn.style.cursor="pointer";\n' +
+'      btn.onclick=function(){ window.open(link,"_blank"); document.body.removeChild(overlay); };\n' +
+'      p.appendChild(btn);\n' +
+'    }\n' +
+'    overlay.appendChild(p);\n' +
+'    document.body.appendChild(overlay);\n' +
+'    overlay.onclick=function(e){ if(e.target===overlay) document.body.removeChild(overlay); };\n' +
+'    setTimeout(function(){ if(overlay&&overlay.parentNode) overlay.parentNode.removeChild(overlay); },3000);\n' +
 '  }\n' +
 
 '  function mtDigits(s){ return String(s||"").replace(/\\D+/g,""); }\n' +
