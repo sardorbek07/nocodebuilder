@@ -4852,56 +4852,94 @@ function buildPopupFormSettings(p){
     renderPopupsTray();
     saveCurrentSiteState();
   }));
-
   (function(){
-    var wrap = document.createElement("div");
-    wrap.className = "field";
-
-    var l = document.createElement("label");
-    l.textContent = "Chaqiruv ID";
-    wrap.appendChild(l);
-
-    var row = document.createElement("div");
-    row.style.display = "grid";
-    row.style.gridTemplateColumns = "38px 1fr";
-    row.style.gap = "8px";
-    row.style.alignItems = "center";
-
-    var hash = document.createElement("div");
-    hash.textContent = "#";
-    hash.style.height = "32px";
-    hash.style.display = "flex";
-    hash.style.alignItems = "center";
-    hash.style.justifyContent = "center";
-    hash.style.borderRadius = "10px";
-    hash.style.border = "1px solid rgba(255,255,255,.12)";
-    hash.style.background = "rgba(255,255,255,.06)";
-    hash.style.color = "#fff";
-    hash.style.fontSize = "12px";
-    hash.style.userSelect = "none";
-
     var inp = document.createElement("input");
     inp.type = "text";
-    inp.value = String((p.callId || "").replace(/^#/, "") || "popup");
+    inp.value = String((p.callId || "#popup"));
+    if(inp.value[0] !== "#") inp.value = "#" + inp.value;
+
+    inp.addEventListener("focus", function(){
+      if(inp.selectionStart !== null && inp.selectionStart < 1){
+        try{ inp.setSelectionRange(1, 1); }catch(e){}
+      }
+    });
+
+    inp.addEventListener("keydown", function(e){
+      if(e.key === "Backspace" || e.key === "Delete"){
+        if(inp.selectionStart !== null && inp.selectionStart <= 1 && inp.selectionEnd <= 1){
+          e.preventDefault();
+          try{ inp.setSelectionRange(1, 1); }catch(e2){}
+        }
+      }
+      if(e.key === "Home"){
+        e.preventDefault();
+        try{ inp.setSelectionRange(1, 1); }catch(e2){}
+      }
+    });
+
     inp.oninput = function(){
-      var v = String(inp.value || "").trim();
-      v = v.replace(/\s+/g,"-").replace(/[^a-zA-Z0-9_-]/g,"");
+      var v = String(inp.value || "");
+      if(v[0] !== "#") v = "#" + v;
+      v = "#" + v.slice(1).replace(/\s+/g,"-").replace(/[^a-zA-Z0-9_-]/g,"");
       inp.value = v;
-      p.callId = "#" + (v || "popup");
+      try{ inp.setSelectionRange(inp.value.length, inp.value.length); }catch(e){}
+      p.callId = v || "#popup";
       saveCurrentSiteState();
     };
 
-    mtTuneSettingRow(wrap, l, inp);
-
-    row.appendChild(hash);
-    row.appendChild(inp);
-    wrap.appendChild(row);
-
-    accPop.body.appendChild(wrap);
-
     if(!p.callId) p.callId = "#popup";
-    if(String(p.callId || "")[0] !== "#") p.callId = "#" + String(p.callId || "");
+
+    accPop.body.appendChild(mtField("Chaqiruv ID", inp));
   })();
+  // (function(){
+  //   var wrap = document.createElement("div");
+  //   wrap.className = "field";
+
+  //   var l = document.createElement("label");
+  //   l.textContent = "Chaqiruv ID";
+  //   wrap.appendChild(l);
+
+  //   var row = document.createElement("div");
+  //   row.style.display = "grid";
+  //   row.style.gridTemplateColumns = "38px 1fr";
+  //   row.style.gap = "8px";
+  //   row.style.alignItems = "center";
+
+  //   var hash = document.createElement("div");
+  //   hash.textContent = "#";
+  //   hash.style.height = "32px";
+  //   hash.style.display = "flex";
+  //   hash.style.alignItems = "center";
+  //   hash.style.justifyContent = "center";
+  //   hash.style.borderRadius = "10px";
+  //   hash.style.border = "1px solid rgba(255,255,255,.12)";
+  //   hash.style.background = "rgba(255,255,255,.06)";
+  //   hash.style.color = "#fff";
+  //   hash.style.fontSize = "12px";
+  //   hash.style.userSelect = "none";
+
+  //   var inp = document.createElement("input");
+  //   inp.type = "text";
+  //   inp.value = String((p.callId || "").replace(/^#/, "") || "popup");
+  //   inp.oninput = function(){
+  //     var v = String(inp.value || "").trim();
+  //     v = v.replace(/\s+/g,"-").replace(/[^a-zA-Z0-9_-]/g,"");
+  //     inp.value = v;
+  //     p.callId = "#" + (v || "popup");
+  //     saveCurrentSiteState();
+  //   };
+
+  //   mtTuneSettingRow(wrap, l, inp);
+
+  //   row.appendChild(hash);
+  //   row.appendChild(inp);
+  //   wrap.appendChild(row);
+
+  //   accPop.body.appendChild(wrap);
+
+  //   if(!p.callId) p.callId = "#popup";
+  //   if(String(p.callId || "")[0] !== "#") p.callId = "#" + String(p.callId || "");
+  // })();
 
   accPop.body.appendChild(mtText("Title", p.popupTitle || "", function(e){
     p.popupTitle = String(e.target.value || "");
