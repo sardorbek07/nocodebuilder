@@ -4934,10 +4934,10 @@ function buildPopupFormSettings(p){
     saveCurrentSiteState();
   }));
 
-  accPop.body.appendChild(mtColor("Pop up fon rangi", p.overlayBg || "rgba(0,0,0,.65)", function(e){
-    p.overlayBg = e.target.value;
-    saveCurrentSiteState();
-  }));
+ accPop.body.appendChild(mtColor("Pop up fon rangi", p.popupBg || "#ffffff", function(e){
+  p.popupBg = e.target.value;
+  saveCurrentSiteState();
+}));;
 
   accPop.body.appendChild(mtColor("Yopish (X) rangi", p.closeColor || "#ffffff", function(e){
     p.closeColor = e.target.value;
