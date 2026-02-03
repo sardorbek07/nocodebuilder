@@ -4815,6 +4815,33 @@ function buildPopupFormSettings(p){
     }
   }
 });
+  if(ui && ui.accForm && ui.accForm.body){
+    var nodes = Array.from(ui.accForm.body.children || []);
+    nodes.forEach(function(el){
+      var t = el && el.textContent ? el.textContent.toLowerCase() : "";
+      if(
+        t.indexOf("input width") !== -1 ||
+        t.indexOf("input balandligi") !== -1 ||
+        t.indexOf("input height") !== -1
+      ){
+        el.remove();
+      }
+    });
+  }
+
+  if(ui && ui.accSubmit && ui.accSubmit.body){
+    var nodes2 = Array.from(ui.accSubmit.body.children || []);
+    nodes2.forEach(function(el){
+      var t = el && el.textContent ? el.textContent.toLowerCase() : "";
+      if(
+        t.indexOf("submit width") !== -1 ||
+        t.indexOf("submit balandligi") !== -1 ||
+        t.indexOf("submit height") !== -1
+      ){
+        el.remove();
+      }
+    });
+  }
 
   var accPop = mtAcc("Pop up stillari");
   settingsBody.appendChild(accPop.wrap);
